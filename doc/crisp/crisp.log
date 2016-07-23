@@ -1,0 +1,137 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/MacPorts 2015_8) (preloaded format=pdflatex 2016.3.15)  7 JUL 2016 00:00
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**crisp.tex
+(./crisp.tex
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 44 languages loaded.
+(/opt/local/share/texmf-texlive/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/opt/local/share/texmf-texlive/tex/latex/base/size10.clo
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/opt/local/share/texmf-texlive/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2013/01/14 v2.14 AMS math features
+\@mathmargin=\skip43
+
+For additional information on amsmath, use the `?' option.
+(/opt/local/share/texmf-texlive/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01
+
+(/opt/local/share/texmf-texlive/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks14
+\ex@=\dimen103
+))
+(/opt/local/share/texmf-texlive/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen104
+)
+(/opt/local/share/texmf-texlive/tex/latex/amsmath/amsopn.sty
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count87
+LaTeX Info: Redefining \frac on input line 210.
+\uproot@=\count88
+\leftroot@=\count89
+LaTeX Info: Redefining \overline on input line 306.
+\classnum@=\count90
+\DOTSCASE@=\count91
+LaTeX Info: Redefining \ldots on input line 378.
+LaTeX Info: Redefining \dots on input line 381.
+LaTeX Info: Redefining \cdots on input line 466.
+\Mathstrutbox@=\box26
+\strutbox@=\box27
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
+\macc@depth=\count92
+\c@MaxMatrixCols=\count93
+\dotsspace@=\muskip10
+\c@parentequation=\count94
+\dspbrk@lvl=\count95
+\tag@help=\toks15
+\row@=\count96
+\column@=\count97
+\maxfields@=\count98
+\andhelp@=\toks16
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks17
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks18
+LaTeX Info: Redefining \[ on input line 2665.
+LaTeX Info: Redefining \] on input line 2666.
+) (./crisp.aux)
+\openout1 = `crisp.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+
+[1
+
+{/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
+[4] [5] [6] [7]
+Overfull \hbox (1.02837pt too wide) in paragraph at lines 357--360
+[]\OT1/cmr/m/n/10 If a client re-quests failed as-sump-tions or model and an $\
+OMS/cmsy/m/n/10 h[]i$ \OT1/cmr/m/n/10 or an $\OMS/cmsy/m/n/10 h[]i$
+ []
+
+[8] [9] [10] [11] [12] (./crisp.bbl [13]) [14] (./crisp.aux) ) 
+Here is how much of TeX's memory you used:
+ 858 strings out of 494185
+ 9581 string characters out of 6156888
+ 70640 words of memory out of 5000000
+ 4224 multiletter control sequences out of 15000+600000
+ 9976 words of font info for 36 fonts, out of 8000000 for 9000
+ 430 hyphenation exceptions out of 8191
+ 27i,8n,20p,201b,218s stack positions out of 5000i,500n,10000p,200000b,80000s
+</opt/local/share
+/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/local/share/texm
+f-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></opt/local/share/texmf-tex
+live/fonts/type1/public/amsfonts/cm/cmbx9.pfb></opt/local/share/texmf-texlive/f
+onts/type1/public/amsfonts/cm/cmmi10.pfb></opt/local/share/texmf-texlive/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></opt/local/share/texmf-texlive/fonts/type1/
+public/amsfonts/cm/cmr10.pfb></opt/local/share/texmf-texlive/fonts/type1/public
+/amsfonts/cm/cmr12.pfb></opt/local/share/texmf-texlive/fonts/type1/public/amsfo
+nts/cm/cmr17.pfb></opt/local/share/texmf-texlive/fonts/type1/public/amsfonts/cm
+/cmr6.pfb></opt/local/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.p
+fb></opt/local/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></op
+t/local/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr9.pfb></opt/local
+/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></opt/local/shar
+e/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on crisp.pdf (14 pages, 205642 bytes).
+PDF statistics:
+ 106 PDF objects out of 1000 (max. 8388607)
+ 75 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

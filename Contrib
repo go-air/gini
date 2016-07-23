@@ -1,0 +1,32 @@
+# The end of this file contains a list of "contributors" to Gini.
+# 
+# Gini is licensed under open-to-individual terms.  No company, government, or
+# instituation may own the right to re-license Gini(*). As a result, people
+# contributing to or using Gini need not worry about being hounded by large
+# organisation needs.
+#
+# In these terms, "Contributors" are not authors.  Rather, they are
+# organisations which support the gini project in some concrete form.  Most
+# often, Contributors are companies or organisations that grant individuals
+# copyright ownership of their Gini-Licensed authored works found in the Gini
+# project.
+#
+# This list should be sorted.  Each entry should be in the form <"Organisation
+# Name"> <YEAR> <COUNTRY> <<contact>>
+#
+# Organisation Name must be quoted if it contains white space, and may be an
+# individual.
+#
+# Year should be the first year acting as a contributor to the Gini project.
+# 
+# contact email should be a valid email address
+#
+# (*) The right to re-license is different than the right to use, modify, or
+# redistribute.  Any entity can perform these activities at will.  However, the
+# result will always hold the license under the real authors.  Our contribution
+# mechanism ensures individuals (human beings) are the only type of entity
+# which can become a co-owner of the copyrights.  We are thinking about
+# including AI/software as owner of copyrights provided it is licensed under
+# owned-by-author-who-are-real-people terms.
+"IRI France, SAS" 2016 FR <contact@iri-labs.com>
+

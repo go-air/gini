@@ -1,0 +1,648 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\newcommand\proto[1]{$\langle\mbox{#1}\rangle$}
+
+\begin{document}
+\bibliographystyle{plain}
+\title{CRISP: The CompRessed Incremental SAT Protocol}
+\author{Scott Cotton, IRI France, SAS}
+\begin{abstract}
+We present CRISP, an extensible efficient wire protocol for incremental SAT solving.
+The protocol allows applications to communicate with a remote or local server over
+tcp or unix domain sockets.  It efficiently transfers data andminimizes unnecessary round
+trips.  It is simple, and easily extensible to domains such as optimisation, quantifiers,
+proofs, etc.  An open source reference implementation is available and discussion for
+future versions and extensions takes place in public.
+
+\end{abstract}
+\maketitle
+\section{Introduction}
+SAT solvers are traditionally linked against applications, and very often the 
+application context yields a high ratio of very easy problems to medium or
+hard problems.  "Big gun" SAT solvers are often NOT used in applications because
+of the code complexity and/or hardware requirements.  Additionally, SAT solvers
+are usually written in C or C++, whereas higher level application contexts may involve
+a software stack with many languages and components.  The inter-language bindings
+create integration and computational overhead.  To address these issues and 
+at once provide a useful piece of infrastructure for cloud and distributed deployment,
+we designed CRISP, the CompRessed Incremental SAT Protocol. 
+
+The base protocol can be seen as a wire protocl client-server version of the
+standard incremental SAT solving interface originally defined in
+\cite{DBLP:journals/entcs/EenS03}.
+
+The rest of this paper is organised as follows.  Section \ref{section:protocol}
+details the wire protocol.  Section \ref{section:ext} defines the generic
+extension mechanism and two useful extensions (optimisation and assumption
+based multi-plexing). Section \ref{section:exp} gives some experimental data.
+Section \ref{section:conc} concludes.
+
+
+\section{The Protocol}
+\label{section:protocol}
+
+\subsection{Wire Data}
+
+Every piece of data communicated between the client and the server takes the
+logical form of a uint32, an unsigned 32 bit value.
+
+This space houses literals and communication instructions/directives between
+the client and the server.  These instructions/directives are called
+protocol points in the following.
+
+We only use $17$ protocol points, but to enable extensions, we
+reserve 256 integers for protocol points, at the high end of the range
+representable by uint32. The rest of the space is used to house variables
+and literals, coded in the tradition of SAT solvers (see Adding below).
+
+\subsection{Flow Overview}
+\label{section:flow}
+
+Here we present an overview of the interactions in CRISP.
+
+\begin{enumerate}
+\item Client negotiates connection with server
+\item Client then requests (\proto{add} or \proto{assume}) as many times as it likes.
+ The Server does not respond to these requests.
+ \item Client then requests \proto{solve}.  This enters a loop between the client and the server on the same connection as
+ follows:
+	 \begin{enumerate}
+		 \item Client: \proto{solve}
+	 \item Server: \proto{unknown}$|$\proto{sat}$|$\proto{unsat}$|$\proto{end}
+	 \item Client: \proto{continue}$|$\proto{end}
+	 \end{enumerate}
+ \item Client sends (\proto{model} or \proto{modelfor} or \proto{failed} or \proto{failedfor}) as many times as it likes.
+ Each time it sends one of these operations, the server responds with the requested data.
+ \item Optionally, the client may send \proto{reset}.  In this case, the server forgets added clauses and
+	 the flow goes to item $2$ above.
+ \item Client sends \proto{quit}, both ends disconnect
+\end{enumerate}
+
+In the above, step 3,
+
+\begin{center}
+ (b,c) repeats until server sends \proto{sat}, \proto{unsat}, or \proto{end}
+\end{center}
+
+Thus step 3 can be represented by the regular expresion below, where vertical alignment 
+represents concatenation.
+\begin{center}
+\begin{tabular}{|l|}
+\hline \\
+client:\proto{solve} \\
+(server:\proto{unknown} (client:\proto{continue}$|$client:\proto{end})$^\star$ \\
+(server:\proto{end}$|$\proto{sat}$|$\proto{unsat})\\
+\hline
+\end{tabular}
+\end{center}
+
+
+The meaning of the server sending \proto{unknown} is that it doesn't know the
+answer and is willing and able to make more progress solving the problem.
+The maning of the server initiating \proto{end} (in response to client \proto{solve}
+or client \proto{continue}) that it unable or unwilling to
+make more progress on solving the problem and does not know the answer. 
+
+In this loop, the client does not need to wait between reads and writes,
+since presumably the server is doing the solving.  On the other hand, the
+server needs not try to respond so fast as to eat up unnecessary resources
+So the server may do this at an appropriate frequency.  
+
+If we call the regular expression above S, the allowable overall (error-free)
+flow interactions can be represented by the regular expression
+
+\[1  ((2^{\star}  S  4^{\star})^{\star} 5?)^{\star} 6\]
+
+There are also error conditions, corresponding to further constraints on the
+allowable flows;  these simply abort the sequence and cause a disconnect; these
+are not represented in this overview but rather are detailed below.
+
+\subsection{Varuint Encoding}
+The wire format then uses var-uint encoding (a stream of bytes each of which
+indicates whether it is the last with 1 bit and uses 7bits to encode the
+non-zero LSBs of the value).  This is a standard variable width encoding which
+compresses values which tend to be small.  This works as follows.
+
+Let $u_i$  for $i$ in $0..31$ be the bits of an unsigned 32 bit int u.  The encoding
+of $u$ is a slice of bytes $e= e_0 e_1 \ldots $.
+
+\begin{center}
+\begin{tabular}{l}
+ $e_0\&127$ houses the $7$ most LSB of $u$: here denoted $u_{0..7}$\\
+~~~~If $u \gg 7 = 0$, then the length of $e$ is $1$.\\
+Otherwise $e_1\&127$ houses $u_{7..14}$.\\
+~~~~If $u \gg 14 = 0$, then the length of $e$ is $2$.\\
+Otherwise $e_2\&127$ houses $u_{14..21}$.\\
+...\\
+\end{tabular}
+\end{center}
+
+This continues for all $32$ bits.  Also, For every element $e_i$ of e except the last, $e_i\&128 \neq 0$.
+
+The server may decode a stream of varuint32 data and then, for
+each value $v$, test whether it is a command/code point by testing
+
+\[v >= (2^{32}-1) - 255\]
+
+if true, $v$ is a command, if false, $v$ is a literal.
+
+\subsubsection{Rational}
+We distinguish the special value '0' as a literal to
+zero-terminate clauses and lists of assumptions or lists of failed literals.
+This is conventional and only requires 1 byte in varuint format.  Commands
+happen with much less frequency in the protocol when there is a potential
+need to send lots of data fast (eg loading a big dimacs).  Commands are
+large values and hence have larger varuint size.
+
+\subsection{Protocol Points}
+
+We reserve 256 code points for extensions to learning, optimisation, etc.
+In this proposal we have only the following op codes
+
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline
+		\proto{add} & $(2^{32}-1)$ \\
+		\proto{assume} & $(2^{32}-1) - 1$\\
+		\proto{solve} & $(2^{32}-1) - 2$\\
+		\proto{continue} & $(2^{32}-1) - 3$\\
+		\proto{end} & $(2^{32}-1) - 4$ \\
+		\proto{error} & $(2^{32}-1) - 5$ \\
+		\proto{failed} & $(2^{32}-1) - 6$\\
+		\proto{failedfor} & $(2^{32}-1) - 7$\\
+		\proto{model} & $(2^{32}-1) - 8$ \\
+		\proto{modelfor} & $(2^{32}-1) - 9$ \\
+		\proto{sat} & $(2^{32}-1) - 10$ \\
+		\proto{unsat} & $(2^{32}-1) - 11$ \\
+		\proto{unknown} & $(2^{32}-1) - 12$ \\
+		\proto{quit} & $(2^{32}-1) - 13$\\
+		\proto{reset} & $(2^{32}-1) - 14$\\
+		\proto{key} & $(2^{32}-1) - 15$\\
+		\proto{ext} & $(2^{32}-1) - 16$\\
+		\hline
+\end{tabular}
+\end{center}
+
+The remaining protocol points are for specific extensions.
+
+\subsection{Variables and Literals}
+
+Variables are Boolean (can be either true/false) and each variable is
+associated with a uint32.  A "literal" in propositional logic is just a
+variable or the logical negation of a variable.  CRISP uses standard
+SAT-solver encoding of variables and literals.
+
+If a variable is indicated by some uint32, say $x$, then a literal $m$ over
+$x$ is
+
+$$\begin{array}{ll}
+	x \ll 1 &                \mbox{if }m\mbox{ is positive}\\
+	(x \ll 1) | 1 &            \mbox{if }m\mbox{ is negative}\\
+\end{array}$$
+
+Since we have uint32 coding, and 256 coding points, the maximum variable
+representable in the protocol is
+
+ $$((2^{32}-1) - 256) \gg 1$$
+
+or equivalently
+
+ $$2147483519$$
+
+ \subsection{Connection negotiation}
+
+Upon connecting, the server replies with 
+\begin{enumerate}
+	\item "CRISP" (as 5 uint32s coding the ASCII values of 'C', 'R', 'I', 'S', 'P');
+	\item followed by a uint32 $v$ indicating the protocol version number which is comprised of a
+major version and a minor version.  The major version is the upper 8 MSB
+of $v$ and the minor protocol version is the 24 LSB of $v$.
+\end{enumerate}
+
+Some servers may want to protect access by requring a key.  If they do this,
+then they can simply wait for the first op from the client.  If the first op
+is not \proto{key}, then the server can disconnect the client.
+
+Clients connecting to \proto{key}-passed servers can send the \proto{key} op
+followed by the key length in terms of uint32 atoms (the key must be 4-byte
+aligned).  Then the client sends the key.  After receiving the key, the server
+could just disconnect if it doesn't accept the client.
+
+\subsection{Adding}
+
+Adding adds permanent constraints to the solver on the server side.
+Each constraint is in the form of a clause, which is a disjunction of
+literals.
+
+When the client adds clauses, it sends the \proto{add} op followed by
+a list of clauses, where each clause is a null-terminated list
+of literals.  When it is done adding clauses, it sends a \proto{end}.
+
+The server does not respond to \proto{add} or \proto{end} ops.
+
+\subsection{Assuming}
+
+When the client makes assumptions, it sends the \proto{assume} op followed by
+a null terminated list of literals.  The server does not respond to this
+op.
+
+The server takes into account the assumptions temporarily, only for the next
+call to solve.  Subsequent calls to solve after the next call are not
+effected.
+
+\subsection{Solving}
+
+Solving is the only part of the protocol which involves several
+round trips between the client and the server.
+
+After the client sends \proto{solve}, it reads from the server in a blocking read
+until the server sends a response.  The response is either \proto{sat}, \proto{unsat},
+\proto{unknown}, or \proto{end}.
+
+ If the response is \proto{unknown}, then the client must respond with either
+ \proto{continue} or \proto{end}.  If the client sends \proto{continue},  the protocol enters
+ the same state as if the client had just sent \proto{solve}.  If the client sends
+ \proto{end}, the protocol exits the \proto{solve} state; the client can add more clauses
+ or make more assumptions and try to solve again (or quit).
+
+ If the server response is \proto{sat},\proto{unsat}, or \proto{end} then client must not respond
+ with \proto{continue} or \proto{end}.  Instead, the client may optionally request models
+ if the response was \proto{sat}, or optionally request failed assumptions if the
+ response was \proto{unsat}.  In any event, the client may continue to \proto{add} or
+ \proto{assume} or may \proto{quit}.
+
+\subsection{Models}
+
+Models are valuations of variables in a problem which satisfy the permanent
+constraints and assumptions in the previous \proto{solve} interaction.  CRISP
+supports 2 mechanisms for models: partial and complete models, corresponding
+respectively to the \proto{modelfor} and \proto{model} operators.
+
+The \proto{model} and \proto{modelfor} operators can only be sent if the previous \proto{solve} operator
+ended with a \proto{sat} operator from the server and no \proto{add} or \proto{assume} has taken place since.
+Otherwise, the server sends \proto{error} and disconnectes.
+
+Complete models are obtained using the \proto{model} operator.  The client
+sends \proto{model} and the server responds with a truth value for every variable,
+in the order of variable index/id 1,2,3,.... up until the maximum
+variable used in any added clause or assumption.
+
+The encoding of the truth values is the same for partial and complete models,
+and is described below.
+
+Partial models are obtained by using the \proto{modelfor} operator.  The
+client sends \proto{modelfor} followed by a null terminated list of literals.
+The server responds with the truth value for each of these literals in
+the same order specified specified by the client.
+
+In both \proto{model} and \proto{modelfor}, the list of truth values is encoded by the
+server as follows.  First, the server sends a uint32 indicating how many
+uint32s are to be sent subsequently to communicate the model.  Then:
+
+Let $N$ be the length of the list, and let let $M$ be $\lceil{N/32}\rceil$.
+ Then $M/32$ uint32 values are sent by the server.  Let $u_i$ be the $i$'th such value.
+ The truth value for element $j$ of the list is
+
+ $$u_{j/32} \& (1 \ll j\bmod 32) \neq 0$$
+
+Thus models are communicated in a standard compressed bitvector representation
+with $32$ bit word size.
+
+\subsection{Failed Assumptions}
+Failed assumptions are a subset of the assumptions from the last \proto{solve}
+sequence which are sufficient to render the problem unsat.  Like the \proto{model}
+and \proto{modelfor} operators, there are 2 failed operators, \proto{failed} and
+\proto{failedfor}.
+
+\proto{failed} retrieves a sufficient subset of all previously
+assumed literals to render the last problem posed to \proto{solve} unsat.
+
+\proto{failedfor} specifies a list of assumptions which are of interest to the
+client.  The server responds with the maximal subset of this list which
+intersects what would be returned by \proto{failed}.
+
+Thus, when the client sends \proto{failedfor} it follows this operator with
+a null terminated list of literals. But when the client sends \proto{failed}
+it immediately waits the response from the server.
+
+In both cases, the server replies with a null terminated list of literals.
+If the server replies to \proto{failedfor}, the list of literals in the response
+from the server must respect the order of the list provided by the client
+in \proto{failedfor}.
+
+\subsection{Error Conditions}
+
+Errors are always sent from the server to the client.  Each \proto{error} op
+is followed by a single uint32 value, which encodes more information
+about the error.
+
+Anytime the server responds with an \proto{error}, the server subsequently
+simply closes the connection.
+
+The following are common errors:
+\begin{enumerate}
+	\item If the varuint encoding encodes a number outside the uint32 range
+then the server responds with an error.  The error code is 1.
+
+\item If the client has this error reading from the server, then it must disconnect.
+
+\item If a client requests a model or partial model and the previous solve dis
+not end with \proto{sat}, the server responds with an error.  The error code is 2.
+
+\item If a client requests failed assumptions and the previous solve was not unsat, the
+server responds with an error, the error code is 3.
+
+\item If a client requests failed assumptions or model and an \proto{add} or an \proto{assume}
+has taken place since the last \proto{solve}, the server responds with an error
+whose code is 4.
+
+\item If a client sends an unknown opcode, the server responds with an error
+	whose code is 5.  
+
+\item If the client reads an unknown opcode, it must immediately disconnect.
+
+\item If a protocol opcode is read when data is expected, we have error code 6.
+
+\item Other generic server errors are called "internal server errors", and have
+error code 7.
+\end{enumerate}
+
+\subsection{Reseting}
+The \proto{reset} opcode causes the server to forget all added clauses and assumptions,
+{\em i.e} to go to the state just after connection negotiation.  This is useful
+in a wire protocol because the overhead of creating a connection is higher than
+the overhead of creating/initializing an incremental SAT solver via API.
+
+\section{Extensions}
+\label{section:ext}
+In this section, we mention several possible extensions to CRISP.  We have 
+not yet implemented these, but rather present them to show how easy it 
+is to adapt CRISP to different Boolean reasoning and optimisation tasks 
+and solving requirements.
+
+\subsection{Extension negotiation}
+The \proto{ext} opcode indicates a request from the client to find
+available extensions on the server.  Each extension has 
+\begin{enumerate}
+	\item A unique 16 bit identifier.
+	\item A list of opcodes.
+\end{enumerate}
+
+Thus, in response to \proto{ext}, the server responds with a null terminated list 
+\[
+	E = [(i_0, n_0), (i_1, n_1), \ldots]
+\]
+where each $(i,n)$ is placed into a uint32 ($i$ is the 16 MSB, $n$ is the 16 LSB).  
+Value $(i_j, n_j)$ indicates that extension with identifier $i_j$ has $n_j$ opcodes.
+
+To map extension opcodes to server instances, the client then computes that opcode
+$c$ (zero indexed) in extension at position $i$ in $E$ is
+\[
+	(2^{32}-1) - 255 + \Sigma_{j<i} n_j + c
+\]
+
+This allows different servers to have different sets of extensions all packed into
+the $240$ extension opcode slots, and it allows clients to map such opcodes
+\footnote{This mechanism does require that extensions have unique identifiers.  We recommend
+filing an issue with the Gini project on github to request extension identifiers 
+and definitions.  Short of that, one could always just choose a random number for the
+a new extension identifier to minimize the chances of collision.}.
+
+\subsection{Optimisation}
+
+There are many forms of Boolean optimisation, such as MaxSAT where the problem
+is to find the maximal number of satisfiable clauses, possibly weighted.  Other
+forms include pseuodo-Boolean optimisation, in which constraints and objectives
+can express the number of literals in clauses which are true.  All of these
+forms can be translated to each other, see for example
+\cite{DBLP:journals/jar/LiffitonS08} or \cite{DBLP:journals/jsat/EenS06}.
+
+In this extension, we present a tiny, minimalistic incremental Boolean
+optimisation interface which can also be used to solve a wide variety of
+Boolean optimisation forms provided the problems are coded accordingly.
+
+This extension defines $5$ new opcodes, in the following order.
+
+\begin{enumerate}
+	\item \proto{addmax}.  This opcode adds a literal to the set of literals for which
+		the solver searches for a maximal satisfying assignment.  It is used by 
+		the client anywhere where \proto{add} or \proto{assume} can be used.
+		There is no response from the server.
+	\item \proto{clearmax} This opcode clears the set of literals to maximize.
+		It is used by the client anywhere \proto{add} or \proto{assume} can be used.
+		There is no response from the server.
+	\item \proto{nextlower} This opcode directs the solver to find the next 
+		lower bound on the number of maximisation literals which can be satisfied.
+		It has semantics like \proto{solve} in that it enters a communication
+		loop between the client and the server.  That loop behaves exactly as
+		in \proto{solve}, except it replaces \proto{sat} with \proto{better} (see below).
+	\item \proto{nextupper} This opcode directs the server to find the next
+		upper bound on the number of maximisation literals which can be satisfied.
+		Otherwise, it operates exactly like \proto{nextlower}.
+	\item \proto{better}.  This opcode replaces \proto{sat} in a solver communication
+		sequence for \proto{lowerbound} or \proto{upperbound}. It is sent from 
+		the server when a satisfying assignment increases the lower or upper bound
+		in response to \proto{nextlower} or \proto{nextupper}. Unlike \proto{sat}, 
+		It is followed by the respective bound, coded as another uint32.  Also
+		unlike \proto{sat}, it does not undo the assumptions.
+\end{enumerate}
+
+\subsection{Assumption Multiplexing}
+One interesting possibility which arises when interacting with a SAT problem is
+partitioning and multiplexing single hard problem instances accross several
+cores or machines.  In this section we present an extension which allows
+partitioning problems with assumptions and asking the server to multiplex the
+solving accross different sets of assumptions.  
+
+\subsubsection{Opcode \proto{mux}}
+This extension introduces a new opcode called \proto{mux}, which is used by the
+client and the server to multiplex exchanges on top of the base protocol.  In
+principal, it can also be used for other extensions, though we do not detail
+that here.
+
+The \proto{mux} opcode is a sort of meta code in that it is (almost) always followed by
+an identifier $i$ and another opcode $o$.  The identifier is used to identify which of several
+multiplexed operations are involved in subsequent exchanges between the client
+and the server.  The client uses \proto{mux} only for assumptions and solving.
+For example, to request multiplexed solving under $x$ and $\neg x$, the
+client might send 
+
+\begin{tabular}{l}
+	\proto{mux} $1$ \proto{assume} $x$ $0$\\
+	\proto{mux} $2$ \proto{assume} $\neg x$ $0$\\
+	\proto{mux} $1$ \proto{solve}\\
+	\ldots \\
+	\proto{mux} $2$ \proto{solve}\\
+\end{tabular}
+
+After a send of \proto{mux} $n$ \proto{solve}, the client interacts with the
+server for the solve sequence as usual ({\em i.e.} without \proto{mux}), with the following
+exceptions.  
+
+\begin{enumerate}
+	\item The server prefixes all immediate post-solve replies with \proto{mux} $n$
+		for the appropriate $n$, this includes \proto{sat}, \proto{unsat}, \proto{unknown} and 
+		\proto{end}\footnote{In fact, it is not strictly necessary for the server to provide this
+		information because the response sequence is a deterministic function of the client request
+	sequence, but providing this information simplifies client implementations and provides 
+  the possibility of an additional sanity check}.
+
+  \item The client must respond to \proto{mux} $n$ \proto{sat} with \proto{model}, \proto{modelfor}, or
+		\proto{end}.  If the client responds with \proto{end}, the server must not reply.
+
+	\item The client must respond to \proto{mux} $n$ \proto{unsat} with \proto{failed} \proto{failedfor} or
+		\proto{end}.  If the client responds with \proto{end}, the server must not reply.
+
+	\item The client may, in addition to sending \proto{continue} or \proto{end}
+		as usual in response to a server supplied \proto{mux} $n$ \proto{unknown}, either
+		\begin{enumerate}
+			\item send a new \proto{mux} $m$ \proto{solve}
+		for some $m$ which is not currently in a solve interaction but for which there
+		are assumptions defined.  This tells the server to continue solve sequence $n$ and also 
+		multiplex a new solve sequence $m \neq n$. 
+	\item or, the client may send \proto{mux} $m$ \proto{assume} for some $m$ not in
+		a solve sequence.  This tells the server to continue solve sequence $n$ and also
+		to record a new set of assumptions.
+\end{enumerate}
+\end{enumerate}
+
+In this way, the client may queue parallel solving piecewise to the server, by making
+a request for $2$ solve steps in response to a \proto{unknown}.
+
+\subsubsection{Example Trace}
+To continue the example above, the following is a possible trace between the
+client and the server exercising the various options above.
+
+\begin{tabular}{|llll|}
+	\hline
+	N & {\bf who} & {\bf message} & {\bf queue (mux-id, step)}\\
+	\hline
+	1 & client & \proto{mux} $1$ \proto{assume} $x$ $0$ & $\emptyset$\\
+	2 & client & \proto{mux} $2$ \proto{assume} $\neg x$ $0$ & $\emptyset$ \\
+	3 & client & \proto{mux} $1$ \proto{solve} & $[(1,1)]$ \\
+	4 & server & \proto{mux} $1$ \proto{unknown} & $\emptyset$ \\
+	5 & client & \proto{continue} & $[(1,2)]$ \\
+	6 & server & \proto{mux} $1$ \proto{unknown} & $\emptyset$ \\
+	7 & client & \proto{mux} $2$ \proto{solve} & $[(2,1), (1,3)]$ \\
+	8 & server & \proto{mux} $2$ \proto{unknown} & $[(1,3)]$ \\
+	9 & client & \proto{mux} $3$ \proto{assume} $y$ $0$ & $[(1,3), (2,2)]$\\
+	10 & server & \proto{mux} $1$ \proto{unknown} & $[(2,2)]$\\
+	11 & client & \proto{mux} $3$ \proto{solve} & $[(2,2),(3,1),(1,4)]$\\
+	12 & server & \proto{mux} $2$ \proto{sat} & $[(3,1),(1,4)]$\\
+	13 & client & \proto{model}               & $[(3,1), (1,4)]$ \\
+	14 & server & \ldots $\neg x$ \ldots  & $[(3,1), (1,4)]$\\
+	15 & server & \proto{mux} $3$ \proto{unsat} & $[(1,4)]$ \\
+	16 & client & \proto{end} & $[(1,4)]$\\
+	17 & server & \proto{mux} $1$ \proto{unknown} & $\emptyset$\\
+	18 & client & \proto{end} & $\emptyset$\\
+	19 & server & \proto{mux} $1$ \proto{end} & $\emptyset$\\
+	\hline
+\end{tabular}
+
+\subsubsection{Work Queue -- Order and Size}
+With muxing, the server maintains a fine grained work queue which is ultimately
+completely controlled by the client.  There is exactly one interaction in the protocol which 
+allows the client to request more than one response from the server, which is when the client
+responds to \proto{mux} $m$ \proto{unknown} with \proto{mux} $n$ \proto{solve}.  
+Every time this happens, the server appends the next round of work for $m$ to the queue
+followed by the first round of work for $n$.  The queue is a FIFO and whenever the server 
+has an outstanding work queue and is not expecting a response from the client, the server pops
+the head of the queue and sends the result.  
+
+To keep track of when to expect responses from the server, the client simply
+needs to keep a counter of the size of the work queue, which increments by $1$
+on the initial send of \proto{mux} $n$ \proto{solve}, increments by $2$ every
+time the client sends this in response to \proto{mux} $n$ \proto{unknown}, and
+decrements by $1$ every time the client receives a muxed response from the
+server.  For example, after line $14$ in the trace above, the client knows
+that there are 2 elements in the work queue, so it waits to read from the server
+before sending any new requests.  Similarly, the server knows that whenever the
+work queue is non-empty and it sent a response for a model or failed literals,
+the client will not make a request.
+
+\subsubsection{Mux Queue bounds}
+By convention, the client may send \proto{mux} $0$ to the server to query
+the maximal size of the work queue.  The server responds with a single uint32.
+This number may be useful for partitioning algorithms.
+
+\subsubsection{Mux Summary}
+In summary, in terms of the overall flow of the base protocol outline in
+Section \ref{section:flow}, muxing preserves a similar flow and corresponding
+constraints for each multiplexed solution (and extraction) interaction.
+However, the client {\em must} respond to \proto{sat} and \proto{unsat} even it
+is does not expect a model.  This is necessary so that after each step of the
+protocol who reads and who writes to the connection is well defined and there
+is only one reader.
+
+\subsection{Clause Sharing}
+A common approach to parallel sat solving is running independent solvers with
+different configurations or orderings of data structures and then to have them
+share learned clauses.  It would be beneficial to have an extension which
+enabled this to work in a distributed fashion as well.  In fact, this has
+already been implemented and evaluated with mpi (message passing interface).
+However, mpi is meant for scientific cluster computing and each implementation
+uses different message encodings.  A simple agreed upon protocol for clause
+sharing would enable different solvers to interact in a wider variety of
+computing environments. 
+
+Hence, we propose a crisp extension called clause sharing.  The extension
+uses the \proto{add} encoding of clauses to publish and retrieve clauses.
+We define 4 new protocol points for this extension.
+\begin{enumerate}
+	\item \proto{share} This protocol point is injected by the client
+		immediately after she is done sending \proto{add}.  It is a directive
+		to the server to share clauses with the client for the problem defined
+		by the previous \proto{add}.  The server responds with \proto{ok} if
+		it is willing to run a solver or communicate with another solver to share
+		clauses.  Otherwise, the server responds with \proto{end}.
+	\item \proto{putc} This protocol point is injected by the client
+		during a solve loop, whenever the client may otherwise send
+		\proto{continue}.  It is followed by a set of clauses encoded
+		as in \proto{add} (ie ended with \proto{end}).  The server simply interprets this as an
+		implicit \proto{continue} and may answer as in the core CRISP
+		protocol
+
+	\item \proto{getc}
+		This protocol point is also injected by the client whenever she
+		may otherwise send \proto{continue}.  The server responds with
+		a set of clauses encoded as in add, ending with \proto{end}. The
+		server may also respond with \proto{sat}, \proto{unsat}, or \proto{end}
+		instead of with a set of clauses.
+\end{enumerate}
+
+In this case, the client may in fact be a solver.  The server may also be 
+
+
+\section{Experiments}
+\label{section:exp}
+We measured the sizes of varint encoding based compression compared to
+dimacs format and gzip'd dimacs format.
+
+
+\section{Conclusion}
+\label{section:conc}
+We have presented an efficient wire protocol for incremental sat solving which 
+can be used to relegate SAT solving in applications to an external server,
+possibly with dedicated hardware.  The protocol is simple, compact, minimizes
+round trips, provides compression, and is easily extensible to various domains.
+From the client point of view, it can be used as a drop in replacement for incremental 
+sat applications.  
+
+From a solver developer point of view, the server side is completely isolated
+from the calling application.  As a result, a solver developer can use 
+arbitrary hardware, programming language or style, and make arbitrary use of 
+operating system resources independent of the application.
+
+Moreover, the protocol provides a simple, useful piece of infrastructure for
+distributed solving, as any solvers which are integrated into a server (or can
+serve the protocol themselves) can be used to solve sub problems of a hard
+problem with assumptions. Moreover, the client-server paradigm makes this
+composable: the server can again be a client to make use of other servers.
+
+We would like to thank Daniel Leberre and Armin Biere for helpful discussion
+during the development of CRISP.
+
+\bibliography{crisp}
+\end{document}

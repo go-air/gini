@@ -1,0 +1,19 @@
+\begin{thebibliography}{1}
+
+\bibitem{DBLP:journals/entcs/EenS03}
+Niklas E{\'{e}}n and Niklas S{\"{o}}rensson.
+\newblock Temporal induction by incremental {SAT} solving.
+\newblock {\em Electr. Notes Theor. Comput. Sci.}, 89(4):543--560, 2003.
+
+\bibitem{DBLP:journals/jsat/EenS06}
+Niklas E{\'{e}}n and Niklas S{\"{o}}rensson.
+\newblock Translating pseudo-boolean constraints into {SAT}.
+\newblock {\em {JSAT}}, 2(1-4):1--26, 2006.
+
+\bibitem{DBLP:journals/jar/LiffitonS08}
+Mark~H. Liffiton and Karem~A. Sakallah.
+\newblock Algorithms for computing minimal unsatisfiable subsets of
+  constraints.
+\newblock {\em J. Autom. Reasoning}, 40(1):1--33, 2008.
+
+\end{thebibliography}

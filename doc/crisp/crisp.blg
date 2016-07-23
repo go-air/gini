@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/MacPorts 2015_8)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: crisp.aux
+The style file: plain.bst
+Database file #1: crisp.bib
+You've used 3 entries,
+            2118 wiz_defined-function locations,
+            519 strings with 4484 characters,
+and the built_in function-call counts, 965 in all, are:
+= -- 99
+> -- 39
+< -- 0
++ -- 15
+- -- 12
+* -- 74
+:= -- 168
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 15
+chr.to.int$ -- 0
+cite$ -- 3
+duplicate$ -- 33
+empty$ -- 76
+format.name$ -- 12
+if$ -- 193
+int.to.chr$ -- 0
+int.to.str$ -- 3
+missing$ -- 3
+newline$ -- 18
+num.names$ -- 6
+pop$ -- 9
+preamble$ -- 1
+purify$ -- 12
+quote$ -- 0
+skip$ -- 24
+stack$ -- 0
+substring$ -- 72
+swap$ -- 3
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 12
+warning$ -- 0
+while$ -- 12
+width$ -- 4
+write$ -- 35

@@ -1,0 +1,416 @@
+\documentclass[twoside,11pt]{article}
+
+\usepackage{jsat}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{pstricks}
+\usepackage{pst-tree}
+
+\input epsf 
+\special{papersize=8.5in,11in}
+
+\jsatheading{1}{2004}{25-30}
+\ShortHeadings{March\_eq: Efficiency and Additional Reasoning}
+{M.J.H. Heule et al.}
+\firstpageno{25}
+
+\begin{document}
+
+\title{March\_eq: Implementing Efficiency and\\ Additional Reasoning into a Lookahead SAT-Solver}
+
+\author{\name Marijn J.H. Heule\thanks{Supported by the Dutch Organization for
+	Scientific Research (NWO) under grant 617.023.306.}
+	 \email m.j.h.heule@ewi.tudelft.nl \\
+	 \name Mark Dufour \email m.dufour@student.tudelft.nl \\
+       \name Hans van Maaren \email h.vanmaaren@ewi.tudelft.nl \\
+	 \addr Department of Software Technology, \\
+	 Faculty of Electrical Engineering, Mathematics and Computer Sciences, \\
+	 Delft University of Technology 
+       \AND
+       \name Joris E. van Zwieten \email zwieten@ch.tudelft.nl \\
+	 \addr Department of Mediamatics, \\
+	 Faculty of Electrical Engineering, Mathematics and Computer Sciences, \\
+	 Delft University of Technology}
+       
+\maketitle
+
+\begin{abstract}
+In this paper, several techniques are discussed that make the lookahead architecture
+for satisfiability ({\sc Sat}) solvers more competing. Our contribution consists of
+reduction of the computational costs to perform lookahead and the cheap integration
+of both equivalence reasoning and local learning. Most proposed techniques are 
+illustrated with experimental results of their implementation in our solver {\sf march\_eq}. 
+\end{abstract}
+
+\keywords{SAT-solver, lookahead, equivalence reasoning, local learning}
+
+\published{September 2004}{October 2004}{November 2004}
+
+\section{Introduction}
+\label{sec:intro}
+
+\newcommand{\Sat}{{\sc Sat} }
+\newcommand{\Diff}{{\sc Diff} }
+\newcommand{\iupf}[1]{IUP($\mathcal{F} \cup \{ #1 \}$)}
+
+Lookahead \Sat solvers usually consist of a simple DPLL algorithm~\cite{Davis:1962} and a more
+sophisticated \emph{lookahead procedure} to determine an effective branch variable.
+The lookahead procedure measures the effectiveness of variables by performing
+\emph{lookahead} on a set of variables and evaluates the reduction of the formula.
+We refer to the lookahead on variable $x$ as the Iterative Unit Propagation (IUP) on 
+a formula with additional unit clause $x$ (in short \iupf{x}). The effectiveness of a variable $x_i$
+is obtained using a lookahead evaluation function (in short {\sc Diff}), which evaluates the difference
+between $\mathcal{F}$ and and the reduced formula after \iupf{x_i}. A widely used \Diff
+counts the newly created binary clauses.
+
+Besides the selection of a branch variable, the lookahead procedure may detect \emph{failed literals}:
+If the lookahead on $\lnot x$ results in a conflict, $x$ is forced to true. Detection of failed literals
+could result in a reasonable reduction of the DPLL-tree.
+
+Last decade, several enhancements have been implemented in making the lookahead {\sc Sat} solvers more powerful. 
+In {\sf satz} by Li~\cite{Li:1997} a heuristics {\sc prop}$_z$ is used, which restricts the number of 
+variables that enter the lookahead procedure. Especially on random instances applying these heuristics 
+results in a clear performance gain. However, the use of this heuristics is not clear from a general viewpoint. 
+Experiments with our pre-selection heuristics show that different benchmark families 
+require different numbers of variables entering the lookahead phase to perform optimally.
+
+Since much reasoning is already performed during each node of the DPLL-tree, it is relatively
+cheap to extend the lookahead with (some) additional reasoning. For instance: Integration of equivalence reasoning in 
+{\sf satz} - implemented in {\sf eqsatz}~\cite{Li:2000} - made it possible to solve various crafted 
+and real-world problems which were beyond the reach of existing techniques.  However, the performance 
+may drop significantly on some problems, due to the integrated equivalence reasoning. Our alternative 
+variant of equivalence reasoning extends the set of problems which favors from its integration and practically
+removes the disadvantages. 
+
+Another form of additional reasoning is implemented in the {\sf OKsolver}\footnote{Version 1.2}~\cite{Kullmann:2002}
+\emph{local learning}. When performing lookahead on $x$, any unit clause $y_i$ found means 
+that binary clause $\lnot x \lor y_i$ is logically implied by the formula, and thus can be "learned", 
+i.e. added to the current formula. Like equivalence reasoning, addition
+of these local learned resolvents could both increase and decrease the performance
+(depending on the formula). We propose a partial addition of these resolvents
+that will practically always result in a speed-up.
+
+Generally, lookahead \Sat solvers are effective on relatively small, hard formulas. 
+Due to the high computational costs of the lookahead procedure, elaborate
+problems are often solved more efficiently by other techniques. Reduction of
+these costs is essential to make lookahead techniques more competing on a wider
+range of benchmarks problems. In this paper, we suggest (1) several techniques
+to reduce these costs and (2) a cheap integration of additional reasoning. This way, 
+benchmarks that do not profit form the additional reasoning will not be
+significantly harder to solve.
+
+Most topics discussed in this paper are illustrated with experimental results showing the 
+performance gains by our proposed techniques. Benchmarks range from random 3-\Sat near the 
+threshold~\cite{Mitchell:1992}, to bounded model checking ({\tt longmult}~\cite{Biere:1999},
+{\tt zarpas}~\cite{LeBerre:2003}) factoring problems ({\tt pylala braun}~\cite{Simon:2002}), 
+{\tt quasigroup}~\cite{Zhang:2000} and crafted({\tt stanion hwb}~\cite{LeBerre:2003}) problems. Only unsatisfiable instances
+ were selected to provide a more stable overview.
+
+ All techniques are compared with a reference variant of {\sf march\_eq} which is slightly more
+ optimised than {\sf march\_eq\_100}; the solver that won two categories of the
+ {\sc Sat 2004} competition~\cite{Sat2004}. Besides the recent optimasations this variant has uses exactly
+ the  same techniques as the winning variant: full (100\%) look-ahead, addition of all constraint
+ resolvents, tree-based look-ahead, equivalence reasoning, and removal of inactive clauses.
+ All these techniques are discussed below.
+
+\section{Hierarchy Example}
+\label{sec:hierarchy}
+[Always write something at the beginning of a section, before starting new subsections.]
+\subsection{First Sub-section Level}
+\subsubsection{Second Sub-section Level}
+[section ommitted]
+
+\section{Tree-based Lookahead}
+\label{sec:tree}
+
+As {\sf march\_eq} performs an expensive, iterative look-ahead procedure in each node of the decision tree,
+we have put a substantial amount of effort into optimizing the respective part of the program. The
+structure of our look-ahead procedure is based on the observation that different literals that we
+plan to look-ahead on, often entail certain shared implications, and that we can form 'sharing'
+trees out of these relations, which may be used to reduce the amount of times these implications 
+have to be propagated during look-ahead.
+
+To give an example of how this works, suppose that two look-ahead literals share a certain implication. 
+In this simple case, we could propagate the shared implication first, followed by a propagation of one
+of the look-ahead literals, backtracking the latter, then propagating the other look-ahead literal and 
+only in the end backtracking to the initial state. This way, the shared implication has been propagated
+only once. In graphical form:
+
+\psset{framesep=1pt, dotsize=4pt,treefit=loose,arrowsize=5pt}
+\begin{figure}[ht]
+\begin{minipage}{0.4\textwidth}
+   \pstree[framesep=3pt, treenodesize=1.8, levelsep=2.0, treemode=U, arrows=<-]
+      {\Tr[name=N]{\psframebox{\begin{tabular}{@{\ }c@{\ }}$\mathcal{F}$\end{tabular}}}}
+      {\pstree[levelsep=1.8]
+        {\Tr[name=A]{\psframebox{\begin{tabular}{@{\ }c@{\ }}$a$\end{tabular}}}}
+        {\Tr[name=B]{\psframebox{\begin{tabular}{@{\ }c@{\ }}$b$\end{tabular}}}
+         \Tr[name=C]{\psframebox{\begin{tabular}{@{\ }c@{\ }}$c$\end{tabular}}}}}
+  % Other connections
+  \small
+  \psset{shortput=nab,arrowsize=5pt, arrows=<-,labelsep=5pt}
+  \ncarc[linestyle=dashed,arcangle=-30]{B}{A}_[npos=.5]{\Tcircle{2}}
+  \ncarc[linestyle=dashed,arcangle=-30]{A}{B}_[npos=.5]{\Tcircle{3}}
+  \ncarc[linestyle=dashed,arcangle=-30]{C}{A}_[npos=.5]{\Tcircle{4}}
+  \ncarc[linestyle=dashed,arcangle=-30]{A}{C}_[npos=.5]{\Tcircle{5}}
+  \psset{labelsep=8pt}
+  \ncarc[linestyle=dashed,arcangle=-30]{A}{N}_[npos=.5]{\Tcircle{1}}
+  \ncarc[linestyle=dashed,arcangle=-30]{N}{A}_[npos=.5]{\Tcircle{6}}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth} 
+ \centering
+ \begin{tabular}{p{40pt}l}
+ \pstree[treemode=R, levelsep=1.0, arrows=->]{\Tr{}}{\Tr{}} & \raisebox{-3pt}{implication}\\
+ \pstree[treemode=R, levelsep=1.0, arrows=->, linestyle=dashed]{\Tr{}}{\Tr{}} & \raisebox{-3pt}{action}\\\ 
+ \\
+ $\quad$ \Tcircle{1}{} & \raisebox{-3pt}{propagate $a$}\\
+ $\quad$ \Tcircle{2}{} & \raisebox{-3pt}{propagate $b$}\\
+ $\quad$ \Tcircle{3}{} & \raisebox{-3pt}{backtrack $b$}\\
+ $\quad$ \Tcircle{4}{} & \raisebox{-3pt}{propagate $c$}\\
+ $\quad$ \Tcircle{5}{} & \raisebox{-3pt}{backtrack $c$}\\
+ $\quad$ \Tcircle{6}{} & \raisebox{-3pt}{backtrack $a$}\\
+ \end{tabular}
+\end{minipage}
+\caption{Graphical form of an implication tree with corresponding actions.}
+\end{figure}
+
+The implications among $a$, $b$ and $c$ form a small tree. Some thought reveals that the above process, when
+applied recursively, works for arbitrary trees. Based on this, our solver extracts, prior to look-ahead, 
+trees from the implications known to exist among the literals selected for look-ahead, such that each
+literal occurs in exactly one tree. The look-ahead procedure is improved by recursively visiting these
+trees. Of course, the more dense the implication graph, the more possibilities there are for forming
+trees, so local learning will in many cases be an important catalyst for the effectiveness of this method.
+
+Unfortunately, there are many ways of extracting trees from a graph, such that each vertex occurs in exactly
+one tree. Large trees are obviously desirable, as they imply more sharing, as does having literals with the
+most impact on the formula near the root of a tree. To this end, have developed a simple heuristic. More
+involved methods would probably give better results, although optimality in this area could easily mean we
+are solving NP-complete problems again. We consider this an interesting direction for future research.
+
+Our heuristic requires a list of predictions to be available, of the relative amount of propagations that
+each look-ahead literal implies, to be able to construct trees that share as much of these as possible. 
+In the case of {\sf march\_eq}, the pre-selection heuristic provides us with such a list.
+
+The heuristic now travels this list once, in the order of decreasing prediction, while along the way 
+constructing trees out of the corresponding literals. It does this by determining for each literal, 
+if available, one other look-ahead literal that will become its parent in some tree. When a literal 
+is assigned a parent, this relationship remains fixed. At the outset, as much trees are created as 
+there are look-ahead literals, each consisting of just the corresponding literal.
+
+More specifically, for each literal that it encounters, the heuristic checks whether this literal
+is implied by any other look-ahead literals, that are the root of some tree. If any, these are made 
+child nodes of the node corresponding to the implied literal. If not already encountered, these child 
+nodes are now recursively checked in the same manner. At the same time, we remove the corresponding 
+elements from the list, so that each literal will be checked exactly once, and will receive a position 
+within exactly one tree.
+
+As an example, we show the process for a small set of look-ahead literals, that share some implications.
+A gray box denotes the current position: \\ \vspace{-40pt}
+
+\newcommand{\treenodepos}[1]{\pstree[treenodesize=1, levelsep=1.2, treemode=U, arrows=<-]
+{\Tr{\psframebox{\begin{tabular}{@{\ }c@{\ }}$#1$\end{tabular}}}}}
+\newcommand{\graynodepos}[1]{\pstree[treenodesize=1, levelsep=1.2, treemode=U, arrows=<-]
+{\Tr{\psframebox[fillstyle=solid,fillcolor=lightgray]{\begin{tabular}{@{\ }c@{\ }}$#1$\end{tabular}}}}}
+\newcommand{\treenodeneg}[1]{\pstree[treenodesize=1, levelsep=1.2, treemode=U, arrows=<-]
+{\Tr{\psframebox{\begin{tabular}{@{}c@{}}$\lnot #1$\end{tabular}}}}}
+
+\begin{figure}[ht]
+\centering
+\begin{minipage}[b]{0.45\textwidth}
+ \centering
+  \graynodepos{a}{} \treenodeneg{a}{} \treenodepos{b}{} \treenodepos{c}{} \treenodepos{d}{} 
+  \treenodepos{e}{} \treenodeneg{f}{} \treenodepos{g}{}
+  \\ \vspace{\baselineskip} (i)
+\end{minipage} \hfill
+\begin{tabular}{|c}\multicolumn{1}{@{}c@{\ \ \ \ }}{}\vspace{-80pt}\\ \\ \\ \\ \\ \\ \end{tabular}
+\begin{minipage}[b]{0.45\textwidth}
+	\centering
+  \treenodepos{a}
+  {\treenodepos{b}{} \graynodepos{c}{}}
+  \treenodeneg{a}{} \treenodepos{d}{} \treenodepos{e}{} \treenodeneg{f}{} \treenodepos{g}{}
+  \\ \vspace{\baselineskip} (ii)
+\end{minipage} 
+\begin{minipage}[b]{0.35\textwidth}
+  \centering
+  \vspace{-20pt}
+  \treenodepos{a}
+  {\treenodepos{b}{} \treenodepos{c}{\treenodepos{d}{}}}
+  \treenodeneg{a}{} \graynodepos{e}{} \treenodeneg{f}{} \treenodepos{g}{}
+  \\ \vspace{\baselineskip} (iii)
+\end{minipage} \hfill
+\begin{tabular}{|c}\multicolumn{1}{@{}c@{\ \ }}{}\vspace{-150pt}\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \end{tabular}
+\begin{minipage}[b]{0.3\textwidth}
+  \centering
+  \vspace{-20pt}
+  \treenodepos{a}
+  {\treenodepos{b}{} \treenodepos{c}{\treenodepos{d}{}}}
+  \treenodeneg{a}{} \treenodepos{e}{\treenodeneg{f}{}} \graynodepos{g}{}
+  \\ \vspace{\baselineskip} (iv)
+\end{minipage} \hfill
+\begin{tabular}{|c}\multicolumn{1}{@{}c@{\ \ }}{}\vspace{-150pt}\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \end{tabular}
+\begin{minipage}[b]{0.25\textwidth}
+  \centering
+  \vspace{-20pt}
+  \treenodepos{g}{ \treenodepos{a} {\treenodepos{b}{} \treenodepos{c}{\treenodepos{d}{}}}}
+  \treenodeneg{a}{} \treenodepos{e}{\treenodeneg{f}{}} 
+  \\ \vspace{\baselineskip} (v)
+\end{minipage} 
+
+\caption{Five steps of building implication trees.}
+\end{figure}
+
+Because of the order in which the list is traveled, literals which have received higher predictions are
+made into parent nodes as early as possible.  This is important, because of the fact that it is often 
+possible to extract many different trees from an implication graph, and because every literal should 
+occur in exactly one tree.
+
+Having implication trees available opens up several possibilities of going beyond resolution. One such 
+possibility is to detect implied literals. Whenever a node has descendants that are complementary, 
+clearly the corresponding literal is implied. By approximation, we detect this for the most important 
+literals, as these should have ended up near the roots of larger trees, by the above heuristic. For 
+solvers unable to deduce such implications by themselves, a simple, linear-time algorithm that scans 
+the trees may be used.
+
+Some intriguing ideas for further research have occurred to us during the course of developing our 
+tree-based lookahead procedure, but which, due to time constraints we have not been able to pursue. 
+One possible extension would be to add variables, that both positively and negatively imply some 
+look-ahead literal, as full-fledged look-ahead variables. This way, we may discover important, but 
+previously undetected variables to perform look-ahead, and possibly branch upon. Because of the 
+inherent sharing, the overhead of doing this will be smaller than without a tree-based lookahead.
+
+\begin{table}[h]
+\centering
+\caption{Performance of {\sf march\_eq} on several benchmarks with and without the use of tree-based lookahead.}
+\begin{tabular}{|@{ $ $ }l@{ $ $ }|r@{ $ $ }|@{ $ $ }r@{ $ $ }|r@{ $ $ }| @{ $ $ }r@{ $ $ }|r@{ $ $ }|} \cline{2-5}
+
+\multicolumn{1}{c|}{}&
+\multicolumn{2}{c|}
+{\begin{tabular}{c}
+\bf normal\\
+\bf lookahead
+\end{tabular}} &
+
+\multicolumn{2}{c|}
+{\begin{tabular}{c}
+\bf tree-based\\
+\bf lookahead
+\end{tabular}}  \\ \cline{1-6}
+{\bf	Benchmarks} &	$ $ time({\it s}) & treesize &	$ $ time({\it s}) & treesize &	
+									  $ $ speed-up\\ \hline
+
+{\tt	unsat250} (100)	&	1.24	&	3428.5	&	1.45	&	3391.7	&	-16.94	\%	\\ \hline
+{\tt	unsat350} (100)	&	40.57	&	74501.7	&	48.78	&	73357.2	&	-20.24	\%	\\ \hline
+{\tt	hwb-n20-01	}&	29.55	&	184363	&	23.65	&	183553	&	19.97	\%	\\ \hline
+{\tt	hwb-n20-02	}&	40.93	&	227237	&	30.91	&	222251	&	24.48	\%	\\ \hline
+{\tt	hwb-n20-03	}&	25.88	&	155702	&	21.70	&	163984	&	16.15	\%	\\ \hline
+{\tt	longmult8	}&	332.64	&	7918	&	90.80	&	8149	&	72.70	\%	\\ \hline
+{\tt	longmult10	}&	1014.09	&	10861	&	226.31	&	11597	&	77.68	\%	\\ \hline
+{\tt	longmult12	}&	727.01	&	4654	&	176.85	&	5426	&	75.67	\%	\\ \hline
+{\tt	pb-unsat-35-4-03	}&	1084.08	&	19093	&	662.93	&	19517	&	38.85	\%	\\ \hline
+{\tt	pb-unsat-35-4-04	}&	1098.50	&	19493	&	659.04	&	19364	&	40.01	\%	\\ \hline
+{\tt	quasigroup3-9	}&	8.85	&	1508	&	7.97	&	1495	&	9.94	\%	\\ \hline
+{\tt	quasigroup6-12	}&	78.75	&	1339	&	58.05	&	1311	&	26.29	\%	\\ \hline
+{\tt	quasigroup7-12	}&	13.03	&	268	&	10.03	&	256	&	23.02	\%	\\ \hline
+{\tt	rule14\_1\_15dat	}&	25.62	&	0	&	20.70	&	0	&	19.20	\%	\\ \hline
+{\tt	rule14\_1\_30dat	}&	192.30	&	0	&	186.27	&	0	&	3.14	\%	\\ \hline
+
+
+\multicolumn{1}{c}{}\\ \end{tabular}
+
+\label{tab:tree}
+
+\end{table}
+
+
+
+Also, once trees have been created, we could include non-lookahead literals in the sharing, as well 
+as in the checking of implied literals. As for the first, suppose that literals $a$ and $b$ imply 
+some literal $c$. In this case we could share not just the propagation of $c$, but also that of 
+any other shared implications of $a$ and $b$. Sharing among tree roots could be exploited in the 
+same manner, with the difference that in the case of many shared implications, we would have to 
+determine which trees could best share implications with which other trees. More in general, it 
+might be a better idea to look more in detail at possibilities of sharing, than the simple heuristic 
+we have used.
+
+\section{Theory}
+
+\newtheorem*{theorem}{Theorem 1}
+
+\begin{theorem}\label{th:CR}
+
+Unless P equals NP, \dots\\
+
+\smallskip \noindent {\bf Proof:} 
+{\em Obvious.
+\hfill $\Box$}
+%
+\end{theorem} % after proof to get space between proof & following text
+
+\noindent [section ommitted]
+\\
+
+\acks{The authors wish to thank Arjen van Lith for designing the JSAT logo. We also thank
+our anonymous reviewers for their comments.
+}
+
+\appendix
+\section*{Appendix A. March\_eq Source Code}
+[section ommitted]
+
+\vskip 0.2in
+
+\begin{thebibliography}{99}
+
+\bibitem{Mitchell:1992} D. Mitchell, B. Selmon and H. Levesque,
+    {Hard and easy distributions of SAT problems}.
+    {\it Proceedings of AIII-1992} (1992), 459--465.
+
+\bibitem{LeBerre:2003}
+    D. Le Berre and L. Simon,
+    {The essentials of the SAT'03 Competition}.
+    Springer-Verlag, {\it Lecture Notes in Comput. Sci.} {\bf 2919} (2004), 452--467.
+
+\bibitem{Biere:1999} A. Biere, A. Cimatti, E.M. Clarke, Y. Zhu,
+    {Symbolic model checking without BDDs}.
+    in {\it Proc. Int. Conf. Tools and Algorithms for the Construction and Analysis of Systems},
+    Springer-Verlag, {\it Lecture Notes in Comput. Sci.} {\bf 1579} (1999), 193--207.
+
+\bibitem{Davis:1962} M. Davis, G. Logemann, and D. Loveland,
+    {A machine program for theorem proving}.
+    {\it Communications of the ACM} {\bf 5} (1962), 394--397.
+
+\bibitem{Kullmann:2002} O. Kullmann,
+    {Investigating the behaviour of a SAT solver on random formulas}.
+    Submitted to {\it Annals of Mathematics and Artificial Intelligence} (2002).
+
+\bibitem{Li:1997} C.M. Li and Anbulagan,
+    { Look-Ahead versus Look-Back for Satisfiability Problems}.
+    Springer-Verlag, {\it Lecture Notes in Comput. Sci.} {\bf 1330} (1997), 342--356.
+
+\bibitem{Li:2000} C.M. Li,
+    {Equivalent literal propagation in the DLL procedure}.
+    {\it The Renesse issue on satisfiability} (2000).
+    {\it Discrete Appl. Math.} {\bf 130} (2003), no.~2, 251--276.
+
+\bibitem{Sat2004} L. Simon,
+    {Sat'04 competition homepage}.\\
+    \url{http://www.lri.fr/~simon/contest/results/}.
+
+\bibitem{Simon:2002} L. Simon, D. Le Berre, and E. Hirsch,
+    { The SAT 2002 competition}.
+    Accepted for publication in {\it Annals of Mathematics and
+    Artificial Intelligence} ({\it AMAI}) {\bf 43} (2005), 343--378.
+
+\bibitem{Zhang:2000}H. Zhang and M.E. Stickel, {Implementing the Davis-Putnam Method}.
+    {\it SAT2000} (2000), 309--326.
+	
+	
+\end{thebibliography}
+
+
+\end{document}
+
+
+
+
+
+
