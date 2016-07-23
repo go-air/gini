@@ -111,7 +111,7 @@ in parallel. This can give linear speed up in tasks, such as PDR/IC3, which
 generate lots of assumptions.
 
 ## Concurrency package
-Gini provides a concurrency package which implements a concurrent solver.
+A concurrent solver is in the works but not yet publicly available.
 
 
 # CRISP
@@ -135,8 +135,8 @@ CRISP also allows language independent incremental SAT solving.  The application
 and solvers can be readily implemented without the headache of synchronizing
 programming language, compilers, or coding style.
 
-We are planning on implementing some exciting CRISP extensions, namely the
-multiplexing interface which will enable (possibly remote) clients to control 
+We are planning on implementing some CRISP extensions, namely the multiplexing
+interface which will enable (possibly remote) clients to control
 programmatically partitioning or queuing of related SAT problems.
 
 # Distributed
@@ -144,10 +144,4 @@ The CRISP protocol provides a basis for distributed solving.  Gini implements
 a CRISP-1.0 client and server.  
 
 A command, crispd, supplied for the CRISP server.
-
-The Gini command provides a multiplexing distribute option, "-d". To solve
-a hard problem with a cluster, one can run crispd on the nodes and then
-direct gini to multiplex solvers over each server by adding "-d address[=N]"
-to tell gini to deploy N solvers on the problem at the given address.  This
-may be used for multiple addresses.
 
