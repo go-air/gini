@@ -3,7 +3,7 @@
 
 package main
 
-var usage = `%s usage: %s <input> <input> <input> ...\n
+var usage = `%s usage: %s <input> <input> <input> ...
 %s reads dimacs cnf or icnf inputs and tries to solve them. The inputs
 may be gzipped or bzip2ed.
 
