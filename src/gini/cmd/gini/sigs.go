@@ -22,7 +22,7 @@ func init() {
 				fmt.Println("\nc interrupted\ns UNKNOWN")
 				os.Exit(1)
 			case syscall.SIGUSR1:
-				fmt.Println("\nc interrupted USR1\n")
+				fmt.Println("\nc interrupted USR1")
 			}
 		}
 	}()

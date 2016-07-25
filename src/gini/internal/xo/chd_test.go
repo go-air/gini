@@ -18,7 +18,7 @@ func TestChd(t *testing.T) {
 
 	for i, h := range hs {
 		if h.Learnt() != ls[i] {
-			t.Errorf("%d: %s != %s\n", i, h.Learnt(), ls[i])
+			t.Errorf("%d: %t != %t\n", i, h.Learnt(), ls[i])
 		}
 		if h.Lbd() != lbds[i] {
 			t.Errorf("%d: %d != %d\n", i, h.Lbd(), lbds[i])

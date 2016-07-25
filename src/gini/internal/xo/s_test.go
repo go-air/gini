@@ -337,7 +337,7 @@ func TestSBinNew(t *testing.T) {
 		}
 		s.Add(0)
 	}
-	log.Printf("%s\n", s.Solve())
+	log.Printf("%d\n", s.Solve())
 }
 
 func TestSGrowRand(t *testing.T) {

@@ -28,7 +28,7 @@ func TestWatch(t *testing.T) {
 		t.Errorf("other decode: %s != %s", w.Other(), m)
 	}
 	if w.IsBinary() != isBin {
-		t.Errorf("isBind decode: %s != %s", w.IsBinary(), isBin)
+		t.Errorf("isBind decode: %t != %t", w.IsBinary(), isBin)
 	}
 	if w.CLoc() != loc {
 		t.Errorf("loc en/decode: %s != %s", w.CLoc(), loc)
@@ -40,7 +40,7 @@ func TestWatch(t *testing.T) {
 		t.Errorf("relocate other: %s != %s", w0.Other(), m)
 	}
 	if w0.IsBinary() != isBin {
-		t.Errorf("isBin decode %s != %s", w0.IsBinary(), isBin)
+		t.Errorf("isBin decode %t != %t", w0.IsBinary(), isBin)
 	}
 	if w0.CLoc() != newLoc {
 		t.Errorf("relocate  newloc %s != %s", w0.CLoc(), newLoc)

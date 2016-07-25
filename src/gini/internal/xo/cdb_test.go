@@ -63,7 +63,7 @@ func TestCdbAdd(t *testing.T) {
 			t.Errorf("learnt for added %s", p)
 		}
 		if int(hd.Size()) != len(cnfDat[i])&31 {
-			t.Errorf("wrong size modulus %p", p)
+			t.Errorf("wrong size modulus %s", p)
 		}
 	}
 	for _, e := range cdb.CheckWatches() {

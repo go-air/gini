@@ -203,7 +203,6 @@ func (c *Client) Solve() (int, error) {
 			return 0, ErrNotOp
 		}
 	}
-	return 0, nil
 }
 
 // GoSolve returns a connection to a solve proces

@@ -117,7 +117,6 @@ func (r *cnfReader) readBody() error {
 			return nil
 		}
 		if e != nil {
-			panic("huh?")
 			return e
 		}
 		if v == 0 {
@@ -153,12 +152,10 @@ func (r *cnfReader) readP() error {
 	}
 	nv, e := readInt(rdr)
 	if e != nil {
-		panic("fred")
 		return e
 	}
 	nc, e := readInt(rdr)
 	if e != nil {
-		panic("barney")
 		return e
 	}
 	r.hdrVars = nv

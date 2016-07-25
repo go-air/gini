@@ -18,6 +18,6 @@ func TestRandGraph(t *testing.T) {
 		m += len(es)
 	}
 	if m != 4000 {
-		t.Errorf("wrong number of edges: %d != 4000\n")
+		t.Errorf("wrong number of edges: %d != 4000\n", m)
 	}
 }

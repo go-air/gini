@@ -110,7 +110,7 @@ func TestServerAssume(t *testing.T) {
 		return
 	}
 	if model[0] || model[1] {
-		t.Errorf("bad model %s", model)
+		t.Errorf("bad model %+v", model)
 		return
 	}
 	// assume inconsistent (and call assume 2x)
