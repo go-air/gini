@@ -117,7 +117,7 @@ func TestEval64(t *testing.T) {
 	}
 }
 
-func ExampleC() {
+func ExampleC_equiv() {
 	L := logic.NewC()
 	a, b, c := L.NewIn(), L.NewIn(), L.NewIn()
 	c1 := L.Ors(a, b, c)
