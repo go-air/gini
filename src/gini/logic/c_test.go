@@ -4,6 +4,8 @@
 package logic_test
 
 import (
+	"fmt"
+	"gini"
 	"gini/logic"
 	"gini/z"
 	"log"
@@ -113,4 +115,33 @@ func TestEval64(t *testing.T) {
 			t.Errorf("not false")
 		}
 	}
+}
+
+func ExampleC() {
+	L := logic.NewC()
+	a, b, c := L.NewIn(), L.NewIn(), L.NewIn()
+	c1 := L.Ors(a, b, c)
+	c2 := L.Ors(a, b, c.Not())
+	g1 := L.And(c1, c2)
+	g2 := L.Or(a, b)
+	// create a "miter", test whether "(a b c) and (a b -c)" is equivalent to "(a b)",
+	// by testing whether there is an assignment to {a,b,c} which makes the respective
+	// circuits have a different value.
+	m := L.Xor(g1, g2)
+
+	// encode to sat
+	s := gini.NewGini()
+	L.ToCnfFrom(s, m)
+
+	// assume the miter
+	s.Assume(m)
+	r := s.Solve()
+	if r == 1 {
+		// not equivalent, model is a witness to different valuations.
+		fmt.Printf("sat\n")
+	} else {
+		// equivalent.
+		fmt.Printf("unsat\n")
+	}
+	//Output: unsat
 }

@@ -57,16 +57,50 @@ func (p *C) ToCnf(dst inter.Adder) {
 		}
 		b := n.b
 		g := z.Var(i).Pos()
-		dst.Add(g.Not())
-		dst.Add(a)
-		dst.Add(0)
-		dst.Add(g.Not())
-		dst.Add(b)
-		dst.Add(0)
-		dst.Add(g)
-		dst.Add(a.Not())
-		dst.Add(b.Not())
-		dst.Add(0)
+		addAnd(dst, g, a, b)
+	}
+}
+
+func addAnd(dst inter.Adder, g, a, b z.Lit) {
+	dst.Add(g.Not())
+	dst.Add(a)
+	dst.Add(0)
+	dst.Add(g.Not())
+	dst.Add(b)
+	dst.Add(0)
+	dst.Add(g)
+	dst.Add(a.Not())
+	dst.Add(b.Not())
+	dst.Add(0)
+}
+
+// ToCnfFrom creates a conjunctive normal form of p in
+// adder, including only the part of the circuit reachable
+// from some root in roots.
+func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
+	dfs := make([]int8, len(p.nodes))
+	var vis func(m z.Lit)
+	vis = func(m z.Lit) {
+		v := m.Var()
+		if dfs[v] == 1 {
+			return
+		}
+		n := &p.nodes[v]
+		if n.a == z.LitNull || n.a == p.T || n.a == p.F {
+			dfs[v] = 1
+			return
+		}
+		vis(n.a)
+		vis(n.b)
+		g := m
+		if !m.IsPos() {
+			g = m.Not()
+		}
+		addAnd(dst, g, n.a, n.b)
+		dfs[v] = 1
+	}
+	for _, root := range roots {
+		vis(root)
 	}
 }
 
