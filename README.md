@@ -143,5 +143,5 @@ programmatically partitioning or queuing of related SAT problems.
 The CRISP protocol provides a basis for distributed solving.  Gini implements
 a CRISP-1.0 client and server.  
 
-A command, crispd, supplied for the CRISP server.
+A command, crispd, is supplied for the CRISP server.
 
