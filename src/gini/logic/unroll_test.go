@@ -31,7 +31,6 @@ func TestUnrollLatch(t *testing.T) {
 	s.SetNext(m, m.Not())
 	u := logic.NewUnroll(s)
 	u.At(m, 3)
-	fmt.Printf("len %d %s %s %s %s\n", u.C.Len(), u.At(m, 0), u.At(m, 1), u.At(m, 2), u.At(m, 3))
 }
 
 func ExampleUnroll() {
