@@ -9,9 +9,13 @@ import (
 )
 
 const (
-	vBumpInc   = float64(1.0)
-	vBumpDecay = float64(0.95)
-	vBumpLim   = float64(1e100)
+	gBumpInc       = float64(1.0)
+	gBumpDecay     = float64(0.95)
+	gBumpLim       = float64(1e100)
+	gDecayMin      = float64(0.67)
+	gDecayMax      = float64(0.935)
+	gDecayMaxMax   = float64(0.9875)
+	gDecayMaxDecay = float64(0.9999)
 )
 
 type Guess struct {
@@ -46,14 +50,14 @@ func newGuess(capHint int) *Guess {
 
 		decays:        0,
 		restartDecays: 0,
-		decayMin:      0.67,
-		decayMax:      0.935,
-		decayMaxMax:   0.9875,
-		decayMaxDecay: 0.9999,
+		decayMin:      gDecayMin,
+		decayMax:      gDecayMax,
+		decayMaxMax:   gDecayMaxMax,
+		decayMaxDecay: gDecayMaxDecay,
 
-		bumpInc:   1.0,
-		bumpDecay: 0.95,
-		bumpLim:   1e100}
+		bumpInc:   gBumpInc,
+		bumpDecay: gBumpDecay,
+		bumpLim:   gBumpLim}
 	for i, _ := range g.pos {
 		g.pos[i] = -1
 	}
