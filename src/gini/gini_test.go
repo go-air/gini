@@ -11,7 +11,7 @@ import (
 )
 
 func TestGiniTrivUnsat(t *testing.T) {
-	g := NewGini()
+	g := New()
 	g.Add(z.Lit(3))
 	g.Add(0)
 	g.Add(z.Lit(3).Not())
@@ -23,7 +23,7 @@ func TestGiniTrivUnsat(t *testing.T) {
 
 func TestGiniAsync(t *testing.T) {
 	// hard problem
-	g := NewGini()
+	g := New()
 	gen.Php(g, 15, 14)
 	c := g.GoSolve()
 	ticker := time.Tick(5 * time.Millisecond)

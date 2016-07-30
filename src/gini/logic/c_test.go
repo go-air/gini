@@ -130,7 +130,7 @@ func ExampleC_equiv() {
 	m := L.Xor(g1, g2)
 
 	// encode to sat
-	s := gini.NewGini()
+	s := gini.New()
 	L.ToCnfFrom(s, m)
 
 	// assume the miter

@@ -8,5 +8,5 @@ import "gini/inter"
 // NewS creates a new solver, which is the Gini
 // implementation of inter.S.
 func NewS() inter.S {
-	return NewGini()
+	return New()
 }

@@ -52,7 +52,7 @@ func newICnfGini(timeout time.Duration) *iCnfGini {
 	return &iCnfGini{
 		start: now,
 		end:   now.Add(timeout),
-		g:     gini.NewGini()}
+		g:     gini.New()}
 }
 
 func (i *iCnfGini) Add(m z.Lit) {
@@ -100,7 +100,7 @@ type iCnfAx struct {
 func newICnfAx(timeout time.Duration, cap int) *iCnfAx {
 	a := &iCnfAx{
 		start: time.Now(),
-		g:     gini.NewGini(),
+		g:     gini.New(),
 		cubes: make([][]z.Lit, 0, 1024)}
 	a.end = a.start.Add(timeout)
 	a.capacity = cap

@@ -66,7 +66,7 @@ func (h *Handler) serve(cc <-chan net.Conn) {
 func (h *Handler) serveConn(conn net.Conn) {
 	h.conn = conn
 	h.uio = newVu32Io(conn)
-	h.gini = gini.NewGini()
+	h.gini = gini.New()
 	h.proto = Unknown
 	if e := h.Crisp(); e != nil {
 		log.Printf("%d crisp() result error %s", h.id, e)
@@ -185,7 +185,7 @@ func (h *Handler) handleKey() error {
 }
 
 func (h *Handler) handleReset() error {
-	h.gini = gini.NewGini()
+	h.gini = gini.New()
 	h.proto = Unknown
 	return nil
 }

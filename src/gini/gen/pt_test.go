@@ -22,7 +22,7 @@ func TestPart(t *testing.T) {
 }
 
 func TestPy2Triples(t *testing.T) {
-	g := gini.NewGini()
+	g := gini.New()
 	N := 7824
 	N = 7000
 	Py2Triples(g, N)

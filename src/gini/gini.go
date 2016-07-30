@@ -23,16 +23,16 @@ func newGiniXo(x *xo.S) *Gini {
 	return g
 }
 
-// NewGini creates a new gini solver.
-func NewGini() *Gini {
+// New creates a new gini solver.
+func New() *Gini {
 	g := &Gini{
 		xo: xo.NewS()}
 	return g
 }
 
-// NewGiniDimacs create a new gini solver from
+// NewDimacs create a new gini solver from
 // dimacs formatted input.
-func NewGiniDimacs(r io.Reader) (*Gini, error) {
+func NewDimacs(r io.Reader) (*Gini, error) {
 	vis := &xo.DimacsVis{}
 	if e := dimacs.ReadCnf(r, vis); e != nil {
 		return nil, e
@@ -42,18 +42,18 @@ func NewGiniDimacs(r io.Reader) (*Gini, error) {
 	return g, nil
 }
 
-// NewGiniV creates a new Gini solver with
+// NewV creates a new Gini solver with
 // hint for capacity of variables set to capHint.
-func NewGiniV(capHint int) *Gini {
+func NewV(capHint int) *Gini {
 	g := &Gini{
 		xo: xo.NewSV(capHint)}
 	return g
 }
 
-// NewGiniVc creates a new Gini solver with
+// NewVc creates a new Gini solver with
 // hint for capacity of variables set to vCapHint,
 // and likewise capacity of clauses set cCapHint
-func NewGiniVc(vCapHint, cCapHint int) *Gini {
+func NewVc(vCapHint, cCapHint int) *Gini {
 	g := &Gini{
 		xo: xo.NewSVc(vCapHint, cCapHint)}
 

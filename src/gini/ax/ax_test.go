@@ -61,7 +61,7 @@ func ExampleNewT() {
 }
 
 func TestLimit(t *testing.T) {
-	g := gini.NewGini()
+	g := gini.New()
 	gen.Rand3Cnf(g, 1000, 4000)
 
 	ax := NewT(g, 24)
@@ -93,7 +93,7 @@ func TestLimit(t *testing.T) {
 }
 
 func TestModel(t *testing.T) {
-	g := gini.NewGini()
+	g := gini.New()
 	gen.Php(g, 10, 10)
 
 	ax := NewT(g, 2)
@@ -117,7 +117,7 @@ func TestModel(t *testing.T) {
 
 func TestWhy(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		g := gini.NewGini()
+		g := gini.New()
 		gen.Rand3Cnf(g, 50, 180)
 
 		ax := NewT(g, 2)

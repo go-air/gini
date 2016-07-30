@@ -16,7 +16,7 @@ type svWrap struct {
 // NewSv creates an Sv implementation
 func NewSv() inter.Sv {
 	w := &svWrap{
-		S: NewGini(),
+		S: New(),
 		V: z.NewVars()}
 	return w
 }
