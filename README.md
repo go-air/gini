@@ -6,6 +6,15 @@ The Gini sat solver is a fast, clean SAT solver written in go.
 
 [Google Group](https://groups.google.com/d/forum/ginisat)
 
+# Build/Install
+
+1. Clone the repository
+1. Build with the go tool, or type ./mk for systems with bash
+
+Note: Gini is not go-gettable because gini does not have a canonical website.  
+If/when a gini website is set up, we'll make it go-gettable with a corresponding
+URL.
+
 # The SAT Problem
 
 The SAT problem is perhaps the most famous NP-complete problem.  As such, SAT
