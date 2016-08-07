@@ -195,11 +195,6 @@ func NewCactus(suite *Suite, filt func(*Suite, int) bool) *Cactus {
 		}
 	}
 
-	Rows := 40
-	unitDur := maxDur / time.Duration(Rows)
-	if unitDur == 0 {
-		unitDur = 1
-	}
 	cactus := &Cactus{
 		MaxDur: maxDur,
 		Runs:   suite.Runs}

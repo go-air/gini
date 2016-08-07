@@ -132,6 +132,10 @@ func TestServerAssume(t *testing.T) {
 		return
 	}
 	failed, e := c.Why(nil)
+	if e != nil {
+		t.Error(e)
+		return
+	}
 	if len(failed) != 2 {
 		t.Errorf("expected 2 failed got %d", len(failed))
 		return

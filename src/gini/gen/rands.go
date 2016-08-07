@@ -201,7 +201,8 @@ func (r *randS) Why(dst []z.Lit) []z.Lit {
 	r.lock()
 	defer r.unlock()
 	dst = dst[:0]
-	return r.ms
+	dst = append(dst, r.ms...)
+	return dst
 }
 
 func (r *randS) Test(dst []z.Lit) (int, []z.Lit) {

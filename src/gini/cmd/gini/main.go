@@ -168,9 +168,9 @@ func runSatComp() {
 			log.Printf("%s", e)
 			os.Exit(1)
 		}
-		format, e := path2Format(flag.Arg(0))
-		if e != nil {
-			log.Printf("%s", e)
+		format, fe := path2Format(flag.Arg(0))
+		if fe != nil {
+			log.Printf("%s", fe)
 			os.Exit(1)
 		}
 		res, e = format.runReader(r)
