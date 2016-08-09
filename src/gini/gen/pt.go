@@ -36,7 +36,7 @@ func Partition(dst Dest, n, k int) {
 }
 
 // PyTriples adds constraints stating there is no triple (i,j,k)
-// s.t i^2 + j^2 = k^2 in some k-partition of [1..n]
+// s.t i^2 + j^2 = k^2 in some partition of a k-partition of [1..n]
 func PyTriples(dst Dest, n, k int) {
 	Partition(dst, n, k)
 	_, ts := pytriples(n)
@@ -53,7 +53,7 @@ func PyTriples(dst Dest, n, k int) {
 	}
 }
 
-// Py2Triples adds constraints to dst stating that there is no
+// Py2Triples adds constraints to dst stating that there is a
 // 2-partition of [1..n] such that no triple (a,b,c) appears
 // in one partition with a^2 + b^2 = c^2.
 func Py2Triples(dst Dest, n int) {
