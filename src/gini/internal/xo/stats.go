@@ -119,7 +119,7 @@ func (s *Stats) Reset() {
 }
 
 func (s *Stats) Accumulate(t *Stats) {
-	t.Dur = time.Now().Sub(t.Start)
+	t.Dur = time.Since(t.Start)
 	s.Dur += t.Dur
 	s.Vars = t.Vars
 	s.Added += t.Added

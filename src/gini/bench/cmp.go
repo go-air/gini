@@ -121,7 +121,7 @@ func NewScatter(r1, r2 *Run, iFilt func(suite *Suite, i int) bool) *Scatter {
 func (s *Scatter) Utf8(n int) string {
 	M := 2 * n * (n + 1)
 	buf := make([]byte, M)
-	for i, _ := range buf {
+	for i := range buf {
 		buf[i] = byte(' ')
 	}
 	for i := 2 * n; i < M; i += 2*n + 1 {
@@ -237,7 +237,7 @@ func (c *Cactus) Utf8(N int) string {
 	_ = ticks
 	M := N * (2*N + 1)
 	buf := make([]byte, M)
-	for i, _ := range buf {
+	for i := range buf {
 		buf[i] = byte(' ')
 	}
 	for i := 2 * N; i < M; i += 2*N + 1 {
@@ -322,7 +322,7 @@ func Listing(s *Suite) string {
 	nms[0] = " name             "
 	nums := make([]string, len(s.Insts)+1)
 	nums[0] = "id   "
-	for i, _ := range s.Insts {
+	for i := range s.Insts {
 		nms[i+1] = rtrunc(s.Map[i], 18)
 		nums[i+1] = fmt.Sprintf("%-5d", i)
 	}
@@ -332,7 +332,7 @@ func Listing(s *Suite) string {
 	for i, run := range s.Runs {
 		col := make([]string, len(s.Insts)+1)
 		col[0] = fmt.Sprintf(" %-10s ", rtrunc(run.Name, 10))
-		for j, _ := range s.Insts {
+		for j := range s.Insts {
 			ir := run.InstRuns[j]
 			s := "s"
 			if ir.Result == -1 {
@@ -359,7 +359,7 @@ func Listing(s *Suite) string {
 func rtrunc(s string, n int) string {
 	ct := utf8.RuneCount([]byte(s))
 	j := 0
-	for i, _ := range s {
+	for i := range s {
 		if j >= ct-n {
 			return s[i:]
 		}

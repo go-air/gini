@@ -129,7 +129,7 @@ func pytriples(n int) (map[int]int, []triple) {
 		}
 	}
 	ins := make([]int, 0, len(in))
-	for k, _ := range in {
+	for k := range in {
 		ins = append(ins, k)
 	}
 	sort.Ints(ins)

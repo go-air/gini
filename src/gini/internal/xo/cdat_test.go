@@ -10,15 +10,15 @@ import (
 )
 
 var cnf = [][]z.Lit{
-	[]z.Lit{z.Lit(3), z.Lit(5), z.Lit(6), z.Lit(24)},
-	[]z.Lit{},
-	[]z.Lit{},
-	[]z.Lit{},
-	[]z.Lit{z.Lit(104), z.Lit(97), z.Lit(17), z.Lit(19), z.Lit(3), z.Lit(9), z.Lit(10), z.Lit(12), z.Lit(14), z.Lit(20), z.Lit(22), z.Lit(24), z.Lit(26),
+	{z.Lit(3), z.Lit(5), z.Lit(6), z.Lit(24)},
+	{},
+	{},
+	{},
+	{z.Lit(104), z.Lit(97), z.Lit(17), z.Lit(19), z.Lit(3), z.Lit(9), z.Lit(10), z.Lit(12), z.Lit(14), z.Lit(20), z.Lit(22), z.Lit(24), z.Lit(26),
 		z.Lit(28), z.Lit(30), z.Lit(32), z.Lit(34), z.Lit(36), z.Lit(38), z.Lit(40), z.Lit(42), z.Lit(44), z.Lit(46), z.Lit(48), z.Lit(50), z.Lit(52), z.Lit(54),
 		z.Lit(56), z.Lit(58), z.Lit(60), z.Lit(62), z.Lit(64), z.Lit(66), z.Lit(68), z.Lit(70)},
-	[]z.Lit{z.Lit(33)},
-	[]z.Lit{}}
+	{z.Lit(33)},
+	{}}
 
 var hds = []Chd{
 	MakeChd(false, 0, 4),

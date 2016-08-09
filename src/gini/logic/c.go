@@ -158,7 +158,7 @@ func (c *C) InPos(dst []int) []int {
 //
 // vs should contain values for all inputs.
 func (c *C) Eval(vs []bool) {
-	for i, _ := range c.nodes {
+	for i := range c.nodes {
 		n := &c.nodes[i]
 		if n.a == z.LitNull {
 			continue
@@ -179,7 +179,7 @@ func (c *C) Eval(vs []bool) {
 // Eval64 is like Eval but evaluates 64 different inputs in
 // parallel as the bits of a uint64.
 func (c *C) Eval64(vs []uint64) {
-	for i, _ := range c.nodes {
+	for i := range c.nodes {
 		n := &c.nodes[i]
 		if n.a == z.LitNull {
 			continue
@@ -305,7 +305,7 @@ func (p *C) grow() {
 	strash := make([]uint32, newCap)
 	copy(nodes, p.nodes)
 	ucap := uint32(newCap)
-	for i, _ := range nodes {
+	for i := range nodes {
 		n := &nodes[i]
 		if n.a == 0 || n.a == p.F || n.a == p.T {
 			continue

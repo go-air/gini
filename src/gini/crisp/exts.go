@@ -77,7 +77,7 @@ func (e *Exts) Id(i int) uint16 {
 func (e *Exts) String() string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("[")
-	for i, _ := range e.D {
+	for i := range e.D {
 		extn := &e.D[i]
 		buf.WriteString(fmt.Sprintf("%s", extn))
 		if i < len(e.D)-1 {

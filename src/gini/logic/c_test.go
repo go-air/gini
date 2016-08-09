@@ -48,15 +48,15 @@ func TestCLogic(t *testing.T) {
 	a := c.NewIn()
 	b := c.NewIn()
 	ops := []op{
-		op{a: c.T, b: c.NewIn()},
-		op{a: c.F, b: c.NewIn()},
-		op{a: a, b: a},
-		op{a: a, b: a.Not()},
-		op{a: a, b: b},
-		op{a: b, b: a},
-		op{a: c.NewIn(), b: c.NewIn()}}
+		{a: c.T, b: c.NewIn()},
+		{a: c.F, b: c.NewIn()},
+		{a: a, b: a},
+		{a: a, b: a.Not()},
+		{a: a, b: b},
+		{a: b, b: a},
+		{a: c.NewIn(), b: c.NewIn()}}
 
-	for i, _ := range ops {
+	for i := range ops {
 		ops[i].g = c.And(ops[i].a, ops[i].b)
 	}
 	if ops[0].g != ops[0].b {
@@ -88,7 +88,7 @@ func TestEval(t *testing.T) {
 	c.Eval(vs)
 	log.Printf("after %+v\n", vs)
 
-	if vs[4] != true {
+	if !vs[4] {
 		t.Errorf("bad and eval")
 	}
 }

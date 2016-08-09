@@ -70,10 +70,7 @@ func (c *Cgc) Tick() {
 
 // Ready tests whether a clause gc is ready to occur.
 func (c *Cgc) Ready() bool {
-	if c.stopWatch > 0 {
-		return false
-	}
-	return true
+	return c.stopWatch <= 0
 }
 
 // Compact runs a clause gc, which in turn sometimes

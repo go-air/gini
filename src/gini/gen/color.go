@@ -17,7 +17,7 @@ func RandColor(dst Dest, n, m, k int) Dest {
 	var mkVar = func(n, c int) z.Var {
 		return z.Var(n*c + c + 1)
 	}
-	for i, _ := range g {
+	for i := range g {
 		for j := 0; j < k; j++ {
 			m := mkVar(i, j).Pos()
 			dst.Add(m)

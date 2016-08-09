@@ -29,7 +29,7 @@ func NewVars(capHint int) *Vars {
 		Levels:  make([]int, top),
 		Vals:    make([]int8, 2*top),
 		Watches: make([][]Watch, 2*top)}
-	for i, _ := range v.Watches {
+	for i := range v.Watches {
 		v.Watches[i] = make([]Watch, 0, 8)
 	}
 	return v

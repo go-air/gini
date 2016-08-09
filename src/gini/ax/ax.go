@@ -329,7 +329,7 @@ func (u *unit) handleResult(req *Request, res int, c chan<- *Response) {
 		Who: u.I,
 		Req: req,
 		Res: res,
-		Dur: time.Now().Sub(u.Start)}
+		Dur: time.Since(u.Start)}
 	// TBD units, model, etc
 	u.Solve = nil
 

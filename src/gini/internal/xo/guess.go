@@ -58,7 +58,7 @@ func newGuess(capHint int) *Guess {
 		bumpInc:   gBumpInc,
 		bumpDecay: gBumpDecay,
 		bumpLim:   gBumpLim}
-	for i, _ := range g.pos {
+	for i := range g.pos {
 		g.pos[i] = -1
 	}
 	return g

@@ -310,7 +310,7 @@ func (r *Run) writeStart() error {
 
 func (r *Run) readInstRuns() error {
 	suite := r.Suite
-	for i, _ := range suite.Insts {
+	for i := range suite.Insts {
 		ir, e := OpenInstRun(r, i)
 		if e != nil {
 			log.Printf("error opening inst run %d in suite %s: %s\n", i, suite.Root, e)

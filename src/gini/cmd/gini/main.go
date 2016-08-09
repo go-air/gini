@@ -280,7 +280,7 @@ func runXoReader(r io.Reader) (int, error) {
 	res := conn.Try(*timeout)
 	if *stats {
 		x.ReadStats(st)
-		st.Dur = time.Now().Sub(st.Start)
+		st.Dur = time.Since(st.Start)
 		log.Println(st)
 	}
 	handleResultOutput(res)

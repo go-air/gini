@@ -16,10 +16,10 @@ type e struct {
 }
 
 var d = []e{
-	e{uint16(24), uint8(17), uint8(0)},
-	e{uint16(77), uint8(3), uint8(20)},
-	e{uint16(99), uint8(0), uint8(20)},
-	e{uint16(100), uint8(5), uint8(25)}}
+	{uint16(24), uint8(17), uint8(0)},
+	{uint16(77), uint8(3), uint8(20)},
+	{uint16(99), uint8(0), uint8(20)},
+	{uint16(100), uint8(5), uint8(25)}}
 
 func TestExts(t *testing.T) {
 	exts := NewExts()
@@ -33,7 +33,7 @@ func TestExts(t *testing.T) {
 			t.Errorf("wrong index: %d != %d", j, i)
 		}
 	}
-	for i, _ := range d {
+	for i := range d {
 		if exts.Id(i) != d[i].id {
 			t.Errorf("didn't get id: %d\n", exts.Id(i))
 		}

@@ -154,9 +154,7 @@ func setupSuite(root string, insts []string) (*Suite, error) {
 	s := &Suite{
 		Root: root}
 	s.Map = make([]string, 0, len(insts))
-	for _, inst := range insts {
-		s.Map = append(s.Map, inst)
-	}
+	s.Map = append(s.Map, insts...)
 	if e := s.writeMap(); e != nil {
 		return nil, e
 	}

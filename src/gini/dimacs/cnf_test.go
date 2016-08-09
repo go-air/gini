@@ -15,7 +15,7 @@ type dimacsTestData struct {
 	NonStrict bool
 }
 
-var cnfs = []dimacsTestData{dimacsTestData{`c this
+var cnfs = []dimacsTestData{{`c this
 c is
 c a 
 c comment
@@ -25,7 +25,7 @@ c is
 c no 
 c body
 `, false, true}, // should be false/true?
-	dimacsTestData{`c
+	{`c
 p cng 7 7
 1 0
 2 0
@@ -34,7 +34,7 @@ p cng 7 7
 5 0
 6 0
 7 0`, false, false},
-	dimacsTestData{`p cnf 6 6
+	{`p cnf 6 6
 -1 0
 -2 0
 -3 0
@@ -42,10 +42,10 @@ p cng 7 7
 -5 0
 -6 0
 `, true, true},
-	dimacsTestData{`p cnf 2 3
+	{`p cnf 2 3
 1 0
 2 0`, false, true},
-	dimacsTestData{`c hello
+	{`c hello
 c world
 10 11 23 44 -55 0`, false, true}}
 

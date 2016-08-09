@@ -45,7 +45,7 @@ func TestGiniAsync(t *testing.T) {
 	timeout := 50 * time.Millisecond
 	b4Solve := time.Now()
 	r := c.Try(timeout)
-	sDur := time.Now().Sub(b4Solve)
+	sDur := time.Since(b4Solve)
 	margin := 2 * timeout
 
 	if r != 0 {

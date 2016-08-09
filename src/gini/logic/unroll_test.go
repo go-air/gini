@@ -52,7 +52,7 @@ func ExampleUnroll() {
 	for i := 0; i < N; i++ {
 		m := s.Latches[i]
 		u.At(m, D)
-		if u.At(m, D) != s.C.T {
+		if u.At(m, D) != s.T {
 			errs++
 		}
 	}
