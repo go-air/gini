@@ -2,9 +2,12 @@
 
 The Gini sat solver is a fast, clean SAT solver written in go. 
 
+[![Build Status](https://travis-ci.org/IRIFrance/gini.svg?branch=master)](https://travis-ci.org/IRIFrance/gini)
+
 [![GoDoc](https://godoc.org/github.com/IRIFrance/gini?status.svg)](https://godoc.org/github.com/IRIFrance/gini)
 
 [Google Group](https://groups.google.com/d/forum/ginisat)
+
 
 # Build/Install
 
