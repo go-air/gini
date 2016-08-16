@@ -8,6 +8,8 @@ The Gini sat solver is a fast, clean SAT solver written in go.
 
 [Google Group](https://groups.google.com/d/forum/ginisat)
 
+This solver is fully open source, originally developped at [IRI France](http://www.iri-labs.com)
+
 
 # Build/Install
 
