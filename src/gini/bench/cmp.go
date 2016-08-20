@@ -180,13 +180,23 @@ type Cactus struct {
 	MaxDur time.Duration
 }
 
-// NewCactus makes a new cactus object. filt, if non-nil, selects
-// the instances to show in the cactus plot.
-func NewCactus(suite *Suite, filt func(*Suite, int) bool) *Cactus {
+// NewCactus makes a new cactus object.
+//
+// rFilt, if non-nil, selects the runs to show in the cactus plot
+//
+// iFilt, if non-nil, selects the instances to show in the cactus plot
+func NewCactus(suite *Suite, rFilt func(*Run) bool, iFilt func(*Suite, int) bool) *Cactus {
 	maxDur := time.Duration(0)
-	for _, run := range suite.Runs {
+	runs := make([]*Run, 0, len(suite.Runs))
+	for _, r := range suite.Runs {
+		if rFilt != nil && !rFilt(r) {
+			continue
+		}
+		runs = append(runs, r)
+	}
+	for _, run := range runs {
 		for _, irun := range run.InstRuns {
-			if filt != nil && !filt(suite, irun.Inst) {
+			if iFilt != nil && !iFilt(suite, irun.Inst) {
 				continue
 			}
 			if irun.Dur > maxDur {
@@ -197,12 +207,12 @@ func NewCactus(suite *Suite, filt func(*Suite, int) bool) *Cactus {
 
 	cactus := &Cactus{
 		MaxDur: maxDur,
-		Runs:   suite.Runs}
+		Runs:   runs}
 	M := len(suite.Runs[0].InstRuns)
-	for _, run := range suite.Runs {
+	for _, run := range runs {
 		js := make([]int, 0, M)
 		for j := 0; j < M; j++ {
-			if filt == nil || filt(suite, j) {
+			if iFilt == nil || iFilt(suite, j) {
 				js = append(js, j)
 			}
 		}
@@ -316,8 +326,14 @@ Suite %s
 
 // Listing produces a listing of all instances
 // in all runs.
-func Listing(s *Suite) string {
-	cols := make([][]string, len(s.Runs)+2)
+func Listing(s *Suite, filt func(*Run) bool) string {
+	runs := make([]*Run, 0, len(s.Runs))
+	for _, r := range s.Runs {
+		if filt(r) {
+			runs = append(runs, r)
+		}
+	}
+	cols := make([][]string, len(runs)+2)
 	nms := make([]string, len(s.Insts)+1)
 	nms[0] = " name             "
 	nums := make([]string, len(s.Insts)+1)
@@ -329,7 +345,7 @@ func Listing(s *Suite) string {
 	cols[0] = nums
 	cols[1] = nms
 
-	for i, run := range s.Runs {
+	for i, run := range runs {
 		col := make([]string, len(s.Insts)+1)
 		col[0] = fmt.Sprintf(" %-10s ", rtrunc(run.Name, 10))
 		for j := range s.Insts {
@@ -347,8 +363,8 @@ func Listing(s *Suite) string {
 	}
 	rows := make([]string, len(s.Insts)+2)
 	for i := 0; i < len(s.Insts)+1; i++ {
-		row := make([]string, len(s.Runs)+2)
-		for j := 0; j < len(s.Runs)+2; j++ {
+		row := make([]string, len(runs)+2)
+		for j := 0; j < len(runs)+2; j++ {
 			row[j] = cols[j][i]
 		}
 		rows[i] = strings.Join(row, " | ")

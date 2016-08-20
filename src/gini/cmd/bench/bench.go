@@ -9,6 +9,8 @@ import (
 	"gini/bench"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -127,7 +129,7 @@ type cmpOptsT struct {
 	Summary *bool
 	Cactus  *bool
 	Scatter *bool
-	Runs    []string
+	Runs    *string
 }
 
 var cmpOpts = &cmpOptsT{
@@ -137,7 +139,26 @@ var cmpOpts = &cmpOptsT{
 
 	Summary: cmpFlags.Bool("sum", true, "suite summary."),
 	Cactus:  cmpFlags.Bool("cactus", false, "cactus plot"),
-	Scatter: cmpFlags.Bool("scatter", false, "scatter plot of run pairs")}
+	Scatter: cmpFlags.Bool("scatter", false, "scatter plot of run pairs"),
+	Runs:    cmpFlags.String("runs", "*", "comma separated list of run globs")}
+
+func (co *cmpOptsT) runFilt() func(*bench.Run) bool {
+	parts := strings.Split(*co.Runs, ",")
+	return func(r *bench.Run) bool {
+		for _, m := range parts {
+			m, b := filepath.Match(m, r.Name)
+			if b != nil {
+				log.Printf("warning: match '%s' gave an error on '%s'", m, r.Name)
+				continue
+			}
+			if !m {
+				continue
+			}
+			return true
+		}
+		return false
+	}
+}
 
 func satFilt(s *bench.Suite, i int) bool {
 	for _, r := range s.Runs {
@@ -164,12 +185,13 @@ func (c *cmpOptsT) Run(flags *flag.FlagSet) {
 		log.Printf("cannot specify both -sat and -unsat")
 		return
 	}
-	var filt func(s *bench.Suite, i int) bool
+	var iFilt func(s *bench.Suite, i int) bool
 	if *c.Sat {
-		filt = satFilt
+		iFilt = satFilt
 	} else if *c.Unsat {
-		filt = unsatFilt
+		iFilt = unsatFilt
 	}
+
 	for i := 0; i < flags.NArg(); i++ {
 		arg := flags.Arg(i)
 		suite, err := bench.OpenSuite(arg)
@@ -181,19 +203,27 @@ func (c *cmpOptsT) Run(flags *flag.FlagSet) {
 			fmt.Println(bench.Summary(suite))
 		}
 		if *c.Listing {
-			fmt.Println(bench.Listing(suite))
+			fmt.Println(bench.Listing(suite, c.runFilt()))
 		}
 		if *c.Scatter {
+			rFilt := c.runFilt()
 			for i, ra := range suite.Runs {
+				if !rFilt(ra) {
+					continue
+				}
 				for j := 0; j < i; j++ {
 					rb := suite.Runs[j]
-					sc := bench.NewScatter(ra, rb, filt)
+					if !rFilt(rb) {
+						continue
+					}
+					sc := bench.NewScatter(ra, rb, iFilt)
 					fmt.Printf("%s: %s v %s\n%s\n", suite.Root, ra.Name, rb.Name, sc.Utf8(40))
 				}
 			}
 		}
 		if *c.Cactus {
-			cactus := bench.NewCactus(suite, filt)
+			rf := c.runFilt()
+			cactus := bench.NewCactus(suite, rf, iFilt)
 			fmt.Printf("\n%s\n", cactus.Utf8(40))
 		}
 	}
