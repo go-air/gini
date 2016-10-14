@@ -3,7 +3,7 @@
 
 package inter
 
-import "github.com/irifrance/g/z"
+import "github.com/irifrance/gini/z"
 
 // Interface Solveable encapsulates a decision
 // procedure which may run for a long time.

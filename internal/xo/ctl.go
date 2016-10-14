@@ -4,7 +4,7 @@
 package xo
 
 import (
-	"github.com/irifrance/g/z"
+	"github.com/irifrance/gini/z"
 	"sync"
 	"time"
 )

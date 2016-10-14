@@ -5,7 +5,7 @@ package logic_test
 
 import (
 	"fmt"
-	"github.com/irifrance/g/logic"
+	"github.com/irifrance/gini/logic"
 	"testing"
 )
 

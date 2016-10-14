@@ -4,7 +4,7 @@
 package gen
 
 import (
-	"github.com/irifrance/g/z"
+	"github.com/irifrance/gini/z"
 	"math/rand"
 )
 

@@ -4,7 +4,7 @@
 package gen_test
 
 import (
-	"github.com/irifrance/g/gen"
+	"github.com/irifrance/gini/gen"
 	"testing"
 )
 

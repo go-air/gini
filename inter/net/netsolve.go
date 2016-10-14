@@ -4,7 +4,7 @@
 package net
 
 import (
-	"github.com/irifrance/g/inter"
+	"github.com/irifrance/gini/inter"
 	"time"
 )
 

@@ -1,11 +1,9 @@
 language: go
 
 go:
-  - 1.6
+  - 1.7
   - tip
 
-install: GOPATH=`pwd` go install gini...
-
-script: GOPATH=`pwd` go test gini...
+script: go test gini...
 
 

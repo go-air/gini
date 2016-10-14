@@ -5,9 +5,9 @@ package crisp
 
 import (
 	"fmt"
-	"github.com/irifrance/g/gen"
-	"github.com/irifrance/g/internal/xo"
-	"github.com/irifrance/g/z"
+	"github.com/irifrance/gini/gen"
+	"github.com/irifrance/gini/internal/xo"
+	"github.com/irifrance/gini/z"
 	"log"
 	"math/rand"
 	"os"

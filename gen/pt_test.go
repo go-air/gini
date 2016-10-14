@@ -4,7 +4,7 @@
 package gen
 
 import (
-	"github.com/irifrance/g"
+	"github.com/irifrance/gini"
 	"log"
 	"testing"
 )
