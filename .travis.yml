@@ -6,4 +6,9 @@ go:
 
 script: go test ./...
 
+notifications:
+  on_success: always
+  on_failure: always
+
+
 
