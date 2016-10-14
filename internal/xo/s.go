@@ -5,9 +5,9 @@ package xo
 
 import (
 	"fmt"
-	"gini/dimacs"
-	"gini/inter"
-	"gini/z"
+	"github.com/irifrance/gini/dimacs"
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 	"io"
 	"log"
 	"runtime"

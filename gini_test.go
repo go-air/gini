@@ -4,8 +4,8 @@
 package gini
 
 import (
-	"gini/gen"
-	"gini/z"
+	"github.com/irifrance/gini/gen"
+	"github.com/irifrance/gini/z"
 	"testing"
 	"time"
 )

@@ -4,7 +4,7 @@
 package crisp
 
 import (
-	"gini/inter/net"
+	"github.com/irifrance/gini/inter/net"
 	"testing"
 )
 

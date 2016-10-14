@@ -5,9 +5,9 @@ package crisp
 
 import (
 	"fmt"
-	"gini"
-	"gini/inter"
-	"gini/z"
+	"github.com/irifrance/gini"
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 	"log"
 	"net"
 	"os"

@@ -5,9 +5,9 @@ package logic_test
 
 import (
 	"fmt"
-	"gini"
-	"gini/logic"
-	"gini/z"
+	"github.com/irifrance/gini"
+	"github.com/irifrance/gini/logic"
+	"github.com/irifrance/gini/z"
 	"log"
 	"math/rand"
 	"testing"

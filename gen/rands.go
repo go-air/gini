@@ -5,8 +5,8 @@ package gen
 
 import (
 	"fmt"
-	"gini/inter"
-	"gini/z"
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 	"math/rand"
 	"sync"
 	"time"

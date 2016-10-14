@@ -4,8 +4,8 @@
 package gini
 
 import (
-	"gini/inter"
-	"gini/z"
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
 type svWrap struct {

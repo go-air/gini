@@ -5,10 +5,10 @@ package crisp
 
 import (
 	"fmt"
-	"gini/dimacs"
-	gnet "gini/inter/net"
-	"gini/internal/xo"
-	"gini/z"
+	"github.com/irifrance/gini/dimacs"
+	gnet "github.com/irifrance/gini/inter/net"
+	"github.com/irifrance/gini/internal/xo"
+	"github.com/irifrance/gini/z"
 	"io"
 	"log"
 	"net"

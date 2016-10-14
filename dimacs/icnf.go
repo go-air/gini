@@ -6,7 +6,7 @@ package dimacs
 import (
 	"bufio"
 	"fmt"
-	"gini/z"
+	"github.com/irifrance/gini/z"
 	"io"
 )
 

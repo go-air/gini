@@ -5,7 +5,7 @@ package dimacs
 
 import (
 	"bufio"
-	"gini/z"
+	"github.com/irifrance/gini/z"
 )
 
 func readLit(r *bufio.Reader) (m z.Lit, e error) {

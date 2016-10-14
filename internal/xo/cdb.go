@@ -6,7 +6,7 @@ package xo
 import (
 	"bytes"
 	"fmt"
-	"gini/z"
+	"github.com/irifrance/gini/z"
 	"io"
 )
 

@@ -3,7 +3,7 @@
 
 package logic
 
-import "gini/z"
+import "github.com/irifrance/gini/z"
 
 // Type Unroll creates an unroller of sequential logic into
 // combinational logic.

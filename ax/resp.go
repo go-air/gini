@@ -4,7 +4,7 @@
 package ax
 
 import (
-	"gini/z"
+	"github.com/irifrance/gini/z"
 	"time"
 )
 

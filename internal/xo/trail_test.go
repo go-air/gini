@@ -4,8 +4,8 @@
 package xo
 
 import (
-	"gini/gen"
-	"gini/z"
+	"github.com/irifrance/gini/gen"
+	"github.com/irifrance/gini/z"
 	"math/rand"
 	"testing"
 )
