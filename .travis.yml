@@ -4,6 +4,6 @@ go:
   - 1.7
   - tip
 
-script: go test gini...
+script: go test ./...
 
 
