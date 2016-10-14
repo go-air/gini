@@ -4,7 +4,7 @@
 package logic_test
 
 import (
-	"github.com/irifrance/gini/logic"
+	"github.com/irifrance/g/logic"
 	"testing"
 )
 

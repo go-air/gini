@@ -4,10 +4,10 @@
 package gini
 
 import (
-	"github.com/irifrance/gini/dimacs"
-	"github.com/irifrance/gini/inter"
-	"github.com/irifrance/gini/internal/xo"
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/dimacs"
+	"github.com/irifrance/g/inter"
+	"github.com/irifrance/g/internal/xo"
+	"github.com/irifrance/g/z"
 	"io"
 )
 

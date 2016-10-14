@@ -5,7 +5,7 @@ package crisp
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/z"
 	"io"
 )
 

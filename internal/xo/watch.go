@@ -5,7 +5,7 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/z"
 )
 
 // Watch holds other blocking literal, clause location (

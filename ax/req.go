@@ -5,7 +5,7 @@ package ax
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/z"
 	"sync"
 	"time"
 )

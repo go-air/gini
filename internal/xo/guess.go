@@ -4,7 +4,7 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/z"
 	"math"
 )
 

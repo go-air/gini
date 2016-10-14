@@ -5,7 +5,7 @@ package xo
 
 import (
 	"bytes"
-	"github.com/irifrance/gini/z"
+	"github.com/irifrance/g/z"
 	"os"
 	"testing"
 )

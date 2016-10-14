@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/irifrance/gini/crisp"
+	"github.com/irifrance/g/crisp"
 	"log"
 	"os"
 	"path/filepath"

@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/irifrance/gini/bench"
+	"github.com/irifrance/g/bench"
 	"log"
 	"os"
 	"path/filepath"

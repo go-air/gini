@@ -3,7 +3,7 @@
 
 package xo
 
-import "github.com/irifrance/gini/z"
+import "github.com/irifrance/g/z"
 
 // Type DimacsVis implements dimacs.Vis for constructing
 // solvers from dimacs cnf files.

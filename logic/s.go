@@ -3,7 +3,7 @@
 
 package logic
 
-import "github.com/irifrance/gini/z"
+import "github.com/irifrance/g/z"
 
 // Type S adds sequential elements to P.
 type S struct {
