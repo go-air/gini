@@ -13,12 +13,15 @@ This solver is fully open source, originally developped at [IRI France](http://w
 
 # Build/Install
 
-1. Clone the repository
-1. Build with the go tool, or type ./mk for systems with bash
+For the impatient who don't mind adding noisy directory structures to package developers lives:
 
-Note: Gini is not go-gettable because gini does not have a canonical website.  
-If/when a gini website is set up, we'll make it go-gettable with a corresponding
-URL.
+    go get github.com/irifrance/gini...
+
+I recommend however building the package github.com/irifrance/gini/internal/xo with bounds checking
+turned off.  This package is all about anything-goes performance and is the workhorse behing most of
+the gini sat solver.  It is also extensively tested and well benchmarked, so it should not pose any
+safety threat to client code.
+
 
 # The SAT Problem
 
