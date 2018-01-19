@@ -111,6 +111,29 @@ even hard problems become tractable.  With up to several tens of millions of
 resolutions happening per second on one modern single core CPU, even problems
 with known exponential bounds on resolution steps can be solved.
 
+# Solving Formulas and Circuits
+Gini provides a simple and efficient logic modelling library which supports
+easy construction of arbitrary Boolean formulas and sequential Boolean
+circuits.  The library uses and-inverter graphs, structural hashing, constant
+propagation and can be used for constructing compact formulas with a rich set
+of Boolean operators.  The circuit type implements an interface which makes it
+plug into a solver automatically.
+
+Additionally, sequential circuits are supported.  The sequential part of the
+logic library provides memory elements (latches) which are evaluated initially
+as inputs and take a "next" value which provides input to the next cycle of the
+circuit.  The library supports unrolling sequential circuits for a fixed number
+of cycles to arrive at a non-sequential formula which can then be checked for
+satisfiability using solving tools.
+
+Most SAT use cases use a front end for modelling arbitrary formulas.
+Additionally, Gini fully supports CNF Dimacs files, which are an ancient widely
+used format for representing CNF formulas.  Dimacs files are usually used for
+benchmarking solvers, to eliminate the formula representation layer.  The
+fact that the format is more or less universally supported amongst SAT solvers 
+leads some SAT users to use this format, even though there is I/O and parsing
+overhead by comparison to using a logic library.
+
 # Concurrency
 Gini is written in Go and uses several goroutines by default for garbage
 collection and system call scheduling.  There is a "core" single-goroutine
