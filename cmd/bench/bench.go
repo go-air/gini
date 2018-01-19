@@ -6,12 +6,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/irifrance/gini/bench"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/irifrance/gini/bench"
 )
 
 var selFlags = flag.NewFlagSet("sel", flag.ExitOnError)
@@ -146,12 +147,12 @@ func (co *cmpOptsT) runFilt() func(*bench.Run) bool {
 	parts := strings.Split(*co.Runs, ",")
 	return func(r *bench.Run) bool {
 		for _, m := range parts {
-			m, b := filepath.Match(m, r.Name)
+			matched, b := filepath.Match(m, r.Name)
 			if b != nil {
 				log.Printf("warning: match '%s' gave an error on '%s'", m, r.Name)
 				continue
 			}
-			if !m {
+			if !matched {
 				continue
 			}
 			return true
