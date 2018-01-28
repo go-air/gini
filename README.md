@@ -134,6 +134,40 @@ fact that the format is more or less universally supported amongst SAT solvers
 leads some SAT users to use this format, even though there is I/O and parsing
 overhead by comparison to using a logic library.
 
+# Performance
+In applications, SAT problems normally have an exponential tail runtime
+distribution with a strong bias towards bigger problems populating the longer
+runtime part of the distribution.  So in practice, a good rule of thumb is 1 in
+N problems will on average take longer than time alotted to solve it for a
+problem of a given size, and then one measures N experimentally.  Very often,
+despite the NP nature of SAT, an application can be designed to use a SAT solver
+in a way that problems almost never take too long.  Additionally, the hardest known
+hand-crafted problems for CDCL solvers which take significant time involve at least 
+a few hundred variables.  So if you're application has only a few hundred variables,
+you're probably not going to have any performance problems at all with any solver.
+
+As in almost every solver, the core CDCL solver in Gini is the workhorse and is a 
+good general purpose solver.  Some specific applications do benefit from 
+pre- or in-processing, and some some applications may not be useable with such 
+techniques.  Other solvers provide more and better pre- or in-processing than Gini
+and help is welcome in adding such solving techniques to Gini.
+
+The core CDCL solver in Gini has been compared with that in MiniSAT and PicoSAT,
+two standard such solvers on randomly chosen SAT competition problems.  In this
+evaluation, Gini out performed PicoSAT and was neck-in-neck with MiniSAT.  The
+core CDCL solver in Gini also measures up to PicoSAT and MiniSAT in terms of
+"propagations per second", indicating the core routines are themselves competitive
+with these solvers, not only the heuristics.  This level of performance has not to 
+our knowledge been achieved by other sat solvers in Go, such as go-sat or gophersat.
+
+While the above evaluation casts a fairly wide net over application domains and
+problem difficulty, the performance of sat solvers and underlying algorithms are 
+fundamentally hard to predict in any rigorous way.  So your experience may differ,
+but we are confident Gini's core solver is a well positioned alternative to standard
+high-performance CDCL solvers in C/C++.  We encourage you to give it a try and welcome
+any comparisons.
+
+
 # Concurrency
 Gini is written in Go and uses several goroutines by default for garbage
 collection and system call scheduling.  There is a "core" single-goroutine
