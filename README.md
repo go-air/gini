@@ -193,11 +193,12 @@ generate lots of assumptions.
 # Distributed and CRISP
 
 Gini provides a definition and reference implementation for
-[CRISP-1.0](doc/crisp.pdf), the compressed incremental SAT protocol.  The
-protocol is a client-server wire protocol which can dispatch an incremental sat
-solver with very little overhead as compared to direct API calls.  The
-advantage of using a protocol is that it allows arbitrary tools to implement
-the solving on arbitrary hardware without affecting the client.  
+[CRISP-1.0](https://github.com/irifrance/gini/blob/master/doc/crisp/crisp.pdf),
+the compressed incremental SAT protocol.  The protocol is a client-server wire
+protocol which can dispatch an incremental sat solver with very little overhead
+as compared to direct API calls.  The advantage of using a protocol is that it
+allows arbitrary tools to implement the solving on arbitrary hardware without
+affecting the client.  
 
 Many SAT applications are incremental and easily solve huge numbers of problems
 while only a few problems are hard.  CRISP facilitates pulling out the big guns
