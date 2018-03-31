@@ -8,7 +8,7 @@ The Gini sat solver is a fast, clean SAT solver written in go.
 
 [Google Group](https://groups.google.com/d/forum/ginisat)
 
-This solver is fully open source, originally developped at [IRI France](http://www.iri-labs.com)
+This solver is fully open source, originally developped at IRI France.
 
 
 # Build/Install
@@ -117,7 +117,9 @@ easy construction of arbitrary Boolean formulas and sequential Boolean
 circuits.  The library uses and-inverter graphs, structural hashing, constant
 propagation and can be used for constructing compact formulas with a rich set
 of Boolean operators.  The circuit type implements an interface which makes it
-plug into a solver automatically.
+plug into a solver automatically.  In fact, the circuit type uses the same 
+representation for literals as the solver, so there is no need to map
+between solver and circuit variables.
 
 Additionally, sequential circuits are supported.  The sequential part of the
 logic library provides memory elements (latches) which are evaluated initially
@@ -131,8 +133,8 @@ Additionally, Gini fully supports CNF Dimacs files, which are an ancient widely
 used format for representing CNF formulas.  Dimacs files are usually used for
 benchmarking solvers, to eliminate the formula representation layer.  The
 fact that the format is more or less universally supported amongst SAT solvers 
-leads some SAT users to use this format, even though there is I/O and parsing
-overhead by comparison to using a logic library.
+leads some SAT users to use this format, even though there is I/O, CNF translation,  
+and parsing overhead by comparison to using a logic library.
 
 # Performance
 In applications, SAT problems normally have an exponential tail runtime
@@ -184,22 +186,18 @@ a pause*.
 
 ## Ax
 Gini provides an "Assumption eXchange" package for deploying solves
-under different sets of assumptions to the same of underlying constraints
+under different sets of assumptions to the same set of underlying constraints
 in parallel. This can give linear speed up in tasks, such as PDR/IC3, which 
 generate lots of assumptions.
 
-## Concurrency package
-A concurrent solver is in the works but not yet publicly available.
+# Distributed and CRISP
 
-
-# CRISP
-
-Gini provides a definition and reference implementation for CRISP 1.0, the 
-compressed incremental SAT protocol.  The protocol is a client-server
-wire protocol which can dispatch an incremental sat solver with very
-little overhead as compared to direct API calls.  The advantage of 
-using a protocol is that it allows arbitrary tools to implement the solving
-on arbitrary hardware without affecting the client.  
+Gini provides a definition and reference implementation for
+[CRISP-1.0](doc/crisp.pdf), the compressed incremental SAT protocol.  The
+protocol is a client-server wire protocol which can dispatch an incremental sat
+solver with very little overhead as compared to direct API calls.  The
+advantage of using a protocol is that it allows arbitrary tools to implement
+the solving on arbitrary hardware without affecting the client.  
 
 Many SAT applications are incremental and easily solve huge numbers of problems
 while only a few problems are hard.  CRISP facilitates pulling out the big guns
@@ -209,15 +207,14 @@ issues, hardware requirements, size and complexity of the code base, etc.
 Applications that use CRISP can truly isolate themselves from the woes of
 integrating big guns while benefiting on hard problems.
 
-CRISP also allows language independent incremental SAT solving.  The applications
-and solvers can be readily implemented without the headache of synchronizing
-programming language, compilers, or coding style.
+CRISP also allows language independent incremental SAT solving.  The
+applications and solvers can be readily implemented without the headache of
+synchronizing programming language, compilers, or coding style.
 
 We are planning on implementing some CRISP extensions, namely the multiplexing
 interface which will enable (possibly remote) clients to control
 programmatically partitioning or queuing of related SAT problems.
 
-# Distributed
 The CRISP protocol provides a basis for distributed solving.  Gini implements
 a CRISP-1.0 client and server.  
 
