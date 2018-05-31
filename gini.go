@@ -4,11 +4,12 @@
 package gini
 
 import (
+	"io"
+
 	"github.com/irifrance/gini/dimacs"
 	"github.com/irifrance/gini/inter"
 	"github.com/irifrance/gini/internal/xo"
 	"github.com/irifrance/gini/z"
-	"io"
 )
 
 // Gini is a concrete implementation of solver
@@ -82,6 +83,11 @@ func (g *Gini) SCopy() inter.S {
 // MaxVar returns the variable whose id is max.
 func (g *Gini) MaxVar() z.Var {
 	return g.xo.Vars.Max
+}
+
+// Var produces a fresh variable.
+func (g *Gini) Lit() z.Lit {
+	return g.xo.Lit()
 }
 
 // Add implements inter.S.  To add a clause (x + y + z),

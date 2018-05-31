@@ -25,6 +25,13 @@ func NewSCap(capHint int) *S {
 	return s
 }
 
+func (s *S) Copy() *S {
+	cc := (&s.C).Copy()
+	ls := make([]z.Lit, len(s.Latches))
+	copy(ls, s.Latches)
+	return &S{C: *cc, Latches: ls}
+}
+
 // Latch returns a new "latch", which is a value that
 // evolves over time.
 //

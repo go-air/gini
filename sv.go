@@ -21,6 +21,15 @@ func NewSv() inter.Sv {
 	return w
 }
 
+// NewSvVars creates an Sv implementation with
+// the specified set of vars.
+func NewSvVars(vs *z.Vars) inter.Sv {
+	w := &svWrap{
+		S: New(),
+		V: vs}
+	return w
+}
+
 func (w *svWrap) Inner() z.Lit {
 	return w.V.Inner()
 }
@@ -39,6 +48,10 @@ func (w *svWrap) Add(m z.Lit) {
 
 func (w *svWrap) MaxVar() z.Var {
 	return w.S.MaxVar()
+}
+
+func (w *svWrap) Lit() z.Lit {
+	return w.S.Lit()
 }
 
 func (w *svWrap) Why(dst []z.Lit) []z.Lit {

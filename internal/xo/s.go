@@ -5,13 +5,14 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/dimacs"
-	"github.com/irifrance/gini/inter"
-	"github.com/irifrance/gini/z"
 	"io"
 	"log"
 	"runtime"
 	"sync"
+
+	"github.com/irifrance/gini/dimacs"
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
 const (
@@ -691,6 +692,13 @@ func (s *S) finalRec(m z.Lit, marks []bool) {
 		s.finalRec(n, marks)
 	}
 	return
+}
+
+func (s *S) Lit() z.Lit {
+	n := s.Vars.Max + 1
+	m := n.Pos()
+	s.ensureLitCap(m)
+	return m
 }
 
 // we keep a global track of variable/literal capacity here.

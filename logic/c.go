@@ -61,6 +61,18 @@ func (p *C) ToCnf(dst inter.Adder) {
 	}
 }
 
+func (p *C) Copy() *C {
+	ns := make([]node, len(p.nodes))
+	st := make([]uint32, len(p.strash))
+	copy(ns, p.nodes)
+	copy(st, p.strash)
+	return &C{
+		nodes:  ns,
+		strash: st,
+		T:      p.T,
+		F:      p.F}
+}
+
 func addAnd(dst inter.Adder, g, a, b z.Lit) {
 	dst.Add(g.Not())
 	dst.Add(a)

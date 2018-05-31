@@ -49,6 +49,12 @@ type MaxVar interface {
 	MaxVar() z.Var
 }
 
+// Liter produces fresh variables and returns the corresponding
+// positive literal.
+type Liter interface {
+	Lit() z.Lit
+}
+
 // Model encapsulates something from which a model
 // can be exracted.
 type Model interface {
@@ -106,9 +112,9 @@ type Testable interface {
 // enabling composing solvable, assumable, model, testable,
 // and GoSolveable.
 type S interface {
-	Add(m z.Lit)
-
 	MaxVar
+	Liter
+	Adder
 	Solvable
 	GoSolvable
 	Model
