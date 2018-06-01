@@ -113,13 +113,13 @@ with known exponential bounds on resolution steps can be solved.
 
 # Solving Formulas and Circuits
 Gini provides a simple and efficient logic modelling library which supports
-easy construction of arbitrary Boolean formulas and sequential Boolean
-circuits.  The library uses and-inverter graphs, structural hashing, constant
-propagation and can be used for constructing compact formulas with a rich set
-of Boolean operators.  The circuit type implements an interface which makes it
-plug into a solver automatically.  In fact, the circuit type uses the same 
-representation for literals as the solver, so there is no need to map
-between solver and circuit variables.
+easy construction of arbitrary Boolean formulas.  The library uses and-inverter
+graphs, structural hashing, constant propagation and can be used for
+constructing compact formulas with a rich set of Boolean operators.  The
+circuit type implements an interface which makes it plug into a solver
+automatically.  In fact, the circuit type uses the same representation for
+literals as the solver, so there is no need to map between solver and circuit
+variables.
 
 Additionally, sequential circuits are supported.  The sequential part of the
 logic library provides memory elements (latches) which are evaluated initially
@@ -128,6 +128,13 @@ circuit.  The library supports unrolling sequential circuits for a fixed number
 of cycles to arrive at a non-sequential formula which can then be checked for
 satisfiability using solving tools.
 
+Gini also supports cardinality constraints which can constrain how many of a 
+set of Boolean variables are true.  Cardinality constraints in turn provide
+an easy means of doing optimisation.  Gini uses sorting networks to code
+cardinality constraints into clauses.  Sorting networks are a good general
+purpose means of handling cardinality constraints in a problem context which
+also contains lots of purely Boolean logic (implicitly or not).
+
 Most SAT use cases use a front end for modelling arbitrary formulas.
 Additionally, Gini fully supports CNF Dimacs files, which are an ancient widely
 used format for representing CNF formulas.  Dimacs files are usually used for
@@ -135,6 +142,45 @@ benchmarking solvers, to eliminate the formula representation layer.  The
 fact that the format is more or less universally supported amongst SAT solvers 
 leads some SAT users to use this format, even though there is I/O, CNF translation,  
 and parsing overhead by comparison to using a logic library.
+
+# Optimisation
+With Cardinality constraints, optimisation is easy
+
+    import "github.com/irifrance/gini"
+    import "github.com/irifrance/gini/logic"
+
+    s := gini.New()
+    c := logic.NewC()
+
+
+    // suppose we encode package dependency constraints in the circuit c
+    // and we have a slice of packages each of which has a literal
+    // associated with whether or not multiple versions are needed in a 
+    // build
+
+    multiVersions := make([]z.Lit, 1<<23)
+    for _, p := range pkgs {
+        multiVersions = append(multiVersions, p.needsMulti)
+    }
+
+    // make a cardinality constraints object
+    cards := logic.NewCardSort(multiVersions, s)
+
+    // loop through the constraints (note a linear search
+    // can be faster in this case because the underlying solver
+    // often has locality of logic cache w.r.t. cardinality constraints)
+    minMultiVersions := -1
+    for i := range multiVersions {
+        s.Assume(cards.Leq(i))
+        if s.Solve() == 1 {
+            minMultiVersions = i
+            break
+        }
+    }
+
+    // use the model from s to propose a build
+
+
 
 # Performance
 In applications, SAT problems normally have an exponential tail runtime
