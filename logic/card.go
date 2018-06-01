@@ -50,7 +50,7 @@ type LitAdder interface {
 
 // NewCardSort creates a new Card object which gives access to unary Cardinality
 // constraints over ms.  The resulting predicates reflect how many of the literals
-// in ms are true.
+// in ms are true.  For the moment, |ms| must be a power of 2.
 //
 func NewCardSort(ms []z.Lit, va LitAdder) *CardSort {
 	p := uint(0)
@@ -144,34 +144,6 @@ func (n *CardSort) merge(l, h, s int) {
 		ml, mh = n.lh(i, i+s)
 		n.ms[i], n.ms[i+s] = ml, mh
 	}
-}
-
-func (n *CardSort) oddEvenPermute(l, h int) {
-	i := l
-	j := 0
-	for i < h {
-		n.tmp[j] = n.ms[i]
-		i += 2
-		j++
-	}
-	i = l + 1
-	for i < h {
-		n.tmp[j] = n.ms[i]
-		i += 2
-		j++
-	}
-	copy(n.ms[l:h], n.tmp[:j])
-}
-
-func (n *CardSort) oddEvenUnpermute(l, h int) {
-	m := (h - l) / 2
-	for i := 0; i < m; i++ {
-		n.tmp[2*i] = n.ms[l+i]
-	}
-	for i := 0; i < m; i++ {
-		n.tmp[2*i+1] = n.ms[l+m+i]
-	}
-	copy(n.ms[l:h], n.tmp[:h-l])
 }
 
 // compare-and-swap (low-high)

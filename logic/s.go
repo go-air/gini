@@ -25,6 +25,7 @@ func NewSCap(capHint int) *S {
 	return s
 }
 
+// Copy make a copy of s.
 func (s *S) Copy() *S {
 	cc := (&s.C).Copy()
 	ls := make([]z.Lit, len(s.Latches))
@@ -91,4 +92,51 @@ func (s *S) SetNext(m, nxt z.Lit) {
 func (s *S) Init(latch z.Lit) z.Lit {
 	v := latch.Var()
 	return s.nodes[v].a
+}
+
+func (s *S) SetInit(latch, nxt z.Lit) {
+	v := latch.Var()
+	s.nodes[v].a = nxt
+}
+
+// type of node type
+type SNodeType int
+
+// and the types are constants
+const (
+	SInput SNodeType = iota
+	SAnd
+	SLatch
+	SConst
+)
+
+func (t SNodeType) String() string {
+	switch t {
+	case SInput:
+		return "input"
+	case SAnd:
+		return "and"
+	case SLatch:
+		return "latch"
+	case SConst:
+		return "const"
+	default:
+		panic("wilma!")
+	}
+}
+
+// Type returns the node type of m.
+func (s *S) Type(m z.Lit) SNodeType {
+	v := m.Var()
+	if v == s.T.Var() {
+		return SConst
+	}
+	n := &s.nodes[v]
+	if n.a == z.LitNull && n.b == z.LitNull {
+		return SInput
+	}
+	if n.a.Var() == s.T.Var() || n.a == z.LitNull {
+		return SLatch
+	}
+	return SAnd
 }

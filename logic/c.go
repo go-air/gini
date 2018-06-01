@@ -37,6 +37,9 @@ func NewCCap(capHint int) *C {
 }
 
 func initC(c *C, capHint int) {
+	if capHint < 2 {
+		capHint = 2
+	}
 	c.nodes = make([]node, 2, capHint)
 	c.strash = make([]uint32, capHint)
 	c.F = z.Var(1).Neg()
