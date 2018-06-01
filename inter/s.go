@@ -51,6 +51,7 @@ type MaxVar interface {
 
 // Liter produces fresh variables and returns the corresponding
 // positive literal.
+//
 type Liter interface {
 	Lit() z.Lit
 }
@@ -113,6 +114,10 @@ type Testable interface {
 // and GoSolveable.
 type S interface {
 	MaxVar
+	// Although an S can generate literals via Liter, it
+	// doesn't have to.  One can just send arbitrary variables
+	// via Adder, Assume, etc.  Liter is useful for applications
+	// which need a way to know how to generate new variables/literals.
 	Liter
 	Adder
 	Solvable
