@@ -4,15 +4,17 @@
 package gen
 
 import (
-	"github.com/irifrance/gini/z"
 	"math/rand"
+
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
 // RandColor creates a formula asking if a random
 // (simple) graph with n nodes and m edges can
 // be colored with k colors.  Every node must have
 // a color and no 2 adjacent nodes may have the same color.
-func RandColor(dst Dest, n, m, k int) Dest {
+func RandColor(dst inter.Adder, n, m, k int) {
 	g := RandGraph(n, m)
 	var mkVar = func(n, c int) z.Var {
 		return z.Var(n*c + c + 1)
@@ -38,7 +40,6 @@ func RandColor(dst Dest, n, m, k int) Dest {
 			dst.Add(0)
 		}
 	}
-	return dst
 }
 
 type edge struct {

@@ -4,29 +4,14 @@
 package gen
 
 import (
-	"github.com/irifrance/gini/z"
 	"math/rand"
 	"sync"
+
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
-// Type Dest is an interface for something
-// which can be built by the generating functions
-// in this package.
-//
-// Dest should interpret subsequent calls to Add
-// as encoding a sequence of z.LitNull terminated
-// clauses.  For example, the clause (m or n)
-// would result in calls
-//
-//  dst.Add(m)
-//  dst.Add(n)
-//  dst.Add(z.LitNull)
-//
-type Dest interface {
-	Add(m z.Lit)
-}
-
-// make the rng seedable
+/// make the rng seedable
 var rng = rand.New(rand.NewSource(33))
 var mu sync.Mutex
 
@@ -38,7 +23,7 @@ func Seed(s int64) {
 
 // BinCycle generates
 // (1,-2) (2,-3), (3,-4) ... (n-1, -(n)), (n, 1)
-func BinCycle(dst Dest, n int) {
+func BinCycle(dst inter.Adder, n int) {
 	N := n + 1
 
 	for i := 1; i < N; i++ {
@@ -55,7 +40,7 @@ func BinCycle(dst Dest, n int) {
 
 // Rand3Cnf generates a random 3cnf with
 // n variables and m clauses.
-func Rand3Cnf(dst Dest, n, m int) {
+func Rand3Cnf(dst inter.Adder, n, m int) {
 	mu.Lock() // for package rng
 	defer mu.Unlock()
 	ms := make([]z.Lit, 3)
@@ -79,14 +64,14 @@ func Rand3Cnf(dst Dest, n, m int) {
 
 // HardRand3Cnf generates a random 3cnf
 // with n variables.
-func HardRand3Cnf(dst Dest, n int) {
+func HardRand3Cnf(dst inter.Adder, n int) {
 	Rand3Cnf(dst, n, 4*n)
 }
 
 // Php generates a pigeon hole problem asking
 // whether or not P pigeons can be placed
 // in H holes with 1 pigeon per hole.
-func Php(dst Dest, P, H int) {
+func Php(dst inter.Adder, P, H int) {
 	for i := 0; i < P; i++ {
 		for j := 0; j < H; j++ {
 			dst.Add(PartVar(i, j, P))
