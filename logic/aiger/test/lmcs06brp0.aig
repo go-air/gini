@@ -1,0 +1,255 @@
+aig 902 47 89 0 766 0 1 1
+2
+4
+6
+8
+10
+288
+300
+308
+332
+368
+12
+374
+384
+396
+408
+418
+452
+472
+500
+522
+548
+574
+596
+614
+626
+640
+656
+680
+690
+700
+710
+720
+738
+760
+778
+786
+794
+800
+808
+816
+824
+856
+892
+898
+14
+16
+908
+910
+18
+20
+22
+24
+26
+28
+30
+32
+34
+36
+38
+40
+42
+44
+46
+48
+50
+52
+54
+56
+58
+60
+62
+64
+66
+68
+70
+72
+74
+76
+78
+80
+82
+84
+86
+88
+90
+92
+94
+1688
+1
+1717
+2
+1724
+1726
+©Æ≤µÆí	¨ò≈è™"Œ—’Ÿ÷Ÿ›·’.:“ÏÔ⁄ÒıÒˆ˘˝ıˇÉı_8⁄˝d8ﬁó	˙nÑ˜â{ÜlñÜÜ±πüëPÚ√L˙«t÷À5˚óQ[46≤K¯ÆhqJH!'.∆_˜¬|Ä<äé4fd=DI‚ñ;ó€¢¶3~Ä˛Ç˘´ÿÆÿ∏º–îñ˚ó˝ùíô«Ø≤ÖŒ⁄™ﬂ∑¨∆É«Ô‰÷ÚﬁŒ¬Ωäı…1Ñœ9ﬂ‘œààëΩ√‡Ø≤çñüÀ—Ó«“õü£®ˆÊ˛Ä≠∞≥Ø∏ıë¸ñË‚˚í†Öê™Î›•µÊÄÁ≠2øïú'Ç;AµG—ßö™y>òQXÀ]ÊΩòP©cj›o¯aÖ`tÄj˙kÇàqÄÜéÊ—ÁêñÓœÔéûˆÕ˜å¶˝ã˘ÅÓü§ïˆ≤∑üΩ«ó•˜˚ˇ·FØ´‘ÅÖâéÏΩ·ÍÉƒ¸Å∆Ñ«Ì˙˛R¯ıˆÛ¯Ê„Ë’÷—G—H◊›ÿÿ÷÷'ØØØ¥Õ¬∆†ì§≈√¿›‚ƒ„ªﬁÕ¨“ØØ∏Ô Ω
+æ¬	¡√ÃÃ«ﬂÚ4˛˛I•ÔÒÇçè¥˙åùÍ£‚´Í” Û≠±ºø◊∑ªÕ´·¬≈÷ÔÈÌ˜ÔÛ‘◊€€ŒµÅπÖ‘«ãÀœÇøëïô«è çŸ¬¬ËÏÒÁÙ£«,–˝ÖØ˛ñ	ñ	∑ˇù	ü	Ä°’!+6EU]cku}ãó£ß´Ø≥∑ºÃåû≠Û°“	“	ˇÈŸ	ÉË‚	Ê	∫∫
+∂∂ƒ(¥≠ç∂Çı	ñΩ˘	ù≈Ä
+¶ÕÉ
+ µ#°
+ˆˆÓÓ;ª>π,Ç	Ç	>ê	ê	Yø\ΩX¶	¶	˘(Ø	≠	tÅæ	æ	o∆«	≈	æ	å†	≠ºÌÿ
+ÿ
+µ¶	ª†	·
+∂	∂	Æ	Æ	Æ	Æ	ÿ•	‘ÇÜ⁄	⁄	÷	÷	6‡	Bﬁ	≠ÇﬂêêÄó	¸ú†Ù	Ù	
+		˛	"&ú
+≠¸¸ŸˆŸÚ‹Ó€Ï	˜Ã
+Ã
+Ìƒ
+ƒ
+ß•™£)Ôÿ
+ÿ
+7ÛÊ
+Ê
+≈©»ßM˜¸
+¸
+Îô	Óó	ﬁ˚ííÈ±	ÏØ	êvzÍ¸™ÑÖ–µª®§…Ÿäµ–Å	£ø Û≠∞C≤-€–€∏€Ñﬁ¨∞·∫˛’À«ø#ª)∑‚áÈÂ?∑ÈDêÄÖÒÙ	N ¸Å˚˛i0 AIGER_NEXT_running_a_4
+i1 AIGER_NEXT_running_a_3
+i2 AIGER_NEXT_running_a_2
+i3 AIGER_NEXT_running_a_1
+i4 AIGER_NEXT_running_a_0
+i5 AIGER_NEXT_s_o_req_a_1
+i6 AIGER_NEXT_s_o_afile
+i7 AIGER_NEXT_AIGER_NOT_s_o_afirst
+i8 AIGER_NEXT_AIGER_NOT_s_o_SAFE
+i9 AIGER_NEXT_read___K_o_new
+i10 AIGER_NEXT_LTL_1_SPECF_2
+i11 AIGER_NEXT_LTL_1_SPECF_5
+i12 AIGER_NEXT_LTL_1_SPECF_9
+i13 AIGER_NEXT_IGNORE_LTL_1
+i14 AIGER_NEXT_LTL_2_SPECF_2
+i15 AIGER_NEXT_LTL_2_SPECF_11
+i16 AIGER_NEXT_LTL_2_SPECF_13
+i17 AIGER_NEXT_LTL_2_SPECF_27
+i18 AIGER_NEXT_LTL_2_SPECF_29
+i19 AIGER_NEXT_LTL_2_SPECF_38
+i20 AIGER_NEXT_LTL_2_SPECF_40
+i21 AIGER_NEXT_LTL_2_SPECF_49
+i22 AIGER_NEXT_LTL_2_SPECF_56
+i23 AIGER_NEXT_LTL_2_SPECF_58
+i24 AIGER_NEXT_IGNORE_LTL_2
+i25 AIGER_NEXT_LTL_3_SPECF_1
+i26 AIGER_NEXT_LTL_3_SPECF_10
+i27 AIGER_NEXT_LTL_3_SPECF_12
+i28 AIGER_NEXT_LTL_3_SPECF_26
+i29 AIGER_NEXT_LTL_3_SPECF_28
+i30 AIGER_NEXT_LTL_3_SPECF_37
+i31 AIGER_NEXT_LTL_3_SPECF_39
+i32 AIGER_NEXT_LTL_3_SPECF_48
+i33 AIGER_NEXT_LTL_3_SPECF_55
+i34 AIGER_NEXT_LTL_3_SPECF_57
+i35 AIGER_NEXT_IGNORE_LTL_3
+i36 AIGER_NEXT_LTL_4_SPECF_4
+i37 AIGER_NEXT_LTL_4_SPECF_7
+i38 AIGER_NEXT_LTL_4_SPECF_11
+i39 AIGER_NEXT_LTL_4_SPECF_20
+i40 AIGER_NEXT_LTL_4_SPECF_24
+i41 AIGER_NEXT_LTL_4_SPECF_28
+i42 AIGER_NEXT_IGNORE_LTL_4
+i43 AIGER_NEXT_LTL_5_SPECF_1
+i44 AIGER_NEXT_LTL_5_SPECF_4
+i45 AIGER_NEXT_LTL_5_SPECF_8
+i46 AIGER_NEXT_IGNORE_LTL_5
+l0 running_a_4
+l1 running_a_3
+l2 running_a_2
+l3 running_a_1
+l4 running_a_0
+l5 s_o_K_o_first
+l6 s_o_K_o_last
+l7 s_o_K_o_toggle
+l8 s_o_K___full
+l9 s_o_L
+l10 s_o_req_a_1
+l11 s_o_req_a_0
+l12 s_o_req___full
+l13 AIGER_NOT_s_o_conf_a_1
+l14 s_o_conf_a_0
+l15 s_o_conf___full
+l16 s_o_spc_a_2
+l17 AIGER_NOT_s_o_spc_a_1
+l18 AIGER_NOT_s_o_spc_a_0
+l19 AIGER_NOT_s_o_sfirst
+l20 s_o_stoggle
+l21 s_o_file_a_1
+l22 AIGER_NOT_s_o_file_a_0
+l23 s_o_rn
+l24 s_o_stimer1___on
+l25 s_o_stimer1___enabled
+l26 s_o_stimer2___on
+l27 s_o_stimer2___enabled
+l28 s_o_ind___indication_a_1
+l29 s_o_ind___indication_a_0
+l30 s_o_ind___full
+l31 s_o_ind___error
+l32 AIGER_NOT_s_o_rpc_a_2
+l33 s_o_rpc_a_1
+l34 s_o_rpc_a_0
+l35 AIGER_NOT_s_o_rfirst
+l36 s_o_rtoggle
+l37 s_o_ctoggle
+l38 s_o_msg_o_first
+l39 s_o_msg_o_last
+l40 s_o_msg_o_toggle
+l41 AIGER_NOT_s_o_rtimer___on
+l42 s_o_rtimer___enabled
+l43 s_o_abusy
+l44 s_o_afile
+l45 AIGER_NOT_s_o_afirst
+l46 s_o_aerror
+l47 AIGER_NOT_s_o_data___is___safe
+l48 AIGER_NOT_s_o_SAFE
+l49 read___K_o_new
+l50 LTL_1_SPECF_2
+l51 LTL_1_SPECF_5
+l52 LTL_1_SPECF_9
+l53 IGNORE_LTL_1
+l54 LTL_2_SPECF_2
+l55 LTL_2_SPECF_11
+l56 LTL_2_SPECF_13
+l57 LTL_2_SPECF_27
+l58 LTL_2_SPECF_29
+l59 LTL_2_SPECF_38
+l60 LTL_2_SPECF_40
+l61 LTL_2_SPECF_49
+l62 LTL_2_SPECF_56
+l63 LTL_2_SPECF_58
+l64 IGNORE_LTL_2
+l65 LTL_3_SPECF_1
+l66 LTL_3_SPECF_10
+l67 LTL_3_SPECF_12
+l68 LTL_3_SPECF_26
+l69 LTL_3_SPECF_28
+l70 LTL_3_SPECF_37
+l71 LTL_3_SPECF_39
+l72 LTL_3_SPECF_48
+l73 LTL_3_SPECF_55
+l74 LTL_3_SPECF_57
+l75 IGNORE_LTL_3
+l76 LTL_4_SPECF_4
+l77 LTL_4_SPECF_7
+l78 LTL_4_SPECF_11
+l79 LTL_4_SPECF_20
+l80 LTL_4_SPECF_24
+l81 LTL_4_SPECF_28
+l82 IGNORE_LTL_4
+l83 LTL_5_SPECF_1
+l84 LTL_5_SPECF_4
+l85 LTL_5_SPECF_8
+l86 IGNORE_LTL_5
+l87 AIGER_VALID
+l88 AIGER_INITIALIZED
+c0 AIGER_INVAR_0
+j0 AIGER_JUST_0
+c
+aigsplit
+was justice 0

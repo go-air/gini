@@ -1,0 +1,37 @@
+aig 71 8 10 0 53 0 0 1
+2
+4
+6
+8
+10
+12
+14
+16
+126
+1
+2
+140
+142
+  -#53:(;B@22,,<<O
+\TFF@@P5VWFgnmcfl	ili0 AIGER_NEXT_request
+i1 AIGER_NEXT_AIGER_NOT_state_a_0
+i2 AIGER_NEXT_LTL_1_SPECF_1
+i3 AIGER_NEXT_LTL_1_SPECF_6
+i4 AIGER_NEXT_IGNORE_LTL_1
+i5 AIGER_NEXT_LTL_2_SPECF_2
+i6 AIGER_NEXT_LTL_2_SPECF_7
+i7 AIGER_NEXT_IGNORE_LTL_2
+l0 request
+l1 AIGER_NOT_state_a_0
+l2 LTL_1_SPECF_1
+l3 LTL_1_SPECF_6
+l4 IGNORE_LTL_1
+l5 LTL_2_SPECF_2
+l6 LTL_2_SPECF_7
+l7 IGNORE_LTL_2
+l8 AIGER_VALID
+l9 AIGER_INITIALIZED
+j0 AIGER_JUST_1
+c
+aigsplit
+was justice 1
