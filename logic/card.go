@@ -5,13 +5,14 @@ import (
 	"github.com/irifrance/gini/z"
 )
 
+// Card provides an interface for different implementations
+// of cardinality constraints.
 type Card interface {
 	Leq() z.Lit
 	Geq() z.Lit
 	Less() z.Lit
 	Gr() z.Lit
 	N() int
-	Valid() z.Lit // gives a valid literal
 }
 
 // CardSort provides cardinality constraints via sorting networks.
@@ -50,7 +51,7 @@ type LitAdder interface {
 
 // NewCardSort creates a new Card object which gives access to unary Cardinality
 // constraints over ms.  The resulting predicates reflect how many of the literals
-// in ms are true.  For the moment, |ms| must be a power of 2.
+// in ms are true.
 //
 func NewCardSort(ms []z.Lit, va LitAdder) *CardSort {
 	p := uint(0)
@@ -58,13 +59,15 @@ func NewCardSort(ms []z.Lit, va LitAdder) *CardSort {
 		p++
 	}
 	ns := make([]z.Lit, 1<<p)
-	tmp := make([]z.Lit, 1<<p)
 	copy(ns, ms)
-	c := &CardSort{ms: ns, va: va, n: len(ms), tmp: tmp}
+	c := &CardSort{ms: ns, va: va, n: len(ms)}
 	c.one = va.Lit()
 	va.Add(c.one)
 	va.Add(z.LitNull)
-	c.sort(0, len(ms))
+	for i := len(ms); i < len(ns); i++ {
+		ns[i] = c.one
+	}
+	c.sort(0, len(ns))
 	return c
 }
 

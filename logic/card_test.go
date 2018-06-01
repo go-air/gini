@@ -61,3 +61,29 @@ func TestCardSort(t *testing.T) {
 		sv.Untest()
 	}
 }
+
+func TestCardNotPowerOfTwo(t *testing.T) {
+	s := gini.New()
+	ms := make([]z.Lit, 11)
+	for i := range ms {
+		ms[i] = s.Lit()
+	}
+	cs := NewCardSort(ms, s)
+	for i := 0; i < 11; i++ {
+		for j := 0; j < i; j++ {
+			s.Assume(ms[j])
+		}
+		s.Test(nil)
+		for j := 0; j < i; j++ {
+			s.Assume(cs.Geq(j))
+			if s.Solve() != 1 {
+				t.Errorf("geq %d gave unsat after %d assumes\n", j, i)
+			}
+			s.Assume(cs.Less(j))
+			if s.Solve() != -1 {
+				t.Errorf("less %d gave sat after %d assumes\n", j, i)
+			}
+		}
+		s.Untest()
+	}
+}
