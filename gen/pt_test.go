@@ -4,9 +4,10 @@
 package gen
 
 import (
-	"github.com/irifrance/gini"
 	"log"
 	"testing"
+
+	"github.com/irifrance/gini"
 )
 
 func TestPart(t *testing.T) {
@@ -17,7 +18,8 @@ func TestPart(t *testing.T) {
 		}
 	}
 	for i, e := range elts {
-		log.Printf("%d %d\n", i, e)
+		_, _ = i, e
+		//log.Printf("%d %d\n", i, e)
 	}
 }
 
