@@ -5,11 +5,12 @@ package gen
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/inter"
-	"github.com/irifrance/gini/z"
 	"math/rand"
 	"sync"
 	"time"
+
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
 // RandS creates an inter.S which just returns  result to Solve() within a
@@ -62,6 +63,12 @@ func (r *randS) Add(m z.Lit) {
 	if m.Var() > r.mv {
 		r.mv = m.Var()
 	}
+}
+
+func (r *randS) Lit() z.Lit {
+	m := (r.mv + 1).Pos()
+	r.Add(m)
+	return m
 }
 
 func (r *randS) Assume(ms ...z.Lit) {
