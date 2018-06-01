@@ -135,13 +135,22 @@ cardinality constraints into clauses.  Sorting networks are a good general
 purpose means of handling cardinality constraints in a problem context which
 also contains lots of purely Boolean logic (implicitly or not).
 
-Most SAT use cases use a front end for modelling arbitrary formulas.
-Additionally, Gini fully supports CNF Dimacs files, which are an ancient widely
-used format for representing CNF formulas.  Dimacs files are usually used for
-benchmarking solvers, to eliminate the formula representation layer.  The
-fact that the format is more or less universally supported amongst SAT solvers 
-leads some SAT users to use this format, even though there is I/O, CNF translation,  
-and parsing overhead by comparison to using a logic library.
+Most SAT use cases use a front end for modelling arbitrary formulas.  When formats
+are needed for interchange, Gini supports the following.
+
+## Aiger
+Gini supports [aiger version 1.9](http://fmv.jku.at/aiger/) in conjunction
+with its logic library.  The logic.C and logic.S circuit types can be 
+stored, exchanged, read and written in aiger ascii and binary formats.
+
+## Dimacs
+CNF Dimacs files, which are an ancient widely used format for representing CNF
+formulas.  Dimacs files are usually used for benchmarking solvers, to eliminate
+the formula representation layer.  The fact that the format is more or less
+universally supported amongst SAT solvers leads some SAT users to use this
+format, even though there is I/O, CNF translation,  and parsing overhead by
+comparison to using a logic library.
+
 
 # Optimisation
 With Cardinality constraints, optimisation is easy
