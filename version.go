@@ -4,4 +4,4 @@
 package gini
 
 // The version of gini
-const Version = "1.0a"
+const Version = "v0.9.1"
