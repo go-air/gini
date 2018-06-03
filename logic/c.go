@@ -305,6 +305,32 @@ func (p *C) Ins(m z.Lit) (z.Lit, z.Lit) {
 	return n.a, n.b
 }
 
+// adapter for CardSort
+type la struct {
+	c  *C
+	sl []z.Lit
+}
+
+func (l *la) Lit() z.Lit {
+	return l.c.NewIn()
+}
+
+func (l *la) Add(m z.Lit) {
+	if m == z.LitNull {
+		l.c.Ors(l.sl...)
+		l.sl = l.sl[:0]
+		return
+	}
+	l.sl = append(l.sl, m)
+}
+
+// CardSort creates a CardSort object whose
+// cardinality predicates over ms are encoded in c.
+func (c *C) CardSort(ms []z.Lit) *CardSort {
+	la := &la{c: c, sl: make([]z.Lit, 0, 3)}
+	return NewCardSort(ms, la)
+}
+
 func (p *C) newNode() (*node, uint32) {
 	if len(p.nodes) == cap(p.nodes) {
 		p.grow()
