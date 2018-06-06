@@ -169,7 +169,7 @@ func (a *T) SetOutput(m z.Lit) {
 }
 
 func (a *T) NewIn() z.Lit {
-	m := a.S.NewIn()
+	m := a.S.Lit()
 	a.Inputs = append(a.Inputs, m)
 	return m
 }
@@ -506,7 +506,7 @@ func ReadBinary(r io.Reader) (*T, error) {
 	aigrdr := makeAigerReader(aiger, hdr)
 	var i uint
 	for i = 0; i < hdr.In; i++ {
-		m := aigrdr.S.NewIn()
+		m := aigrdr.S.Lit()
 		aigrdr.mapLit((i+1)*2, m)
 		aigrdr.Inputs = append(aigrdr.Inputs, m)
 	}
@@ -844,7 +844,7 @@ func (aigrdr *aigerReader) readAsciiInputs(hdr *aigerHeader, r *bufio.Reader) er
 		if in&1 != 0 {
 			return SignedInput
 		}
-		m := aigrdr.S.NewIn()
+		m := aigrdr.S.Lit()
 		aigrdr.Inputs = append(aigrdr.Inputs, m)
 		aigrdr.mapLit(in, m)
 		aigrdr.AigInputs = append(aigrdr.AigInputs, in)

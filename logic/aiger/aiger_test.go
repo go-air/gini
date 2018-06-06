@@ -33,7 +33,7 @@ aiger file version 1.9 created by gini
 
 func makeExample() *T {
 	sys := logic.NewSCap(11)
-	in := sys.NewIn()
+	in := sys.Lit()
 	m := sys.Latch(sys.F)
 	sys.SetNext(m, sys.F)
 	a := sys.And(in, m)

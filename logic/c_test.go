@@ -18,7 +18,7 @@ func TestCGrowStrash(t *testing.T) {
 	N := 1020
 	ins := make([]z.Lit, 0, N)
 	for i := 0; i < N; i++ {
-		ins = append(ins, c.NewIn())
+		ins = append(ins, c.Lit())
 	}
 	gs := make([]z.Lit, N/2)
 	for i := 0; i < N/2; i++ {
@@ -45,16 +45,16 @@ type op struct {
 
 func TestCLogic(t *testing.T) {
 	c := logic.NewC()
-	a := c.NewIn()
-	b := c.NewIn()
+	a := c.Lit()
+	b := c.Lit()
 	ops := []op{
-		{a: c.T, b: c.NewIn()},
-		{a: c.F, b: c.NewIn()},
+		{a: c.T, b: c.Lit()},
+		{a: c.F, b: c.Lit()},
 		{a: a, b: a},
 		{a: a, b: a.Not()},
 		{a: a, b: b},
 		{a: b, b: a},
-		{a: c.NewIn(), b: c.NewIn()}}
+		{a: c.Lit(), b: c.Lit()}}
 
 	for i := range ops {
 		ops[i].g = c.And(ops[i].a, ops[i].b)
@@ -78,7 +78,7 @@ func TestCLogic(t *testing.T) {
 
 func TestEval(t *testing.T) {
 	c := logic.NewC()
-	a, b := c.NewIn(), c.NewIn()
+	a, b := c.Lit(), c.Lit()
 	g := c.And(a, b)
 	_ = g
 	log.Printf("%s = %s and %s\n", g, a, b)
@@ -97,7 +97,7 @@ var rnd = rand.New(rand.NewSource(1))
 
 func TestEval64(t *testing.T) {
 	c := logic.NewC()
-	a, b := c.NewIn(), c.NewIn()
+	a, b := c.Lit(), c.Lit()
 	c.And(a, b)
 	vs := make([]uint64, 5)
 	for i := 0; i < 5; i++ {
@@ -119,7 +119,7 @@ func TestEval64(t *testing.T) {
 
 func ExampleC_equiv() {
 	L := logic.NewC()
-	a, b, c := L.NewIn(), L.NewIn(), L.NewIn()
+	a, b, c := L.Lit(), L.Lit(), L.Lit()
 	c1 := L.Ors(a, b, c)
 	c2 := L.Ors(a, b, c.Not())
 	g1 := L.And(c1, c2)

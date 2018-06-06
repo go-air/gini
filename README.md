@@ -158,7 +158,6 @@ With Cardinality constraints, optimisation is easy
     import "github.com/irifrance/gini"
     import "github.com/irifrance/gini/logic"
 
-    s := gini.New()
     c := logic.NewC()
 
 
@@ -173,11 +172,13 @@ With Cardinality constraints, optimisation is easy
     }
 
     // make a cardinality constraints object
-    cards := logic.NewCardSort(multiVersions, s)
+    cards := c.CardSort(multiVersions, c)
 
     // loop through the constraints (note a linear search
     // can be faster in this case because the underlying solver
     // often has locality of logic cache w.r.t. cardinality constraints)
+    s := gini.New()
+    c.ToCnf(s)
     minMultiVersions := -1
     for i := range multiVersions {
         s.Assume(cards.Leq(i))

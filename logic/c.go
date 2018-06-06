@@ -51,6 +51,8 @@ func initC(c *C, capHint int) {
 //
 // Adder uses basic Tseitinization.
 func (p *C) ToCnf(dst inter.Adder) {
+	dst.Add(p.T)
+	dst.Add(0)
 	e := len(p.nodes)
 	for i := 1; i < e; i++ {
 		n := p.nodes[i]
@@ -93,6 +95,8 @@ func addAnd(dst inter.Adder, g, a, b z.Lit) {
 // adder, including only the part of the circuit reachable
 // from some root in roots.
 func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
+	dst.Add(p.T)
+	dst.Add(0)
 	dfs := make([]int8, len(p.nodes))
 	var vis func(m z.Lit)
 	vis = func(m z.Lit) {
@@ -142,8 +146,8 @@ func (c *C) At(i int) z.Lit {
 	return z.Var(i).Pos()
 }
 
-// NewIn returns a new variable/input to p.
-func (p *C) NewIn() z.Lit {
+// Lit returns a new variable/input to p.
+func (p *C) Lit() z.Lit {
 	m := len(p.nodes)
 	p.newNode()
 	return z.Var(m).Pos()
@@ -305,30 +309,10 @@ func (p *C) Ins(m z.Lit) (z.Lit, z.Lit) {
 	return n.a, n.b
 }
 
-// adapter for CardSort
-type la struct {
-	c  *C
-	sl []z.Lit
-}
-
-func (l *la) Lit() z.Lit {
-	return l.c.NewIn()
-}
-
-func (l *la) Add(m z.Lit) {
-	if m == z.LitNull {
-		l.c.Ors(l.sl...)
-		l.sl = l.sl[:0]
-		return
-	}
-	l.sl = append(l.sl, m)
-}
-
 // CardSort creates a CardSort object whose
 // cardinality predicates over ms are encoded in c.
 func (c *C) CardSort(ms []z.Lit) *CardSort {
-	la := &la{c: c, sl: make([]z.Lit, 0, 3)}
-	return NewCardSort(ms, la)
+	return NewCardSort(ms, c)
 }
 
 func (p *C) newNode() (*node, uint32) {

@@ -4,7 +4,6 @@
 package logic
 
 import (
-	"github.com/irifrance/gini/inter"
 	"github.com/irifrance/gini/z"
 )
 
@@ -39,43 +38,28 @@ type Card interface {
 // Boolean Modelng, and Computation.
 type CardSort struct {
 	n   int
-	va  LitAdder
+	c   *C
 	ms  []z.Lit
 	tmp []z.Lit
-	one z.Lit
-}
-
-// VarAdder gives an interface to something which can generate
-// fresh variables and add constraints.
-type LitAdder interface {
-	inter.Adder
-	inter.Liter
 }
 
 // NewCardSort creates a new Card object which gives access to unary Cardinality
 // constraints over ms.  The resulting predicates reflect how many of the literals
 // in ms are true.
 //
-func NewCardSort(ms []z.Lit, va LitAdder) *CardSort {
+func NewCardSort(ms []z.Lit, c *C) *CardSort {
 	p := uint(0)
 	for 1<<p < len(ms) {
 		p++
 	}
 	ns := make([]z.Lit, 1<<p)
 	copy(ns, ms)
-	c := &CardSort{ms: ns, va: va, n: len(ms)}
-	c.one = va.Lit()
-	va.Add(c.one)
-	va.Add(z.LitNull)
+	cs := &CardSort{ms: ns, c: c, n: len(ms)}
 	for i := len(ms); i < len(ns); i++ {
-		ns[i] = c.one
+		ns[i] = c.T
 	}
-	c.sort(0, len(ns))
-	return c
-}
-
-func (c *CardSort) Valid() z.Lit {
-	return c.one
+	cs.sort(0, len(ns))
+	return cs
 }
 
 // Less returns a literal which is true iff and only if the number of true
@@ -86,20 +70,20 @@ func (c *CardSort) Less(b int) z.Lit {
 
 func (c *CardSort) Leq(b int) z.Lit {
 	if b >= c.n {
-		return c.one
+		return c.c.T
 	}
 	if b < 0 {
-		return c.one.Not()
+		return c.c.F
 	}
 	return c.ms[(c.n-1)-b].Not()
 }
 
 func (c *CardSort) Geq(b int) z.Lit {
 	if b <= 0 {
-		return c.one
+		return c.c.T
 	}
 	if b >= c.n+1 {
-		return c.one.Not()
+		return c.c.F
 	}
 	return c.Leq(b - 1).Not()
 }
@@ -121,7 +105,6 @@ func (n *CardSort) sort(l, h int) {
 	if h-l <= 1 {
 		return
 	}
-	//fmt.Printf("sort [%d..%d)\n", l, h)
 	m := l + (h-l)/2
 	n.sort(l, m)
 	n.sort(m, h)
@@ -139,7 +122,7 @@ func (n *CardSort) merge(l, h, s int) {
 	var ml, mh z.Lit
 	ss := 2 * s
 	if ss >= h-l {
-		ml, mh = n.lh(l, l+s)
+		ml, mh = n.cas(l, l+s)
 		n.ms[l], n.ms[l+s] = ml, mh
 		return
 	}
@@ -147,33 +130,15 @@ func (n *CardSort) merge(l, h, s int) {
 	n.merge(l+s, h, ss)
 	lim := h - s
 	for i := l + s; i < lim; i += ss {
-		ml, mh = n.lh(i, i+s)
+		ml, mh = n.cas(i, i+s)
 		n.ms[i], n.ms[i+s] = ml, mh
 	}
 }
 
 // compare-and-swap (low-high)
-func (n *CardSort) lh(i, j int) (z.Lit, z.Lit) {
+func (n *CardSort) cas(i, j int) (z.Lit, z.Lit) {
 	mi, mj := n.ms[i], n.ms[j]
-	a, b := n.va.Lit(), n.va.Lit()
-	n.add(mi, mj, a)
-	n.add(mi.Not(), mj.Not(), b.Not())
-	return a, b
-}
-
-func (n *CardSort) add(mi, mj, c z.Lit) {
-	// if i is 0 c is 0
-	n.va.Add(mi)
-	n.va.Add(c.Not())
-	n.va.Add(z.LitNull)
-	// if j is 0 c is 0
-	n.va.Add(mj)
-	n.va.Add(c.Not())
-	n.va.Add(z.LitNull)
-
-	// if i and j are both 1 c is 1
-	n.va.Add(mi.Not())
-	n.va.Add(mj.Not())
-	n.va.Add(c)
-	n.va.Add(z.LitNull)
+	l := n.c.And(mi, mj)
+	h := n.c.Or(mi, mj)
+	return l, h
 }

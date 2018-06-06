@@ -10,7 +10,7 @@ import (
 
 func TestS(t *testing.T) {
 	s := logic.NewS()
-	toggle := s.NewIn()
+	toggle := s.Lit()
 	r := s.Latch(s.F)
 	c := s.Choice(toggle, r, r.Not())
 	s.SetNext(r, c)

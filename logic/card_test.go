@@ -14,12 +14,14 @@ import (
 func TestCardSort(t *testing.T) {
 	N := 64
 	Iters := 16
-	sv := gini.New()
+	c := NewC()
 	ms := make([]z.Lit, N)
 	for i := range ms {
-		ms[i] = sv.Lit()
+		ms[i] = c.Lit()
 	}
-	cs := NewCardSort(ms, sv)
+	cs := c.CardSort(ms)
+	sv := gini.New()
+	c.ToCnf(sv)
 	for i := 0; i < Iters; i++ {
 		rand.Shuffle(len(ms), func(i, j int) { ms[i], ms[j] = ms[j], ms[i] })
 		n := rand.Intn(N)
@@ -66,12 +68,14 @@ func TestCardSort(t *testing.T) {
 }
 
 func TestCardNotPowerOfTwo(t *testing.T) {
+	c := NewC()
 	s := gini.New()
 	ms := make([]z.Lit, 11)
 	for i := range ms {
-		ms[i] = s.Lit()
+		ms[i] = c.Lit()
 	}
-	cs := NewCardSort(ms, s)
+	cs := c.CardSort(ms)
+	c.ToCnf(s)
 	for i := 0; i < 11; i++ {
 		for j := 0; j < i; j++ {
 			s.Assume(ms[j])

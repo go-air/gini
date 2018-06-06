@@ -40,14 +40,14 @@ func (u *Unroll) At(m z.Lit, d int) z.Lit {
 	n = u.S.nodes[v]
 	if n.b == z.LitNull {
 		// input
-		res = u.C.NewIn()
+		res = u.C.Lit()
 		u.dmap[v] = append(u.dmap[v], res)
 		goto Done
 	}
 	if d == 0 {
 		if n.a == z.LitNull {
 			// latch init X
-			res = u.C.NewIn()
+			res = u.C.Lit()
 			u.dmap[v] = append(u.dmap[v], res)
 			goto Done
 		}

@@ -11,7 +11,7 @@ import (
 
 func TestUnrollComb(t *testing.T) {
 	s := logic.NewS()
-	i0, i1, i2 := s.NewIn(), s.NewIn(), s.NewIn()
+	i0, i1, i2 := s.Lit(), s.Lit(), s.Lit()
 
 	a1 := s.And(i0, i1)
 	a2 := s.And(a1, i2)
