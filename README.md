@@ -172,7 +172,7 @@ With Cardinality constraints, optimisation is easy
     }
 
     // make a cardinality constraints object
-    cards := c.CardSort(multiVersions, c)
+    cards := c.CardSort(multiVersions)
 
     // loop through the constraints (note a linear search
     // can be faster in this case because the underlying solver
