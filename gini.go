@@ -85,7 +85,8 @@ func (g *Gini) MaxVar() z.Var {
 	return g.xo.Vars.Max
 }
 
-// Var produces a fresh variable.
+// Lit produces a fresh variable and returns its positive literal, conforming
+// to inter.Liter.
 func (g *Gini) Lit() z.Lit {
 	return g.xo.Lit()
 }
