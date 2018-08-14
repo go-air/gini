@@ -167,7 +167,7 @@ With Cardinality constraints, optimisation is easy
     // associated with whether or not multiple versions are needed in a 
     // build
 
-    multiVersions := make([]z.Lit, 1<<23)
+    multiVersions := make([]z.Lit, 0, 1<<23)
     for _, p := range pkgs {
         multiVersions = append(multiVersions, p.needsMulti)
     }
@@ -282,7 +282,7 @@ A command, crispd, is supplied for the CRISP server.
 
 Gini is commercialized, for inquiries, contact gini@iri-labs.com.
 
-1. We sell guarantees that the solver will always deliver correct responses.
+1. We sell guarantees that the solver will always deliver correct results.
 Note the Copyright license makes no guarantees.
 1. We can provide alternative licenses. All standard OSS approved variations 
 are available at a basic fixed rate, all other inquiries welcome.
