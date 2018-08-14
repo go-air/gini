@@ -278,3 +278,12 @@ a CRISP-1.0 client and server.
 
 A command, crispd, is supplied for the CRISP server.
 
+## Commercialisation
+
+Gini is commercialized, for inquiries, contact gini@iri-labs.com.
+
+1. We sell guarantees that the solver will always deliver correct responses.
+Note the Copyright license makes no guarantees.
+1. We can provide alternative licenses. All standard OSS approved variations 
+are available at a basic fixed rate, all other inquiries welcome.
+
