@@ -1,7 +1,7 @@
 # Gini SAT Solver
 
-The Gini sat solver is a fast, clean SAT solver written in go, to our knowledge
-the first performant pure-Go SAT solver made available.
+The Gini sat solver is a fast, clean SAT solver written in Go. It is to our knowledge
+the first ever performant pure-Go SAT solver made available.
 
 [![Build Status](https://travis-ci.org/irifrance/gini.svg?branch=master)](https://travis-ci.org/irifrance/gini)
 
@@ -285,7 +285,7 @@ Gini is commercialized, for inquiries, contact gini@iri-labs.com.
 
 1. We sell guarantees that the solver will always deliver correct results.
 Note the copyright license makes no guarantees and refuses any claim
-of express or implied warranty.
+of express or implied warranty, including this one.
 1. We can provide alternative licenses. All standard OSI approved open
 source licenses are available at a basic fixed rate, all other inquiries 
 welcome.
