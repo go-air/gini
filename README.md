@@ -231,6 +231,19 @@ but we are confident Gini's core solver is a well positioned alternative to stan
 high-performance CDCL solvers in C/C++.  We encourage you to give it a try and welcome
 any comparisons.
 
+## Benchmarking
+To that end, gini comes with a nifty SAT solver benchmarking tool which allows
+to easily select benchmarks into a "bench" format, which is just a particular
+structure of directories and files.  The tool can then also run solvers 
+on such generated "bench"'s, enforcing various timeouts and logging all details,
+again in a standard format.  To tool then can compare the results in various 
+fashions, printing out scatter and cactus plots (in UTF8 ascii art) of various 
+user selectable subsets of the benchmark run.
+
+You may find this tool useful to fork and adopt to benchmark a new kind of 
+program.  The benchmarking mechanism is appropriate for any "solver" like
+software (SMT, CPLEX, etc) where runtimes vary and are unpredictable.  
+If you do so, please follow the license or ask for alternatives.
 
 # Concurrency
 Gini is written in Go and uses several goroutines by default for garbage
