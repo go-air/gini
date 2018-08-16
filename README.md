@@ -174,7 +174,7 @@ With Cardinality constraints, optimisation is easy
 
     repls := make([]z.Lit, 0, 1<<23)
     for _, p := range pkgs {
-        repls = append(repls, p.needsMulti)
+        repls = append(repls, p.needsRepl)
     }
 
     // make a cardinality constraints object
