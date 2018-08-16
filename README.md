@@ -37,7 +37,11 @@ The SAT problem is a Boolean problem.  All variables can either be true or
 false, but nothing else.  The SAT problem solves systems of Boolean
 constraints, called clauses.  Namely, SAT solvers work on conjunctive normal
 form problems (CNFs).  There are many ways to efficiently code arbitrary logic
-into CNF, so this is not so much a restricting factor.
+into CNF, so this is not so much a restricting factor.  Nonetheless, we present
+CNF and the problem below in a brief self-contained fashion which we find
+useful.  Readers interested in more depth should consult Wikipedia, or The
+Handbook of Satisfiability, or Donald Knuth's latest volume of The Art of
+Computer Programming.
 
 ## CNF
 A CNF is a conjunction of clauses
@@ -163,34 +167,34 @@ With Cardinality constraints, optimisation is easy
     c := logic.NewC()
 
 
-    // suppose we encode package dependency constraints in the circuit c
-    // and we have a slice of packages each of which has a literal
-    // associated with whether or not multiple versions are needed in a 
-    // build
+    // suppose we encode package constraints for a module in the circuit c
+    // and we have a slice S of dependent packages P each of which has an attribute
+    // P.needsRepl which indicates whether or not it needs to be replaced (of type
+    // github.com/irifrance/gini/z.Lit)
 
-    multiVersions := make([]z.Lit, 0, 1<<23)
+    repls := make([]z.Lit, 0, 1<<23)
     for _, p := range pkgs {
-        multiVersions = append(multiVersions, p.needsMulti)
+        repls = append(repls, p.needsMulti)
     }
 
     // make a cardinality constraints object
-    cards := c.CardSort(multiVersions)
+    cards := c.CardSort(repls)
 
     // loop through the constraints (note a linear search
-    // can be faster in this case because the underlying solver
+    // can be faster than a binary search in this case because the underlying solver
     // often has locality of logic cache w.r.t. cardinality constraints)
     s := gini.New()
     c.ToCnf(s)
-    minMultiVersions := -1
-    for i := range multiVersions {
+    minRepls := -1
+    for i := range repls {
         s.Assume(cards.Leq(i))
         if s.Solve() == 1 {
-            minMultiVersions = i
+            minRepls = i
             break
         }
     }
 
-    // use the model from s to propose a build
+    // use the model, if one was found, from s to propose a build
 
 
 
@@ -247,6 +251,9 @@ Gini provides an "Assumption eXchange" package for deploying solves
 under different sets of assumptions to the same set of underlying constraints
 in parallel. This can give linear speed up in tasks, such as PDR/IC3, which 
 generate lots of assumptions.
+
+We hope to extend this with clause sharing soon, which would give 
+superlinear speedup according to the literature.
 
 # Distributed and CRISP
 
