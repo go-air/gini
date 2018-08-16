@@ -309,4 +309,10 @@ of express or implied warranty, including this one.
 1. We can provide alternative licenses. All standard OSI approved open
 source licenses are available at a basic fixed rate, all other inquiries 
 welcome.
-
+1. We can help you tune solvers or model problems.  Gini is 
+tuned for general purpose use.  Modelling problems is a large
+field.  For some applications, it is straightforward, for others,
+such as cryptography, it is not.  It takes experience to do it well.
+Often enough Gini (as well as other solvers) will plow through 
+random models in a snap, so we recommend you just try and contact
+us for this service only if things aren't working out.
