@@ -316,3 +316,4 @@ such as cryptography, it is not.  It takes experience to do it well.
 Often enough Gini (as well as other solvers) will plow through 
 random models in a snap, so we recommend you just try and contact
 us for this service only if things aren't working out.
+1. Although the above are for fee, support is free.
