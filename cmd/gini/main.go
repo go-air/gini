@@ -8,9 +8,6 @@ import (
 	"compress/gzip"
 	"flag"
 	"fmt"
-	proto "github.com/irifrance/gini/crisp"
-	"github.com/irifrance/gini/internal/xo"
-	"github.com/irifrance/gini/z"
 	"io"
 	"log"
 	"net/http"
@@ -20,6 +17,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	proto "github.com/irifrance/gini/crisp"
+	"github.com/irifrance/gini/internal/xo"
+	"github.com/irifrance/gini/z"
 )
 
 var pprofAddr = flag.String("pprof", "", "address to serve http profile (eg :6060)")
@@ -233,7 +234,7 @@ func outputModel(v z.Var, m values) {
 		col++
 		col += n
 	}
-	fmt.Printf("\n")
+	fmt.Printf(" 0\n")
 }
 
 func outputFailed(fs []z.Lit) {
