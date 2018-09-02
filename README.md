@@ -3,11 +3,8 @@
 The Gini sat solver is a fast, clean SAT solver written in Go. It is to our knowledge
 the first ever performant pure-Go SAT solver made available.
 
-[![Build Status](https://travis-ci.org/irifrance/gini.svg?branch=master)](https://travis-ci.org/irifrance/gini)
-
-[![GoDoc](https://godoc.org/github.com/irifrance/gini?status.svg)](https://godoc.org/github.com/irifrance/gini)
-
-[Google Group](https://groups.google.com/d/forum/ginisat)
+| [![Build Status](https://travis-ci.org/irifrance/gini.svg?branch=master)](https://travis-ci.org/irifrance/gini) | [![GoDoc](https://godoc.org/github.com/irifrance/gini?status.svg)](https://godoc.org/github.com/irifrance/gini) | [Google Group](https://groups.google.com/d/forum/ginisat) |
+------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 This solver is fully open source, originally developped at IRI France.
 
@@ -104,7 +101,7 @@ Here, C and D are arbitrary clauses.
 
 Resolution proof of unsatisfiability is a derivation of the empty disjuction
 (false) by means of resolution.  Resolution proofs, even minimally sized ones,
-can be very large, exponentially larger than the innput problem.
+can be very large, exponentially larger than the input problem.
 
 Modern SAT solvers mostly rely on performing operations which correspond to
 bounded size (in terms of number of variables) number of resolutions.  Given
@@ -237,13 +234,14 @@ to easily select benchmarks into a "bench" format, which is just a particular
 structure of directories and files.  The tool can then also run solvers 
 on such generated "bench"'s, enforcing various timeouts and logging all details,
 again in a standard format.  To tool then can compare the results in various 
-fashions, printing out scatter and cactus plots (in UTF8 ascii art) of various 
+fashions, printing out scatter and cactus plots (in UTF8/ascii art) of various 
 user selectable subsets of the benchmark run.
 
-You may find this tool useful to fork and adopt to benchmark a new kind of 
+You may find this tool useful to fork and adopt to benchmark a new kind of
 program.  The benchmarking mechanism is appropriate for any "solver" like
-software (SMT, CPLEX, etc) where runtimes vary and are unpredictable.  
-If you do so, please follow the license or ask for alternatives.
+software (SMT, CPLEX, etc) where runtimes vary and are unpredictable and
+potentially high.  If you do so, please follow the license or ask for
+alternatives.
 
 # Concurrency
 Gini is written in Go and uses several goroutines by default for garbage
@@ -316,4 +314,4 @@ such as cryptography, it is not.  It takes experience to do it well.
 Often enough Gini (as well as other solvers) will plow through 
 random models in a snap, so we recommend you just try and contact
 us for this service only if things aren't working out.
-1. Although the above are for fee, support is free.
+1. Although the above are for fee, support is welcome and free.
