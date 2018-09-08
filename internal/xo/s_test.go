@@ -4,12 +4,13 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/gen"
-	"github.com/irifrance/gini/z"
 	"log"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/irifrance/gini/gen"
+	"github.com/irifrance/gini/z"
 )
 
 func TestSRand3Cnf(t *testing.T) {
@@ -379,4 +380,24 @@ func TestCopyPause(t *testing.T) {
 		return
 	}
 	t.Errorf("giving up, couldn't pause\n")
+}
+
+// Doh!  from Marvin Stenger; thanks!
+func TestIncAdd(t *testing.T) {
+	s := NewS()
+	in, out, x := s.Lit(), s.Lit(), s.Lit()
+	s.Add(in.Not())
+	s.Add(out)
+	s.Add(0)
+	s.Add(in.Not())
+	s.Add(x)
+	s.Add(0)
+	s.Solve()
+	s.Add(in)
+	s.Add(0)
+	s.Add(out)
+	s.Add(0)
+	if s.Solve() != 1 {
+		t.Errorf("unsat")
+	}
 }

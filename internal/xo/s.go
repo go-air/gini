@@ -186,10 +186,10 @@ func (s *S) Solve() int {
 		s.assumptLevel = 0
 		s.assumes = s.assumes[:0]
 	}()
+	trail := s.Trail
 	if r := s.solveInit(); r != 0 {
 		return r
 	}
-	trail := s.Trail
 	vars := s.Vars
 	guess := s.Guess
 	guess.nextRestart(s.restartStopwatch)
@@ -480,6 +480,9 @@ func (s *S) Add(m z.Lit) {
 	//s.lock()
 	//defer s.unlock()
 	s.ensureLitCap(m)
+	if m == z.LitNull {
+		s.Trail.Back(s.endTestLevel)
+	}
 	loc, u := s.Cdb.Add(m)
 	if u != z.LitNull {
 		s.Trail.Assign(u, loc)
