@@ -480,8 +480,8 @@ func (s *S) Add(m z.Lit) {
 	//s.lock()
 	//defer s.unlock()
 	s.ensureLitCap(m)
-	if m == z.LitNull {
-		s.Trail.Back(s.endTestLevel)
+	if m == z.LitNull && s.Trail.Level != 0 {
+		s.Trail.Back(0)
 	}
 	loc, u := s.Cdb.Add(m)
 	if u != z.LitNull {
