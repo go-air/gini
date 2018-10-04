@@ -110,6 +110,9 @@ func path2Format(p string) (format, error) {
 	if strings.HasSuffix(q, ".icnf") {
 		return icnf, nil
 	}
+	if p == "-" {
+		return cnf, nil
+	}
 	return 0, fmt.Errorf("path extension doesn't have .cnf or .icnf")
 }
 
