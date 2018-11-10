@@ -95,18 +95,43 @@ func addAnd(dst inter.Adder, g, a, b z.Lit) {
 // adder, including only the part of the circuit reachable
 // from some root in roots.
 func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
-	dst.Add(p.T)
-	dst.Add(0)
-	dfs := make([]int8, len(p.nodes))
+	p.CnfSince(dst, nil, roots...)
+}
+
+// CnfSince adds the circuit rooted at roots to dst assuming mark marks all
+// already added nodes in the circuit`.  CnfSince returns marks from previously
+// marked nodes and the total number of nodes added.  If mark is nil or does
+// not have sufficient capacity, then new storage is created with a copy of
+// mark.
+func (p *C) CnfSince(dst inter.Adder, mark []int8, roots ...z.Lit) ([]int8, int) {
+	if cap(mark) < len(p.nodes) {
+		tmp := make([]int8, (len(p.nodes)*5)/3)
+		copy(tmp, mark)
+		mark = tmp
+	} else if len(mark) < len(p.nodes) {
+		start := len(mark)
+		mark = mark[:len(p.nodes)]
+		for i := start; i < len(p.nodes); i++ {
+			mark[i] = 0
+		}
+	}
+	mark = mark[:len(p.nodes)]
+	ttl := 0
+	if mark[1] != 1 {
+		dst.Add(p.T)
+		dst.Add(0)
+		mark[1] = 1
+		ttl++
+	}
 	var vis func(m z.Lit)
 	vis = func(m z.Lit) {
 		v := m.Var()
-		if dfs[v] == 1 {
+		if mark[v] == 1 {
 			return
 		}
 		n := &p.nodes[v]
 		if n.a == z.LitNull || n.a == p.T || n.a == p.F {
-			dfs[v] = 1
+			mark[v] = 1
 			return
 		}
 		vis(n.a)
@@ -116,11 +141,13 @@ func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
 			g = m.Not()
 		}
 		addAnd(dst, g, n.a, n.b)
-		dfs[v] = 1
+		mark[v] = 1
+		ttl++
 	}
 	for _, root := range roots {
 		vis(root)
 	}
+	return mark, ttl
 }
 
 // Len returns the length of C, the number of

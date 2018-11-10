@@ -5,8 +5,10 @@ package logic_test
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/logic"
 	"testing"
+
+	"github.com/irifrance/gini"
+	"github.com/irifrance/gini/logic"
 )
 
 func TestUnrollComb(t *testing.T) {
@@ -31,6 +33,25 @@ func TestUnrollLatch(t *testing.T) {
 	s.SetNext(m, m.Not())
 	u := logic.NewUnroll(s)
 	u.At(m, 3)
+}
+
+func TestUnrollCnfSince(t *testing.T) {
+	s := logic.NewS()
+	m := s.Latch(s.F)
+	n := s.Lit()
+	o := s.Or(m, n)
+	s.SetNext(m, o)
+
+	u := logic.NewUnroll(s)
+	var mark []int8
+	sat := gini.New()
+	ttl := 0
+	var a int
+	for i := 0; i < 64; i++ {
+		p := u.At(o, i)
+		mark, a = u.C.CnfSince(sat, mark, p)
+		ttl += a
+	}
 }
 
 func ExampleUnroll() {

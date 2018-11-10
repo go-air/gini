@@ -5,12 +5,13 @@ package logic_test
 
 import (
 	"fmt"
-	"github.com/irifrance/gini"
-	"github.com/irifrance/gini/logic"
-	"github.com/irifrance/gini/z"
 	"log"
 	"math/rand"
 	"testing"
+
+	"github.com/irifrance/gini"
+	"github.com/irifrance/gini/logic"
+	"github.com/irifrance/gini/z"
 )
 
 func TestCGrowStrash(t *testing.T) {
