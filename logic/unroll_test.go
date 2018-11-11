@@ -9,6 +9,7 @@ import (
 
 	"github.com/irifrance/gini"
 	"github.com/irifrance/gini/logic"
+	"github.com/irifrance/gini/z"
 )
 
 func TestUnrollComb(t *testing.T) {
@@ -51,6 +52,41 @@ func TestUnrollCnfSince(t *testing.T) {
 		p := u.At(o, i)
 		mark, a = u.C.CnfSince(sat, mark, p)
 		ttl += a
+	}
+}
+
+func TestUnrollCnfCounter(t *testing.T) {
+	// create a 7 bit counter which increments when the 2 inputs are xor
+	s := logic.NewS()
+	N := 7
+	in0, in1 := s.Lit(), s.Lit()
+	xo := s.Xor(in0, in1)
+	ms := make([]z.Lit, N)
+	carry := xo
+	for i := range ms {
+		ms[i] = s.Latch(s.F)
+		s.SetNext(ms[i], s.Choice(carry, ms[i].Not(), ms[i]))
+		carry = s.And(carry, ms[i])
+	}
+	// set up unrolling and sat
+	end := 1<<uint(N) - 1
+	unroller := logic.NewUnroll(s)
+	var mark []int8
+	sat := gini.New()
+	// for all but 'end', 'carry' should be false.
+	for i := 0; i < end; i++ {
+		p := unroller.At(carry, i)
+		mark, _ = unroller.C.CnfSince(sat, mark, p)
+		sat.Assume(p)
+		if sat.Solve() != -1 {
+			t.Errorf("sat at %d not unsat\n", i)
+		}
+	}
+	p := unroller.At(carry, end)
+	mark, _ = unroller.C.CnfSince(sat, mark, p)
+	sat.Assume(p)
+	if sat.Solve() != 1 {
+		t.Errorf("unsat at %d not sat\n", end)
 	}
 }
 
