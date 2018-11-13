@@ -22,6 +22,27 @@ func NewUnroll(s *S) *Unroll {
 	return u
 }
 
+// Len returns the length of the unrolling for literal m.
+func (u *Unroll) Len(m z.Lit) int {
+	v := m.Var()
+	return len(u.dmap[v])
+}
+
+// MaxLen returns the maximum length of any literal in
+// the unrolling.
+func (u *Unroll) MaxLen() int {
+	ns := u.S.nodes
+	max := 0
+	for i := 1; i < len(ns); i++ {
+		v := z.Var(i)
+		n := len(u.dmap[v])
+		if n > max {
+			max = n
+		}
+	}
+	return max
+}
+
 // At returns the value of literal m from sequential circuit
 // u.S at time/depth d as a literal in u.C
 //

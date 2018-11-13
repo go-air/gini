@@ -150,23 +150,20 @@ func (p *C) CnfSince(dst inter.Adder, mark []int8, roots ...z.Lit) ([]int8, int)
 	return mark, ttl
 }
 
-// Len returns the length of C, the number of
-// internal nodes used to represent C.
+// Len returns the length of C, the number of internal nodes used to represent
+// C.
 func (c *C) Len() int {
 	return len(c.nodes)
 }
 
-// At returns the i'th element.  Elements from
-// 0..Len(c) are in topological order:  if i < j
-// then c.At(j) is not reachable from c.At(i)
-// via the edge relation defined by c.Ins().
-// All elements are positive literals.
+// At returns the i'th element.  Elements from 0..Len(c) are in topological
+// order:  if i < j then c.At(j) is not reachable from c.At(i) via the edge
+// relation defined by c.Ins().  All elements are positive literals.
 //
-// One variable for internal use, with index 1, is created when
-// c is created.  All other variables created by NewIn, And, ...
-// are created in sequence starting with index 2.  Internal
-// variables may be created by c.  c.Len() - 1 is the maximal
-// index of a variable.
+// One variable for internal use, with index 1, is created when c is created.
+// All other variables created by NewIn, And, ...  are created in sequence
+// starting with index 2.  Internal variables may be created by c.  c.Len() - 1
+// is the maximal index of a variable.
 //
 // Hence, the implementation of At(i) is simply z.Var(i).Pos().
 func (c *C) At(i int) z.Lit {

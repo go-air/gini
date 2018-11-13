@@ -94,9 +94,15 @@ func (s *S) Init(latch z.Lit) z.Lit {
 	return s.nodes[v].a
 }
 
-func (s *S) SetInit(latch, nxt z.Lit) {
+// SetInit sets the initial state of 'latch' to 'nxt'.  'nxt' should be either
+// z.LitNull, s.T, or s.F.  If it is not, SetInit panics.  If 'latch' is not
+// a latch, then subsequent operations on s are undefined.
+func (s *S) SetInit(latch, init z.Lit) {
+	if init != s.F && init != s.T && init != z.LitNull {
+		panic("invalid initial value")
+	}
 	v := latch.Var()
-	s.nodes[v].a = nxt
+	s.nodes[v].a = init
 }
 
 // type of node type
