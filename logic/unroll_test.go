@@ -36,6 +36,19 @@ func TestUnrollLatch(t *testing.T) {
 	u.At(m, 3)
 }
 
+func TestUnrollConst(t *testing.T) {
+	s := logic.NewS()
+	m := s.Latch(s.F)
+	s.SetNext(m, m.Not())
+	u := logic.NewUnroll(s)
+	if u.At(s.T, 24) != u.C.T {
+		t.Errorf("unroll T")
+	}
+	if u.At(s.F, 13) != u.C.F {
+		t.Errorf("unroll F: %s", u.At(s.F, 13))
+	}
+}
+
 func TestUnrollCnfSince(t *testing.T) {
 	s := logic.NewS()
 	m := s.Latch(s.F)

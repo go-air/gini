@@ -64,6 +64,7 @@ func (u *Unroll) At(m z.Lit, d int) z.Lit {
 		} else {
 			res = u.C.F
 		}
+		u.dmap[v] = append(u.dmap[v], res)
 		goto Done
 	}
 	n = u.S.nodes[v]
