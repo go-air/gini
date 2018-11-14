@@ -203,7 +203,9 @@ func (c *C) InPos(dst []int) []int {
 // `c` is embedded in a sequential circuit `s`, then
 // the inputs include the latches of `s`.
 func (c *C) Eval(vs []bool) {
-	for i := range c.nodes {
+	N := len(c.nodes)
+	vs[1] = true
+	for i := 2; i < N; i++ {
 		n := &c.nodes[i]
 		if n.a < 4 {
 			continue
@@ -224,7 +226,9 @@ func (c *C) Eval(vs []bool) {
 // Eval64 is like Eval but evaluates 64 different inputs in
 // parallel as the bits of a uint64.
 func (c *C) Eval64(vs []uint64) {
-	for i := range c.nodes {
+	N := len(c.nodes)
+	vs[1] = (1 << 63) - 1
+	for i := 2; i < N; i++ {
 		n := &c.nodes[i]
 		if n.a < 4 {
 			continue

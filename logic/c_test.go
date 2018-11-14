@@ -92,6 +92,9 @@ func TestEval(t *testing.T) {
 	if !vs[4] {
 		t.Errorf("bad and eval")
 	}
+	if !vs[1] {
+		t.Errorf("bad const eval")
+	}
 }
 
 var rnd = rand.New(rand.NewSource(1))
