@@ -199,11 +199,13 @@ func (c *C) InPos(dst []int) []int {
 // for each literal m in the circuit, vs[i] contains
 // the value for m's variable if m.Var() == i.
 //
-// vs should contain values for all inputs.
+// vs should contain values for all inputs.  In case
+// `c` is embedded in a sequential circuit `s`, then
+// the inputs include the latches of `s`.
 func (c *C) Eval(vs []bool) {
 	for i := range c.nodes {
 		n := &c.nodes[i]
-		if n.a == z.LitNull {
+		if n.a < 4 {
 			continue
 		}
 		a, b := n.a, n.b
@@ -224,7 +226,7 @@ func (c *C) Eval(vs []bool) {
 func (c *C) Eval64(vs []uint64) {
 	for i := range c.nodes {
 		n := &c.nodes[i]
-		if n.a == z.LitNull {
+		if n.a < 4 {
 			continue
 		}
 		a, b := n.a, n.b
