@@ -5,21 +5,22 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"testing"
+
+	"github.com/irifrance/gini/z"
 )
 
 func TestLocOverflow(t *testing.T) {
-	loc := CLoc(3)
+	loc := z.C(3)
 	w := MakeWatch(loc, 7, true)
-	loc2 := w.CLoc()
-	if w.CLoc() != loc {
+	loc2 := w.C()
+	if w.C() != loc {
 		t.Errorf("error isbin overflow?: %s != %s", loc, loc2)
 	}
 }
 
 func TestWatch(t *testing.T) {
-	loc := CLoc(77)
+	loc := z.C(77)
 	m := z.Lit(1024)
 	isBin := true
 	w := MakeWatch(loc, m, isBin)
@@ -30,11 +31,11 @@ func TestWatch(t *testing.T) {
 	if w.IsBinary() != isBin {
 		t.Errorf("isBind decode: %t != %t", w.IsBinary(), isBin)
 	}
-	if w.CLoc() != loc {
-		t.Errorf("loc en/decode: %s != %s", w.CLoc(), loc)
+	if w.C() != loc {
+		t.Errorf("loc en/decode: %s != %s", w.C(), loc)
 	}
 
-	newLoc := CLoc(22)
+	newLoc := z.C(22)
 	w0 := w.Relocate(newLoc)
 	if w0.Other() != m {
 		t.Errorf("relocate other: %s != %s", w0.Other(), m)
@@ -42,7 +43,7 @@ func TestWatch(t *testing.T) {
 	if w0.IsBinary() != isBin {
 		t.Errorf("isBin decode %t != %t", w0.IsBinary(), isBin)
 	}
-	if w0.CLoc() != newLoc {
-		t.Errorf("relocate  newloc %s != %s", w0.CLoc(), newLoc)
+	if w0.C() != newLoc {
+		t.Errorf("relocate  newloc %s != %s", w0.C(), newLoc)
 	}
 }

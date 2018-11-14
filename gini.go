@@ -69,6 +69,7 @@ func NewVc(vCapHint, cCapHint int) *Gini {
 //  2. Control mechanisms for Solve's resulting from GoSolve() so the
 //     copied gini can make its own calls to GoSolve() (or Solve()) without
 //     affecting the original.
+//  3. Any CnfSimp which has been set
 func (g *Gini) Copy() *Gini {
 	other := &Gini{
 		xo: g.xo.Copy()}
@@ -125,6 +126,20 @@ func (g *Gini) Solve() int {
 // solving goroutine, a goroutine which calls Solve()
 func (g *Gini) GoSolve() inter.Solve {
 	return g.xo.GoSolve()
+}
+
+// Simplify implements inter.Simplifier.  By default,
+// Simplify does nothing and returns 0.  To make Simplify
+// do some work, use SetCnfSimp().
+func (g *Gini) Simplify() int {
+	return g.xo.Simplify()
+}
+
+// SetCnfSimp sets the current simplifier implementation
+// to `s`.  If `s` is nil (and by default) the CnfSimp
+// associated with `g` is nil.
+func (g *Gini) SetCnfSimp(s inter.CnfSimp) {
+	g.xo.SetCnfSimp(s)
 }
 
 // Value returns the truth value of the literal m.

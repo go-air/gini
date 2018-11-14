@@ -5,9 +5,10 @@ package xo
 
 import (
 	"bytes"
-	"github.com/irifrance/gini/z"
 	"os"
 	"testing"
+
+	"github.com/irifrance/gini/z"
 )
 
 var cnfDat = [...][]z.Lit{
@@ -35,7 +36,7 @@ var learnts = [...][]z.Lit{
 func TestCdbAdd(t *testing.T) {
 	vars := NewVars(512)
 	cdb := NewCdb(vars, 512)
-	locs := make([]CLoc, 0, 12)
+	locs := make([]z.C, 0, 12)
 	for _, c := range cnfDat {
 		for _, m := range c {
 			cdb.Add(m)
@@ -47,7 +48,7 @@ func TestCdbAdd(t *testing.T) {
 		locs = append(locs, p)
 	}
 	for i, p := range locs {
-		if p == CLocNull || p == CLocInf {
+		if p == CNull || p == CInf {
 			continue
 		}
 		pIsBin := cdb.IsBinary(p)
@@ -74,7 +75,7 @@ func TestCdbAdd(t *testing.T) {
 func TestCdbLearn(t *testing.T) {
 	vars := NewVars(512)
 	cdb := NewCdb(vars, 512)
-	locs := make([]CLoc, 0, 12)
+	locs := make([]z.C, 0, 12)
 	for i, c := range learnts {
 		locs = append(locs, cdb.Learn(c, i))
 	}
@@ -89,7 +90,7 @@ func TestCdbLearnNil(t *testing.T) {
 	vars := NewVars(10)
 	cdb := NewCdb(vars, 20)
 	cdb.Learn(nil, 0)
-	if cdb.Bot == CLocNull {
+	if cdb.Bot == CNull {
 		t.Errorf("cdb.Bot not set\n")
 	}
 }

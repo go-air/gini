@@ -5,6 +5,7 @@ package xo
 
 import (
 	"fmt"
+
 	"github.com/irifrance/gini/z"
 )
 
@@ -65,7 +66,7 @@ func (d *Deriver) CopyWith(cdb *Cdb, g *Guess, t *Trail) *Deriver {
 }
 
 type Derived struct {
-	P           CLoc
+	P           z.C
 	Unit        z.Lit
 	Size        int
 	TargetLevel int
@@ -76,7 +77,7 @@ func (d *Deriver) String() string {
 		100.0*float64(d.RedLits)/float64(d.RedLits+d.LearntLits))
 }
 
-func (d *Deriver) Derive(x CLoc) *Derived {
+func (d *Deriver) Derive(x z.C) *Derived {
 	d.Conflicts++
 	// find 1uip
 	count := 0
@@ -103,9 +104,9 @@ func (d *Deriver) Derive(x CLoc) *Derived {
 	lbd := 0
 
 	for i := d.Trail.Tail - 1; i >= 0; i-- {
-		if p != CLocNull {
+		if p != CNull {
 			// count/mark lits in reason clause or conflict
-			// p is normal CLoc for conflict, +1 for unit.
+			// p is normal z.C for conflict, +1 for unit.
 			for {
 				m = ldb[p]
 				if m == z.LitNull {
@@ -139,7 +140,7 @@ func (d *Deriver) Derive(x CLoc) *Derived {
 				guess.Bump(m)
 				count++
 			}
-			p = CLocNull
+			p = CNull
 		}
 		m = trail[i]
 		v = m.Var()
@@ -253,7 +254,7 @@ func (d *Deriver) isRdntRec(m z.Lit) bool {
 			return false
 		}
 		p := d.Vars.Reasons[v]
-		if p == CLocNull {
+		if p == CNull {
 			d.Rdnt[v] = -1
 			return false
 		}

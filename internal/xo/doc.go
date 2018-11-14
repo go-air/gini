@@ -38,12 +38,12 @@
 //  - an abstraction of the size of the clause
 //  - "heat", a heuristic score of activity in solving.
 //
-// Each clause is also associated with a CLoc, which is a 32bit offset into
+// Each clause is also associated with a z.C, which is a 32bit offset into
 // the data store slice of lits.  This is the identifier for a clause, which
 // can change over time due to clause garbage collection during the solving
 // process.
 //
-// Each CLoc p points to data layed out as follows.
+// Each z.C p points to data layed out as follows.
 //
 //   [... Chd lit0 lit1 ... litn LitNull]
 //            p
@@ -118,7 +118,7 @@
 //
 //  - Lit; m,n,o
 //  - Var: u,v
-//  - CLoc: p,q,r
+//  - z.C: p,q,r
 //  - Watch: w -
 //  - Slices ([]): add an s on the end of underlying type
 //  - Slice indices: i,j,k

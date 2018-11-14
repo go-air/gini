@@ -6,8 +6,10 @@ package xo
 import (
 	"bytes"
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"io"
+
+	"github.com/irifrance/gini/inter"
+	"github.com/irifrance/gini/z"
 )
 
 // Type Cdb is the main interface to clauses.
@@ -18,9 +20,13 @@ type Cdb struct {
 	AddLits []z.Lit
 	AddVals []int8
 
-	Bot     CLoc
-	Added   []CLoc
-	Learnts []CLoc
+	Bot     z.C
+	Added   []z.C
+	Learnts []z.C
+
+	CnfSimp     inter.CnfSimp
+	cnfRems     []z.C
+	cnfUnlinked int
 
 	Tracer Tracer
 
@@ -48,9 +54,9 @@ func NewCdb(v *Vars, capHint int) *Cdb {
 		CDat:    *NewCDat(capHint * 5),
 		AddLits: make([]z.Lit, 0, 24),
 		AddVals: make([]int8, v.Top),
-		Bot:     CLocNull,
-		Added:   make([]CLoc, 0, capHint/3),
-		Learnts: make([]CLoc, 0, capHint-capHint/3),
+		Bot:     CNull,
+		Added:   make([]z.C, 0, capHint/3),
+		Learnts: make([]z.C, 0, capHint-capHint/3),
 		Tracer:  nil,
 		gc:      NewCgc()}
 	return clss
@@ -83,14 +89,14 @@ func (c *Cdb) readStats(st *Stats) {
 	c.gc.readStats(st)
 }
 
-func (c *Cdb) Add(m z.Lit) (CLoc, z.Lit) {
+func (c *Cdb) Add(m z.Lit) (z.C, z.Lit) {
 	if m != z.LitNull {
 		c.AddLits = append(c.AddLits, m)
-		return CLocInf, z.LitNull
+		return CInf, z.LitNull
 	}
 	c.stLitAdds += int64(len(c.AddLits))
 	c.stAdds++
-	retLoc := CLocNull
+	retLoc := CNull
 	retLit := z.LitNull
 	ms := c.AddLits
 	aVals := c.AddVals
@@ -115,7 +121,7 @@ func (c *Cdb) Add(m z.Lit) (CLoc, z.Lit) {
 		}
 		as = as * m.Sign()
 		if us == 1 || as == -1 {
-			retLoc = CLocInf
+			retLoc = CInf
 			c.stAddFails++
 			c.stMinLits += int64(len(ms))
 			goto Done
@@ -128,6 +134,9 @@ func (c *Cdb) Add(m z.Lit) (CLoc, z.Lit) {
 	c.stMinLits += int64(len(ms) - j)
 	retLoc = c.CDat.AddLits(MakeChd(false, 0, j), ms[0:j])
 	c.Added = append(c.Added, retLoc)
+	if c.CnfSimp != nil {
+		c.CnfSimp.OnAdded(z.C(retLoc), ms[:j])
+	}
 	if j == 0 {
 		c.Bot = retLoc
 		goto Done
@@ -162,7 +171,18 @@ Done:
 	return retLoc, retLit
 }
 
-func (c *Cdb) Learn(ms []z.Lit, lbd int) CLoc {
+func (c *Cdb) Simplify() int {
+	if c.CnfSimp == nil {
+		return 0
+	}
+	stat, rems := c.CnfSimp.Simplify(c.cnfRems)
+	c.Unlink(rems)
+	c.cnfUnlinked += len(c.cnfRems)
+
+	return stat
+}
+
+func (c *Cdb) Learn(ms []z.Lit, lbd int) z.C {
 	ret := c.CDat.AddLits(MakeChd(true, lbd, len(ms)), ms)
 	msLen := len(ms)
 	switch msLen {
@@ -182,25 +202,25 @@ func (c *Cdb) Learn(ms []z.Lit, lbd int) CLoc {
 	return ret
 }
 
-func (c *Cdb) InUse(o CLoc) bool {
+func (c *Cdb) InUse(o z.C) bool {
 	m := c.CDat.D[o]
 	return m != z.LitNull && c.Vars.Reasons[m.Var()] == o
 }
 
-func (c *Cdb) IsBinary(p CLoc) bool {
+func (c *Cdb) IsBinary(p z.C) bool {
 	d := c.CDat
 	return d.Len > int(p+2) && d.D[p+2] == z.LitNull
 }
 
-func (c *Cdb) IsUnit(p CLoc) bool {
+func (c *Cdb) IsUnit(p z.C) bool {
 	return c.CDat.D[p+1] == z.LitNull
 }
 
-func (c *Cdb) Chd(p CLoc) Chd {
+func (c *Cdb) Chd(p z.C) Chd {
 	return c.CDat.Chd(p)
 }
 
-func (c *Cdb) Bump(p CLoc) {
+func (c *Cdb) Bump(p z.C) {
 	if c.CDat.Bump(p) {
 		D := c.CDat.D
 		for _, p := range c.Added {
@@ -231,7 +251,7 @@ func (c *Cdb) MaybeCompact() (int, int, int) {
 	return gc.Compact(c)
 }
 
-func (c *Cdb) Size(p CLoc) int {
+func (c *Cdb) Size(p z.C) int {
 	return int(c.CDat.Next(p) - p)
 }
 
@@ -239,11 +259,11 @@ func (c *Cdb) Size(p CLoc) int {
 // nb supposes c.Learnts does not have any locs in "rms"
 // or will not before return to normal solving, outside of
 // clause garbage collection.
-func (c *Cdb) Unlink(rms []CLoc) {
+func (c *Cdb) Unlink(rms []z.C) {
 	d := c.CDat.D
 	wLits := c.AddLits
 	wVals := c.AddVals
-	rMap := make(map[CLoc]bool, len(rms))
+	rMap := make(map[z.C]bool, len(rms))
 	for _, p := range rms {
 		rMap[p] = true
 		for _, m := range [...]z.Lit{d[p], d[p+1]} {
@@ -265,7 +285,7 @@ func (c *Cdb) Unlink(rms []CLoc) {
 
 		j := 0
 		for _, w := range ws {
-			p := w.CLoc()
+			p := w.C()
 			_, ok := rMap[p]
 			if ok {
 				continue
@@ -305,7 +325,7 @@ func (c *Cdb) String() string {
 	return string(buf.Bytes())
 }
 
-func (c *Cdb) Lits(p CLoc, ms []z.Lit) []z.Lit {
+func (c *Cdb) Lits(p z.C, ms []z.Lit) []z.Lit {
 	d := c.CDat.D
 	var m z.Lit
 	for {
@@ -319,20 +339,20 @@ func (c *Cdb) Lits(p CLoc, ms []z.Lit) []z.Lit {
 	return ms
 }
 
-func (c *Cdb) ForallAdded(f func(p CLoc, h Chd, ms []z.Lit)) {
+func (c *Cdb) ForallAdded(f func(p z.C, h Chd, ms []z.Lit)) {
 	c.ForallSlice(f, c.Added)
 }
 
-func (c *Cdb) ForallLearnts(f func(p CLoc, h Chd, ms []z.Lit)) {
+func (c *Cdb) ForallLearnts(f func(p z.C, h Chd, ms []z.Lit)) {
 	c.ForallSlice(f, c.Learnts)
 }
 
-func (c *Cdb) Forall(f func(p CLoc, h Chd, ms []z.Lit)) {
+func (c *Cdb) Forall(f func(p z.C, h Chd, ms []z.Lit)) {
 	c.ForallAdded(f)
 	c.ForallLearnts(f)
 }
 
-func (c *Cdb) ForallSlice(f func(p CLoc, h Chd, ms []z.Lit), ps []CLoc) {
+func (c *Cdb) ForallSlice(f func(p z.C, h Chd, ms []z.Lit), ps []z.C) {
 	ms := make([]z.Lit, 0, 32)
 	dat := c.CDat
 	for _, p := range ps {
@@ -359,20 +379,20 @@ func (c *Cdb) CheckWatches() []error {
 		}
 		m := z.Lit(i)
 		for _, w := range ws {
-			p := w.CLoc()
+			p := w.C()
 			if dat[p] != m && dat[p+1] != m {
 				errs = append(errs, fmt.Errorf("%s, %s: not in pos[0,1]", m, p))
 			}
 		}
 	}
-	c.Forall(func(p CLoc, h Chd, ms []z.Lit) {
+	c.Forall(func(p z.C, h Chd, ms []z.Lit) {
 		if len(ms) < 2 {
 			return
 		}
 		for i, m := range ms[:2] {
 			found := false
 			for _, w := range watches[m] {
-				q := w.CLoc()
+				q := w.C()
 				if q == p {
 					found = true
 					break
@@ -416,14 +436,15 @@ func (c *Cdb) CheckModel() []error {
 	return errs
 }
 
+// NB does not copy CnfSimp related fields.
 func (c *Cdb) CopyWith(ov *Vars) *Cdb {
 	other := &Cdb{
 		Vars:    ov,
 		AddLits: make([]z.Lit, len(c.AddLits), cap(c.AddLits)),
 		AddVals: make([]int8, len(c.AddVals), cap(c.AddVals)),
 		Bot:     c.Bot,
-		Added:   make([]CLoc, len(c.Added), cap(c.Added)),
-		Learnts: make([]CLoc, len(c.Learnts), cap(c.Learnts))}
+		Added:   make([]z.C, len(c.Added), cap(c.Added)),
+		Learnts: make([]z.C, len(c.Learnts), cap(c.Learnts))}
 	copy(other.AddLits, c.AddLits)
 	copy(other.AddVals, c.AddVals)
 	copy(other.Added, c.Added)

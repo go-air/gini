@@ -4,8 +4,9 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/z"
 	"math"
+
+	"github.com/irifrance/gini/z"
 )
 
 const (
@@ -75,7 +76,7 @@ func NewGuessCdb(cdb *Cdb) *Guess {
 		g.pos[i] = j
 	}
 	inc := 0.001
-	cdb.Forall(func(p CLoc, h Chd, ms []z.Lit) {
+	cdb.Forall(func(p z.C, h Chd, ms []z.Lit) {
 		for _, m := range ms {
 			if h.Size() >= 16 {
 				continue

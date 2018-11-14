@@ -38,6 +38,10 @@ type Adder interface {
 	// is accessing the object implementing adder.  Other
 	// methods may provide safety in the presence of multiple
 	// goroutines.  Add in general does not.
+	//
+	// Add should not be called under assumptions or test
+	// scopes.  Doing so yields undefined behavior.
+	//
 	Add(m z.Lit)
 }
 
@@ -125,7 +129,8 @@ type S interface {
 	Model
 	Testable
 
-	// Can create a copy.
+	// Can create a copy.  A copy copies everything in the S interface
+	// and nothing more (such as simplifiers).
 	SCopy() S
 }
 
@@ -152,4 +157,61 @@ type Sc interface {
 	// Stop stops the Sc and should be called once.  Once stop
 	// is called all behavior of Sc is undefined.
 	Stop()
+}
+
+// CnfSimp provides an interface for clause based
+// simplifications.
+//
+//
+type CnfSimp interface {
+	// OnAdded is called with an identifier `c` and
+	// a set of literals `ms` whenever `ms` is added.
+	// Since `ms` is added, it is known to be non-tautological,
+	// have no duplicate literals, and no literals known to be
+	// true or false under all previously added clauses.
+	//
+	// Also, no learnt clauses are passed to OnAdded.
+	OnAdded(c z.C, ms []z.Lit)
+
+	// CRemap is called by the solver whenever it undergoes
+	// clause compaction (which in turn happens sometimes
+	// during clause garbage collection).  Since z.C values
+	// are ephemeral, they may change.  CRemap gives provides
+	// Cnf with the changed values.  After CRemap is called,
+	// the
+	CRemap(cm map[z.C]z.C)
+
+	// Simplify does preprocessing on added clauses.
+	//
+	// Simplify returns status like Solve (1:sat, -1:unsat, 0:unknown).
+	//
+	// Simplify should populate `rms` with clauses to be removed once the
+	// simplification is done, attempting to use `rmSpace` if possible
+	// to house the ids of clauses to be removed.
+	//
+	// Adding clauses works as follows. If a solver `s` implements Simplify, and
+	// has a CnfSimp associated with it, then it calls `CnfSimp.Simplify` to implement
+	// s.Simplify. `Cnf.Simplify` may then call `s.Add` like normal.  When
+	// a clause is successfully added, `s.Add` will then call `Cnf.OnAdded`.
+	//
+	// This convoluted way of dealing with adding and removing clauses
+	// allows a solver to store and manipulate clauses independently
+	// of simplifications.  Since the solvers clause representation can
+	// quite complex, subtle and optimised, this interface is in fact
+	// much easier than working within most solvers, including xo.
+	Simplify(rmSpace []z.C) (status int, rms []z.C)
+}
+
+// Simplifier is a facet of a Solver for simplifications.
+type Simplifier interface {
+	// See CnfSimp
+	SetCnfSimp(cnfSimp CnfSimp)
+
+	// Simplify returns 1: if the result is sat, -1 if the result
+	// is unsat, and 0 if unknown.
+	//
+	// Simplify returns 0 and does nothing SetCnfSimp has not been called
+	// with a non-nil argument.  Otherwise, Simplify calls cnfSimp.Simplify
+	// and returns the status after removing the requested claues.
+	Simplify() int
 }

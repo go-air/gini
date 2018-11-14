@@ -37,7 +37,7 @@ type S struct {
 	luby   *Luby
 
 	// last conflict clause
-	x CLoc
+	x z.C
 	// if trivially inconsistent assumptions, first conflicting assumption
 	xLit z.Lit
 
@@ -106,7 +106,7 @@ func NewSCdb(cdb *Cdb) *S {
 		Guess:  guess,
 		Driver: drv,
 		luby:   NewLuby(),
-		x:      CLocNull,
+		x:      CNull,
 		xLit:   z.LitNull,
 
 		testLevels: make([]int, 0, 128),
@@ -196,13 +196,13 @@ func (s *S) Solve() int {
 	driver := s.Driver
 	cdb := s.Cdb
 	aLevel := s.assumptLevel
-	var x CLoc
+	var x z.C
 	nxtTick := trail.Props + PropTick
 	tick := int64(0)
 
 	for {
 		x = trail.Prop()
-		if x != CLocNull {
+		if x != CNull {
 			// conflict
 			if trail.Level <= aLevel {
 				s.x = x
@@ -275,8 +275,18 @@ func (s *S) Solve() int {
 			_ = c
 			//log.Printf("compacted %d/%d/%d\n", u, c, ms)
 		}
-		trail.Assign(m, CLocNull)
+		trail.Assign(m, CNull)
 	}
+}
+
+// Simplify implements inter.Simplifier
+func (s *S) Simplify() int {
+	return s.Cdb.Simplify()
+}
+
+// SetCnfSimp implements inter.Simplifier
+func (s *S) SetCnfSimp(simp inter.CnfSimp) {
+	s.Cdb.CnfSimp = simp
 }
 
 // Value retrieves the value of the literal m
@@ -329,7 +339,7 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 		ns = ns[:0]
 	}
 	// check unsat leftovers from previous Solve() or Test()
-	if s.x != CLocNull {
+	if s.x != CNull {
 		panic("Test in unsat mode")
 	}
 	if s.xLit != z.LitNull {
@@ -404,11 +414,11 @@ func (s *S) Untest() int {
 	s.testLevels = s.testLevels[:len(s.testLevels)-1]
 	s.endTestLevel = lastTestLevel
 	trail.backWithLates(lastTestLevel)
-	if x := trail.Prop(); x != CLocNull {
+	if x := trail.Prop(); x != CNull {
 		s.x = x
 		return -1
 	}
-	s.x = CLocNull
+	s.x = CNull
 	s.xLit = z.LitNull
 	return 0
 }
@@ -431,7 +441,7 @@ func (s *S) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
 	defer s.unlock()
 	dst = dst[:0]
 	p := s.Vars.Reasons[m.Var()]
-	if p == CLocNull {
+	if p == CNull {
 		return dst
 	}
 	D := s.Cdb.CDat.D
@@ -530,7 +540,7 @@ func (s *S) Why(ms []z.Lit) []z.Lit {
 	if s.xLit != z.LitNull {
 		s.failed = append(s.failed, s.xLit)
 		s.final([]z.Lit{s.xLit})
-	} else if s.x != CLocNull {
+	} else if s.x != CNull {
 		s.final(s.Cdb.Lits(s.x, nil))
 	} else {
 		return ms
@@ -569,7 +579,7 @@ func (s *S) solveInit() int {
 
 func (s *S) cleanupSolve() {
 	s.Trail.Back(s.endTestLevel)
-	s.x = CLocNull
+	s.x = CNull
 	s.xLit = z.LitNull
 	s.failed = nil
 }
@@ -592,11 +602,11 @@ func (s *S) makeAssumptions() int {
 	}()
 	vals := s.Vars.Vals
 	// check if consistent without assumptions
-	if s.Cdb.Bot != CLocNull {
+	if s.Cdb.Bot != CNull {
 		s.x = s.Cdb.Bot
 		return -1
 	}
-	if x := trail.Prop(); x != CLocNull {
+	if x := trail.Prop(); x != CNull {
 		s.x = x
 		return -1
 	}
@@ -604,8 +614,8 @@ func (s *S) makeAssumptions() int {
 		switch vals[m] {
 		case 0:
 			s.assumptLevel++
-			trail.Assign(m, CLocNull)
-			if x := trail.Prop(); x != CLocNull {
+			trail.Assign(m, CNull)
+			if x := trail.Prop(); x != CNull {
 				s.x = x
 				return -1
 			}
@@ -681,7 +691,7 @@ func (s *S) finalRec(m z.Lit, marks []bool) {
 	marks[m.Var()] = true
 
 	r := s.Vars.Reasons[m.Var()]
-	if r == CLocNull {
+	if r == CNull {
 		s.failed = append(s.failed, m.Not())
 		s.stFailed++
 		return
