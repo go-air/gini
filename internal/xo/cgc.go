@@ -132,6 +132,7 @@ func (c *Cgc) Compact(cdb *Cdb) (int, int, int) {
 	return len(rms), nc, n
 }
 
+// NB this is only from cgc.Compact, not cdb.Simplify
 func (c *Cgc) CompactCDat(cdb *Cdb) (int, int) {
 	c.stCDatGcs++
 	c.rmLits = 0

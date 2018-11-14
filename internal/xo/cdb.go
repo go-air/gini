@@ -175,10 +175,18 @@ func (c *Cdb) Simplify() int {
 	if c.CnfSimp == nil {
 		return 0
 	}
-	stat, rems := c.CnfSimp.Simplify(c.cnfRems)
-	c.Unlink(rems)
-	c.cnfUnlinked += len(c.cnfRems)
-
+	orgRemLen := len(c.cnfRems)
+	var stat int
+	stat, c.cnfRems = c.CnfSimp.Simplify(c.cnfRems)
+	c.cnfUnlinked += len(c.cnfRems) - orgRemLen
+	c.Unlink(c.cnfRems[orgRemLen:])
+	if c.cnfUnlinked < 2048 {
+		return stat
+	}
+	cLocSlice(c.cnfRems).Sort()
+	relocMap, _ := c.CDat.Compact(c.cnfRems)
+	c.gc.relocate(c, relocMap)
+	c.cnfUnlinked = 0
 	return stat
 }
 
