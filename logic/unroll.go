@@ -58,6 +58,14 @@ func (u *Unroll) At(m z.Lit, d int) z.Lit {
 		res = u.dmap[v][d]
 		goto Done
 	}
+	if v == 1 {
+		if m.IsPos() {
+			res = u.C.T
+		} else {
+			res = u.C.F
+		}
+		goto Done
+	}
 	n = u.S.nodes[v]
 	if n.b == z.LitNull {
 		// input
