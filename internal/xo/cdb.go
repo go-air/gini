@@ -14,8 +14,9 @@ import (
 
 // Type Cdb is the main interface to clauses.
 type Cdb struct {
-	Vars *Vars
-	CDat CDat
+	Vars   *Vars
+	Active *Active
+	CDat   CDat
 
 	AddLits []z.Lit
 	AddVals []int8
@@ -189,6 +190,18 @@ func (c *Cdb) Remove(cs ...z.C) {
 
 func (c *Cdb) Learn(ms []z.Lit, lbd int) z.C {
 	ret := c.CDat.AddLits(MakeChd(true, lbd, len(ms)), ms)
+	if c.Active != nil {
+		is := c.Active.IsActive
+		for _, m := range ms {
+			mv := m.Var()
+			if !is[mv] {
+				continue
+			}
+			occs := c.Active.Occs
+			occs[mv] = append(occs[mv], ret)
+			break
+		}
+	}
 	msLen := len(ms)
 	switch msLen {
 	case 0:
@@ -442,6 +455,9 @@ func (c *Cdb) CheckModel() []error {
 }
 
 // NB does not copy CnfSimp related fields.
+//
+// NB also Active is copied in S.Copy and placed in resulting
+// copied cdb, so we don't copy Active here.
 func (c *Cdb) CopyWith(ov *Vars) *Cdb {
 	other := &Cdb{
 		Vars:    ov,
@@ -464,4 +480,5 @@ func (c *Cdb) growToVar(u z.Var) {
 	av := make([]int8, u)
 	copy(av, c.AddVals)
 	c.AddVals = av
+
 }

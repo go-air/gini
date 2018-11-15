@@ -204,3 +204,19 @@ func (g *Gini) Untest() int {
 func (g *Gini) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
 	return g.xo.Reasons(dst, m)
 }
+
+// Create a clause from the last (non 0-terminated, non-empty) sequence of Adds and
+// `m.Not()`.  Activate panics if the last sequence of Adds since Add(0) is empty.
+// Additionally, in this case subsequent behavior of `g` is undefined.
+//
+// To active the clause, assume `m`.
+func (g *Gini) Activate() (m z.Lit) {
+	return g.xo.Activate()
+}
+
+// Deactivate deactivates a literal as returned by Activate.  Deactivation
+// frees the literal for future Activations and removes all clauses, including
+// learned clauses, which contain `m.Not()`.
+func (g *Gini) Deactivate(m z.Lit) {
+	g.xo.Deactivate(m)
+}

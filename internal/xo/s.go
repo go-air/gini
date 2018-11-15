@@ -32,6 +32,7 @@ type S struct {
 	Trail  *Trail
 	Guess  *Guess
 	Driver *Deriver
+	Active *Active
 	gmu    sync.Mutex
 	rmu    sync.Mutex
 	luby   *Luby
@@ -134,6 +135,10 @@ func (s *S) Copy() *S {
 	other.Guess = s.Guess.Copy()
 	other.Trail = s.Trail.CopyWith(other.Cdb, other.Guess)
 	other.Driver = s.Driver.CopyWith(other.Cdb, other.Guess, other.Trail)
+	if s.Active != nil {
+		other.Active = s.Active.Copy()
+		other.Cdb.Active = other.Active
+	}
 	luby := NewLuby()
 	*luby = *(s.luby)
 	other.luby = luby
@@ -499,6 +504,21 @@ func (s *S) Add(m z.Lit) {
 	}
 }
 
+func (s *S) Activate() z.Lit {
+	if s.Active == nil {
+		s.Active = newActive(int(s.Vars.Top))
+		s.Cdb.Active = s.Active
+	}
+	if s.Trail.Level != 0 {
+		s.Trail.Back(0)
+	}
+	return s.Active.Activate(s)
+}
+
+func (s *S) Deactivate(m z.Lit) {
+	s.Active.Deactivate(s.Cdb, m)
+}
+
 // Assume causes the solver to Assume the literal m to be true for the
 // next call to Solve() or Test().
 //
@@ -707,6 +727,7 @@ func (s *S) finalRec(m z.Lit, marks []bool) {
 	return
 }
 
+// Lit returns the positive literal of a fresh variable.
 func (s *S) Lit() z.Lit {
 	n := s.Vars.Max + 1
 	m := n.Pos()
@@ -730,6 +751,9 @@ func (s *S) ensureLitCap(m z.Lit) {
 		s.Trail.growToVar(top)
 		s.Guess.growToVar(top)
 		s.Driver.growToVar(top)
+		if s.Active != nil {
+			s.Active.growToVar(top)
+		}
 	}
 	if mVar > vars.Max {
 		for i := vars.Max + 1; i <= mVar; i++ {

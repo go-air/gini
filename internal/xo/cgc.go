@@ -171,6 +171,10 @@ func (c *Cgc) relocate(cdb *Cdb, rlm map[z.C]z.C) {
 	cdb.Vars.Reasons = relocateSlice(cdb.Vars.Reasons, rlm)
 	// watches
 	c.relocateWatches(cdb, rlm)
+	// activation occs
+	if cdb.Active != nil {
+		cdb.Active.CRemap(rlm)
+	}
 	// simp
 	if cdb.CnfSimp != nil {
 		cdb.CnfSimp.CRemap(rlm)

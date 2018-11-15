@@ -228,3 +228,18 @@ type Simplifier interface {
 	// and returns the status after removing the requested claues.
 	Simplify() int
 }
+
+// Activatable provides support for recyclable activation literals
+type Activatable interface {
+	// Activate should be called in place of Add(0) to activate a
+	// clause.  Activate returns the activation literal, which, if assigned
+	// activates the last added clause.
+	//
+	// If the last clause is empty, then Activate panics.  The caller
+	// should only activate non-empty clauses.
+	Activate() z.Lit
+
+	// Deactivate deactivates an activation literal as returned by
+	// Activate
+	Deactivate(m z.Lit)
+}
