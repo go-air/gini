@@ -207,9 +207,30 @@ func (g *Gini) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
 
 // Create a clause from the last (non 0-terminated, non-empty) sequence of Adds and
 // `m.Not()`.  Activate panics if the last sequence of Adds since Add(0) is empty.
-// Additionally, in this case subsequent behavior of `g` is undefined.
+// Additionally, in this case subsequent behavior of `g` is undefined.  The caller
+// should verify a clause is not empty using `g.Value(m)` for all literals in in
+// the clause to activate.
 //
 // To active the clause, assume `m`.
+//
+// Example:
+//
+//  if g.Value(a) != false || g.Value(b) != false {
+//    g.Add(a)
+//    g.Add(b)
+//    m := g.Activate()  // don't call g.Add(0).
+//    g.Assume(m) // now the clause (a + b)  is active
+//    if g.Solve() == 1 {
+//       // do something
+//    }
+//    // now the clause (a+b) is not active.
+//    g.Deactivate(m)
+//    // now `m` can be re-used and the solver can ignore
+//    // clauses with `m`.
+//  }
+//
+// Activation of all clauses can be used in conjunction with cardinality constraints
+// to easily create a MAXSAT solver.
 func (g *Gini) Activate() (m z.Lit) {
 	return g.xo.Activate()
 }
