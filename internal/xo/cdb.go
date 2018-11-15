@@ -24,9 +24,8 @@ type Cdb struct {
 	Added   []z.C
 	Learnts []z.C
 
-	CnfSimp     inter.CnfSimp
-	cnfRems     []z.C
-	cnfUnlinked int
+	CnfSimp        inter.CnfSimp
+	cnfSimpRmSpace []z.C
 
 	Tracer Tracer
 
@@ -175,19 +174,17 @@ func (c *Cdb) Simplify() int {
 	if c.CnfSimp == nil {
 		return 0
 	}
-	orgRemLen := len(c.cnfRems)
+
+	rems := c.cnfSimpRmSpace
 	var stat int
-	stat, c.cnfRems = c.CnfSimp.Simplify(c.cnfRems)
-	c.cnfUnlinked += len(c.cnfRems) - orgRemLen
-	c.Unlink(c.cnfRems[orgRemLen:])
-	if c.cnfUnlinked < 2048 {
-		return stat
-	}
-	cLocSlice(c.cnfRems).Sort()
-	relocMap, _ := c.CDat.Compact(c.cnfRems)
-	c.gc.relocate(c, relocMap)
-	c.cnfUnlinked = 0
+	stat, rems = c.CnfSimp.Simplify(rems)
+	c.Remove(rems...)
+	c.cnfSimpRmSpace = c.cnfSimpRmSpace[:0]
 	return stat
+}
+
+func (c *Cdb) Remove(cs ...z.C) {
+	c.gc.Remove(c, cs...)
 }
 
 func (c *Cdb) Learn(ms []z.Lit, lbd int) z.C {

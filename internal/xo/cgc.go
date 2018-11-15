@@ -74,6 +74,25 @@ func (c *Cgc) Ready() bool {
 	return c.stopWatch <= 0
 }
 
+func (gc *Cgc) Remove(cdb *Cdb, cs ...z.C) {
+	rmLitCount := 0
+	for _, c := range cs {
+		rmLitCount += cdb.Size(c)
+	}
+
+	gc.rmq = append(gc.rmq, cs...)
+	gc.rmd += len(cs)
+	gc.stRmd += int64(len(cs))
+	gc.stRmdLits += int64(rmLitCount)
+	gc.rmLits += rmLitCount
+	if !cdb.CDat.CompactReady(gc.rmd, gc.rmLits) {
+		cdb.Unlink(cs)
+		return
+	}
+	//  free literal data
+	gc.CompactCDat(cdb) // also unlinks
+}
+
 // Compact runs a clause gc, which in turn sometimes
 // compacts the underlying CDat.  Compact returns
 //
