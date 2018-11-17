@@ -14,29 +14,29 @@ func newActive(vcap int) *Active {
 		IsActive: make([]bool, vcap)}
 }
 
-func (a *Active) Activate(s *S) z.Lit {
-	var act z.Lit = z.LitNull
+func (a *Active) Lit(s *S) z.Lit {
 	n := len(a.Free)
-
+	var act z.Lit
 	if n != 0 {
 		act = a.Free[n-1]
 		a.Free = a.Free[:n-1]
 	} else {
 		act = s.Lit()
 	}
+	return act
+}
+
+func (a *Active) ActivateWith(act z.Lit, s *S) {
 	a.IsActive[act.Var()] = true
 	s.Add(act.Not())
-
 	loc, u := s.Cdb.Add(0)
 	if u != z.LitNull {
 		panic("activated empty clause")
 	}
-
 	// add occ
 	if loc != CInf {
 		a.Occs[act.Var()] = []z.C{loc}
 	}
-	return act
 }
 
 func (a *Active) Deactivate(cdb *Cdb, m z.Lit) {
@@ -83,9 +83,11 @@ func (a *Active) growToVar(u z.Var) {
 
 func (a *Active) Copy() *Active {
 	res := &Active{
+		Free:     make([]z.Lit, len(a.Free), cap(a.Free)),
 		Occs:     make([][]z.C, len(a.Occs), cap(a.Occs)),
 		IsActive: make([]bool, len(a.IsActive), cap(a.IsActive))}
 	copy(res.IsActive, a.IsActive)
+	copy(res.Free, a.Free)
 	for i, asl := range a.Occs {
 		rsl := make([]z.C, len(asl), cap(asl))
 		copy(rsl, asl)

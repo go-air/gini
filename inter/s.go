@@ -39,8 +39,8 @@ type Adder interface {
 	// methods may provide safety in the presence of multiple
 	// goroutines.  Add in general does not.
 	//
-	// Add should not be called under assumptions or test
-	// scopes.  Doing so yields undefined behavior.
+	// If the implemation of Add is a solver under a test scope
+	// then Add undoes the test.
 	//
 	Add(m z.Lit)
 }
@@ -89,8 +89,8 @@ type Testable interface {
 	Assumable
 
 	// Test the current assumptions under unit propagation.
-	// place the resulting propagated literals since the last
-	// test in dst and return
+	// append the resulting propagated literals since the last
+	// test in dst, if dst is not nil, and return
 	//
 	//  result: -1 for UNSAT, 1 for SAT, 0 for UNKNOWN
 	//  out: the propagated literals since last Test,
@@ -240,11 +240,18 @@ type Activatable interface {
 	//
 	// If the last clause is empty, then Activate panics.  The caller
 	// should only activate non-empty clauses.  Note that in incremental
-	// settings, one usually has to verify whether or not a clause is
+	// settings, one may have to verify whether or not a clause is
 	// empty.
 	//
 	// like `Add()`, Activate should only be called at decision level 0.
 	Activate() z.Lit
+
+	// ActivateWith is like Activate but it allows the caller to specify
+	// the activation literal `act`.  The activation literal should
+	// be `pure`, meaning that `act.Not()` does not appear anywhere in
+	// any clause added.  Note that deactivation of literals passed to
+	// ActivateWith causes them to be recycled.
+	ActivateWith(act z.Lit)
 
 	// Deactivate deactivates an activation literal as returned by
 	// Activate.

@@ -495,8 +495,8 @@ func (s *S) Add(m z.Lit) {
 	//s.lock()
 	//defer s.unlock()
 	s.ensureLitCap(m)
-	if m == z.LitNull && s.Trail.Level != 0 {
-		s.Trail.Back(0)
+	if m == z.LitNull {
+		s.ensure0()
 	}
 	loc, u := s.Cdb.Add(m)
 	if u != z.LitNull {
@@ -504,19 +504,44 @@ func (s *S) Add(m z.Lit) {
 	}
 }
 
-func (s *S) Activate() z.Lit {
+func (s *S) ensureActive() {
 	if s.Active == nil {
 		s.Active = newActive(int(s.Vars.Top))
 		s.Cdb.Active = s.Active
 	}
-	if s.Trail.Level != 0 {
-		s.Trail.Back(0)
-	}
-	return s.Active.Activate(s)
+}
+
+func (s *S) Activate() z.Lit {
+	s.ensure0()
+	s.ensureActive()
+	m := s.Active.Lit(s)
+	s.Active.ActivateWith(m, s)
+	return m
+}
+
+func (s *S) ActivateWith(act z.Lit) {
+	s.ensure0()
+	s.ensureActive()
+	s.Active.ActivateWith(act, s)
 }
 
 func (s *S) Deactivate(m z.Lit) {
+	s.ensure0()
+	s.ensureActive()
 	s.Active.Deactivate(s.Cdb, m)
+}
+
+func (s *S) ensure0() {
+	if len(s.testLevels) != 0 {
+		panic("ivalid operation under test scope")
+	}
+	if s.Trail.Level == 0 {
+		return
+	}
+	s.Trail.Back(0)
+	s.x = CNull
+	s.xLit = z.LitNull
+	s.failed = nil
 }
 
 // Assume causes the solver to Assume the literal m to be true for the
