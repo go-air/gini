@@ -519,6 +519,12 @@ func (s *S) Activate() z.Lit {
 	return m
 }
 
+func (s *S) ActivationLit() z.Lit {
+	s.ensure0()
+	s.ensureActive()
+	return s.Active.Lit(s)
+}
+
 func (s *S) ActivateWith(act z.Lit) {
 	s.ensure0()
 	s.ensureActive()

@@ -253,6 +253,11 @@ type Activatable interface {
 	// ActivateWith causes them to be recycled.
 	ActivateWith(act z.Lit)
 
+	// ActivationLit returns a literal to be used with ActivateWith.
+	// As all other Activation related methods, ActivationLit is
+	// not supported under test scopes.
+	ActivationLit() z.Lit
+
 	// Deactivate deactivates an activation literal as returned by
 	// Activate.
 	//

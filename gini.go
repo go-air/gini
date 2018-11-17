@@ -260,6 +260,14 @@ func (g *Gini) ActivateWith(act z.Lit) {
 	g.xo.ActivateWith(act)
 }
 
+// ActivationLit returns a new literal to be used with ActivateWith().
+//
+// ActivationLit is an unsupported operation under a test scope and will
+// panic if called under a test scope.
+func (g *Gini) ActivationLit() z.Lit {
+	return g.xo.ActivationLit()
+}
+
 // Deactivate deactivates a literal as returned by Activate.  Deactivation
 // frees the literal for future Activations and removes all clauses, including
 // learned clauses, which contain `m.Not()`.
