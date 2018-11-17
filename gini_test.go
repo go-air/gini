@@ -149,6 +149,6 @@ func TestCnfSimp(t *testing.T) {
 		if a != b {
 			t.Errorf("something went wrong %d,%d\n", a, b)
 		}
-		t.Logf("%d ?= %d\n", a, b)
+		//t.Logf("%d ?= %d\n", a, b)
 	}
 }

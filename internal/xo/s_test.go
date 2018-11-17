@@ -402,6 +402,46 @@ func TestIncAdd(t *testing.T) {
 	}
 }
 
+func TestAddTestPanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when adding under assumptions")
+		}
+	}()
+	s := NewS()
+	a, b := s.Lit(), s.Lit()
+	s.Assume(a)
+	s.Test(nil)
+	s.Add(a)
+	s.Add(b)
+	s.Add(0)
+}
+
+func TestActivateTestPanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when activating under assumptions")
+		}
+	}()
+	s := NewS()
+	a, b := s.Lit(), s.Lit()
+	s.Assume(a)
+	s.Test(nil)
+	s.Add(a)
+	s.Add(b)
+	s.Activate()
+}
+
+func TestActivateEmptyClausePanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when activating empty clause")
+		}
+	}()
+	s := NewS()
+	s.Activate()
+}
+
 func TestActivations(t *testing.T) {
 	s := NewS()
 	for i := 1; i < 31; i++ {
