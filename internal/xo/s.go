@@ -415,6 +415,11 @@ func (s *S) Untest() int {
 		panic("Untest without Test")
 	}
 	trail := s.Trail
+	if s.x != CNull {
+		drvd := s.Driver.Derive(s.x)
+		trail.Assign(drvd.Unit, drvd.P)
+		s.x = CNull
+	}
 	lastTestLevel := s.lastTestLevel()
 	s.testLevels = s.testLevels[:len(s.testLevels)-1]
 	s.endTestLevel = lastTestLevel
