@@ -566,6 +566,7 @@ func (s *S) Assume(ms ...z.Lit) {
 	defer s.unlock()
 	s.stAssumes += int64(len(ms))
 	s.assumes = append(s.assumes, ms...)
+	fmt.Printf("assume %v\n", s.assumes)
 }
 
 // Who identifies the solver and configuration.
