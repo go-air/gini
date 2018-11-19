@@ -26,6 +26,8 @@ func TestActive3(t *testing.T) {
 	}
 	s1 := s0.Copy()
 	NCs := N*5 - M
+	// since hard 3cnfs fall nearish nclauses = 4*nvars, we'll expect to see
+	// a variety of results and runtimes.
 	Cs := make([]z.Lit, 0, NCs*3)
 	acts0 := make([]z.Lit, NCs)
 	acts1 := make([]z.Lit, NCs)
@@ -47,6 +49,7 @@ func TestActive3(t *testing.T) {
 		Cs = append(Cs, m, n, o)
 	}
 	// compare assumptions with activations/de-activations
+	// under many permutations
 	active := make([]bool, len(acts0))
 	for i := 0; i < 16384; i++ {
 		j := rand.Intn(len(acts0))
@@ -57,7 +60,7 @@ func TestActive3(t *testing.T) {
 			s0.Cdb.Forall(func(c z.C, h Chd, ms []z.Lit) {
 				for _, m := range ms {
 					if m.Var().Pos() == act {
-						t.Errorf("%s in %s%v\n", act, c, ms)
+						t.Fatalf("%s in %s%v\n", act, c, ms)
 						break
 					}
 				}

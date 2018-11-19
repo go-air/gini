@@ -93,6 +93,27 @@ func (gc *Cgc) Remove(cdb *Cdb, cs ...z.C) {
 	gc.CompactCDat(cdb) // also unlinks
 }
 
+func uniq(cs []z.C) []z.C {
+	if len(cs) <= 1 {
+		return cs
+	}
+	i := 0
+	j := 1
+	last := cs[0]
+	var cur z.C
+	N := len(cs)
+	for j < N {
+		cur = cs[j]
+		if cur != last {
+			i++
+			cs[i] = cur
+			last = cur
+		}
+		j++
+	}
+	return cs[:i+1]
+}
+
 // Compact runs a clause gc, which in turn sometimes
 // compacts the underlying CDat.  Compact returns
 //
@@ -158,6 +179,10 @@ func (c *Cgc) CompactCDat(cdb *Cdb) (int, int) {
 	c.rmd = 0
 	crm := c.rmq
 	cLocSlice(crm).Sort()
+	if cdb.Active != nil || cdb.CnfSimp != nil {
+		crm = uniq(crm)
+		// otherwise, it's only learnts and uniq by construction.
+	}
 	relocMap, freed := cdb.CDat.Compact(crm)
 	c.relocate(cdb, relocMap)
 	c.rmq = c.rmq[:0]

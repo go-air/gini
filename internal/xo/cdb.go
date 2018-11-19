@@ -258,11 +258,6 @@ func (c *Cdb) Decay() {
 	c.CDat.Decay()
 }
 
-func (c *Cdb) Crunch(ms []z.Lit) int {
-
-	return 0
-}
-
 func (c *Cdb) MaybeCompact() (int, int, int) {
 	gc := c.gc
 	if !gc.Ready() {

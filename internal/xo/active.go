@@ -68,8 +68,14 @@ func (a *Active) Deactivate(cdb *Cdb, m z.Lit) {
 }
 
 func (a *Active) CRemap(rlm map[z.C]z.C) {
+	if len(rlm) == 0 {
+		return
+	}
 	for i := range a.Occs {
 		sl := a.Occs[i]
+		if len(sl) == 0 {
+			continue
+		}
 		j := 0
 		for _, c := range sl {
 			d, ok := rlm[c]
