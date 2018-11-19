@@ -432,6 +432,12 @@ func (c *Cdb) CheckWatches() []error {
 
 // by default, called when sat as a sanity check.
 func (c *Cdb) CheckModel() []error {
+	if c.Active != nil {
+		// deactivations remove Added clauses, which are unlinked
+		// until sufficiently large to compact.  compaction
+		// then cleans up Added, which we need here.
+		c.gc.CompactCDat(c)
+	}
 	var m z.Lit
 	D := c.CDat.D
 	signs := c.Vars.Vals
