@@ -172,14 +172,14 @@ func (c *Cgc) Compact(cdb *Cdb) (int, int, int) {
 	return len(rms), nc, n
 }
 
-// NB this is only from cgc.Compact, not cdb.Simplify
+// NB this is only from cgc.Compact
 func (c *Cgc) CompactCDat(cdb *Cdb) (int, int) {
 	c.stCDatGcs++
 	c.rmLits = 0
 	c.rmd = 0
 	crm := c.rmq
 	cLocSlice(crm).Sort()
-	if cdb.Active != nil || cdb.CnfSimp != nil {
+	if cdb.Active != nil {
 		crm = uniq(crm)
 		// otherwise, it's only learnts and uniq by construction.
 	}
@@ -199,10 +199,6 @@ func (c *Cgc) relocate(cdb *Cdb, rlm map[z.C]z.C) {
 	// activation occs
 	if cdb.Active != nil {
 		cdb.Active.CRemap(rlm)
-	}
-	// simp
-	if cdb.CnfSimp != nil {
-		cdb.CnfSimp.CRemap(rlm)
 	}
 }
 

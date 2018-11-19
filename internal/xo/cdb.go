@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/irifrance/gini/inter"
 	"github.com/irifrance/gini/z"
 )
 
@@ -24,9 +23,6 @@ type Cdb struct {
 	Bot     z.C
 	Added   []z.C
 	Learnts []z.C
-
-	CnfSimp        inter.CnfSimp
-	cnfSimpRmSpace []z.C
 
 	Tracer Tracer
 
@@ -134,9 +130,6 @@ func (c *Cdb) Add(m z.Lit) (z.C, z.Lit) {
 	c.stMinLits += int64(len(ms) - j)
 	retLoc = c.CDat.AddLits(MakeChd(false, 0, j), ms[0:j])
 	c.Added = append(c.Added, retLoc)
-	if c.CnfSimp != nil {
-		c.CnfSimp.OnAdded(z.C(retLoc), ms[:j])
-	}
 	if j == 0 {
 		c.Bot = retLoc
 		goto Done
@@ -169,19 +162,6 @@ Done:
 	}
 	c.AddLits = c.AddLits[:0]
 	return retLoc, retLit
-}
-
-func (c *Cdb) Simplify() int {
-	if c.CnfSimp == nil {
-		return 0
-	}
-
-	rems := c.cnfSimpRmSpace
-	var stat int
-	stat, rems = c.CnfSimp.Simplify(rems)
-	c.Remove(rems...)
-	c.cnfSimpRmSpace = c.cnfSimpRmSpace[:0]
-	return stat
 }
 
 func (c *Cdb) Remove(cs ...z.C) {
@@ -429,7 +409,7 @@ func (c *Cdb) CheckWatches() []error {
 
 // by default, called when sat as a sanity check.
 func (c *Cdb) CheckModel() []error {
-	if c.Active != nil || c.CnfSimp != nil {
+	if c.Active != nil {
 		// deactivations and simplificaations remove Added clauses, which are unlinked
 		// until sufficiently large to compact.  compaction
 		// then cleans up Added, which we need here.
@@ -457,8 +437,6 @@ func (c *Cdb) CheckModel() []error {
 	return errs
 }
 
-// NB does not copy CnfSimp related fields.
-//
 // NB also Active is copied in S.Copy and placed in resulting
 // copied cdb, so we don't copy Active here.
 func (c *Cdb) CopyWith(ov *Vars) *Cdb {

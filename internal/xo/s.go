@@ -284,16 +284,6 @@ func (s *S) Solve() int {
 	}
 }
 
-// Simplify implements inter.Simplifier
-func (s *S) Simplify() int {
-	return s.Cdb.Simplify()
-}
-
-// SetCnfSimp implements inter.Simplifier
-func (s *S) SetCnfSimp(simp inter.CnfSimp) {
-	s.Cdb.CnfSimp = simp
-}
-
 // Value retrieves the value of the literal m
 func (s *S) Value(m z.Lit) bool {
 	s.rmu.Lock()
