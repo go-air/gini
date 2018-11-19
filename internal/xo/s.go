@@ -343,15 +343,7 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 	if ns != nil {
 		ns = ns[:0]
 	}
-	// check unsat leftovers from previous Solve() or Test()
-	if s.x != CNull {
-		panic("Test in unsat mode")
-	}
-	if s.xLit != z.LitNull {
-		panic("Test in unsat mode")
-	}
-	// in case Solve() was indeterminate or sat before this.
-	s.Trail.Back(s.endTestLevel)
+	s.cleanupSolve()
 	res = 0
 	s.testLevels = append(s.testLevels, s.Trail.Level)
 
@@ -546,10 +538,9 @@ func (s *S) ensure0() {
 	if len(s.testLevels) != 0 {
 		panic("ivalid operation under test scope")
 	}
-	if s.Trail.Level == 0 {
-		return
+	if s.Trail.Level != 0 {
+		s.Trail.Back(0)
 	}
-	s.Trail.Back(0)
 	s.x = CNull
 	s.xLit = z.LitNull
 	s.failed = nil
@@ -634,8 +625,23 @@ func (s *S) solveInit() int {
 }
 
 func (s *S) cleanupSolve() {
-	s.Trail.Back(s.endTestLevel)
-	s.x = CNull
+	trail := s.Trail
+	for s.x != CNull {
+		if s.Cdb.Bot != CNull { // Cdb.Bot is always checked in makeAssumptions, true empty clause.
+			s.x = CNull
+			break
+		}
+		drvd := s.Driver.Derive(s.x)
+		if drvd.TargetLevel < s.endTestLevel {
+			trail.Back(s.endTestLevel)
+			s.x = CNull
+			break
+		}
+		trail.Back(drvd.TargetLevel)
+		trail.Assign(drvd.Unit, drvd.P)
+		s.x = trail.Prop()
+	}
+	trail.Back(s.endTestLevel)
 	s.xLit = z.LitNull
 	s.failed = nil
 }
@@ -680,10 +686,6 @@ func (s *S) makeAssumptions() int {
 			// nothing
 		case -1:
 			s.xLit = m
-			// since we don't have a conflict clause, we do this so
-			// that we can run final() with {m} instead of
-			// contents of a conflict clause.
-			s.failed = append(s.failed, m)
 			s.stFailed++
 			return -1
 		default:
@@ -778,10 +780,10 @@ func (s *S) ensureLitCap(m z.Lit) {
 	mVar := m.Var()
 	top := vars.Top
 	grow := mVar >= top
-	for top <= mVar {
-		top *= 2
-	}
 	if grow {
+		for top <= mVar {
+			top *= 2
+		}
 		vars.growToVar(top)
 		s.Cdb.growToVar(top)
 		s.Trail.growToVar(top)

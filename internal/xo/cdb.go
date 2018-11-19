@@ -192,14 +192,16 @@ func (c *Cdb) Learn(ms []z.Lit, lbd int) z.C {
 	ret := c.CDat.AddLits(MakeChd(true, lbd, len(ms)), ms)
 	if c.Active != nil {
 		is := c.Active.IsActive
+		occs := c.Active.Occs
 		for _, m := range ms {
 			mv := m.Var()
 			if !is[mv] {
 				continue
 			}
-			occs := c.Active.Occs
+			if m.IsPos() {
+				panic("positive act lit")
+			}
 			occs[mv] = append(occs[mv], ret)
-			break
 		}
 	}
 	msLen := len(ms)
@@ -432,8 +434,8 @@ func (c *Cdb) CheckWatches() []error {
 
 // by default, called when sat as a sanity check.
 func (c *Cdb) CheckModel() []error {
-	if c.Active != nil {
-		// deactivations remove Added clauses, which are unlinked
+	if c.Active != nil || c.CnfSimp != nil {
+		// deactivations and simplificaations remove Added clauses, which are unlinked
 		// until sufficiently large to compact.  compaction
 		// then cleans up Added, which we need here.
 		c.gc.CompactCDat(c)

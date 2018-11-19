@@ -5,17 +5,17 @@ package logic
 
 import "github.com/irifrance/gini/z"
 
-// Type Unroll creates an unroller of sequential logic into
+// Type Roll creates an unroller of sequential logic into
 // combinational logic.
-type Unroll struct {
+type Roll struct {
 	S    *S // the sequential circuit
 	C    *C // the resulting comb circuit
 	dmap [][]z.Lit
 }
 
-// NewUnroll creates a new unroller for s
-func NewUnroll(s *S) *Unroll {
-	u := &Unroll{
+// NewRoll creates a new unroller for s
+func NewRoll(s *S) *Roll {
+	u := &Roll{
 		S:    s,
 		C:    NewCCap(s.Len() * 10),
 		dmap: make([][]z.Lit, s.Len())}
@@ -23,14 +23,14 @@ func NewUnroll(s *S) *Unroll {
 }
 
 // Len returns the length of the unrolling for literal m.
-func (u *Unroll) Len(m z.Lit) int {
+func (u *Roll) Len(m z.Lit) int {
 	v := m.Var()
 	return len(u.dmap[v])
 }
 
 // MaxLen returns the maximum length of any literal in
 // the unrolling.
-func (u *Unroll) MaxLen() int {
+func (u *Roll) MaxLen() int {
 	ns := u.S.nodes
 	max := 0
 	for i := 1; i < len(ns); i++ {
@@ -47,7 +47,7 @@ func (u *Unroll) MaxLen() int {
 // u.S at time/depth d as a literal in u.C
 //
 // If d < 0, then At panics.
-func (u *Unroll) At(m z.Lit, d int) z.Lit {
+func (u *Roll) At(m z.Lit, d int) z.Lit {
 	v := m.Var()
 	if len(u.dmap[v]) < d {
 		u.At(m, d-1)

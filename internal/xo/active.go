@@ -1,11 +1,14 @@
 package xo
 
-import "github.com/irifrance/gini/z"
+import (
+	"github.com/irifrance/gini/z"
+)
 
 type Active struct {
 	Free     []z.Lit
 	Occs     [][]z.C
 	IsActive []bool
+	Ms       []z.Lit
 }
 
 func newActive(vcap int) *Active {
@@ -33,10 +36,26 @@ func (a *Active) ActivateWith(act z.Lit, s *S) {
 	if u != z.LitNull {
 		panic("activated empty clause")
 	}
-	// add occ
-	if loc != CInf {
-		a.Occs[act.Var()] = []z.C{loc}
+	if loc == CInf {
+		panic("activated trivially true clause")
+		return
 	}
+	// add occs
+	ms := a.Ms
+	ms = s.Cdb.Lits(loc, ms)
+	is := a.IsActive
+	for _, m := range a.Ms {
+		mv := m.Var()
+		if !is[mv] {
+			continue
+		}
+		if m.IsPos() {
+			panic("positive act lit")
+		}
+		a.Occs[mv] = append(a.Occs[mv], loc)
+	}
+	a.Occs[act.Var()] = append(a.Occs[act.Var()], loc)
+	a.Ms = ms[:0]
 }
 
 func (a *Active) Deactivate(cdb *Cdb, m z.Lit) {

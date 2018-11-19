@@ -249,7 +249,8 @@ func (d *Deriver) isRdntRec(m z.Lit) bool {
 	switch d.Rdnt[v] {
 	case 0:
 		d.RLits = append(d.RLits, m)
-		if !d.Lvls[d.Vars.Levels[v]] {
+		lvl := d.Vars.Levels[v]
+		if !d.Lvls[lvl] {
 			d.Rdnt[v] = -1
 			return false
 		}
