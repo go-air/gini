@@ -99,6 +99,9 @@ func (g *Gini) Lit() z.Lit {
 //  g.Add(z)
 //  g.Add(0)
 //
+// If Add is called under a test scope, then Add will panic
+// if `m` is 0/LitNull.
+//
 func (g *Gini) Add(m z.Lit) {
 	g.xo.Add(m)
 }
@@ -160,6 +163,10 @@ func (g *Gini) Why(ms []z.Lit) []z.Lit {
 //  - All assigned literals since last test if SAT or UNKNOWN
 //  - Either the literals of a clause which is unsat under BCP or an assumption
 //    which is false under BCP, whichever is found first.
+//
+// When g is under a test scope, many operations are not
+// possible, in particular: {Add,Activate,ActivateWith,Deactivate}
+// are unsupported operations under a test scope.
 func (g *Gini) Test(dst []z.Lit) (res int, out []z.Lit) {
 	return g.xo.Test(dst)
 }
@@ -188,4 +195,70 @@ func (g *Gini) Untest() int {
 // that it is acyclic.
 func (g *Gini) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
 	return g.xo.Reasons(dst, m)
+}
+
+// Create a clause from the last (non 0-terminated, non-empty) sequence of Adds and
+// `m.Not()`.  Activate panics if the last sequence of Adds since Add(0) is empty,
+// in other words, don't try to use an activation literal for the empty clause.
+//
+// Additionally, in this case subsequent behavior of `g` is undefined.  The caller
+// should verify a clause is not empty using `g.Value(m)` for all literals in in
+// the clause to activate.
+//
+// To active the clause, assume `m`.
+//
+// Example:
+//
+//  if g.Value(a) != false || g.Value(b) != false {
+//    g.Add(a)
+//    g.Add(b)
+//    m := g.Activate()  // don't call g.Add(0).
+//    g.Assume(m) // now the clause (a + b)  is active
+//    if g.Solve() == 1 {
+//       // do something
+//    }
+//    // now the clause (a+b) is not active.
+//    g.Deactivate(m)
+//    // now `m` can be re-used and the solver can ignore
+//    // clauses with `m`.
+//  }
+//
+// Activation of all clauses can be used in conjunction with cardinality constraints
+// to easily create a MAXSAT solver.
+//
+// Activate is an unsupported operation under a test scope
+// and will panic if called under a test scope.
+func (g *Gini) Activate() (m z.Lit) {
+	return g.xo.Activate()
+}
+
+// ActivateWith allows the caller to specify the activation literal.  It is
+// useful when the caller needs to activate many clauses with one literal.
+// However, please note that activation literals are volatile and will be
+// recycled on Deactivate.  As with Activate, ActivateWith should not
+// be used to activate the empty clause.  In this case, ActivateWith
+// panics and subsequent behavior of g is undefined.
+//
+// ActivateWith is an unsupported operation under a test scope
+// and will panic if called under a test scope.
+func (g *Gini) ActivateWith(act z.Lit) {
+	g.xo.ActivateWith(act)
+}
+
+// ActivationLit returns a new literal to be used with ActivateWith().
+//
+// ActivationLit is an unsupported operation under a test scope and will
+// panic if called under a test scope.
+func (g *Gini) ActivationLit() z.Lit {
+	return g.xo.ActivationLit()
+}
+
+// Deactivate deactivates a literal as returned by Activate.  Deactivation
+// frees the literal for future Activations and removes all clauses, including
+// learned clauses, which contain `m.Not()`.
+//
+// Deactivate is an unsupported operation under a test scope
+// and will panic if called under a test scope.
+func (g *Gini) Deactivate(m z.Lit) {
+	g.xo.Deactivate(m)
 }

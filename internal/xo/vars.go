@@ -5,15 +5,16 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"strings"
+
+	"github.com/irifrance/gini/z"
 )
 
 type Vars struct {
 	Max     z.Var // maximum value of a used variable
 	Top     z.Var // number of allocated variables, 1-indexed
 	Vals    []int8
-	Reasons []CLoc
+	Reasons []z.C
 	Levels  []int
 	Watches [][]Watch
 }
@@ -25,7 +26,7 @@ func NewVars(capHint int) *Vars {
 	top := capHint + 1
 	v := &Vars{Max: z.Var(0),
 		Top:     z.Var(top),
-		Reasons: make([]CLoc, top),
+		Reasons: make([]z.C, top),
 		Levels:  make([]int, top),
 		Vals:    make([]int8, 2*top),
 		Watches: make([][]Watch, 2*top)}
@@ -63,7 +64,7 @@ func (v *Vars) growToVar(u z.Var) {
 	copy(vs, v.Vals)
 	v.Vals = vs
 
-	rs := make([]CLoc, w)
+	rs := make([]z.C, w)
 	copy(rs, v.Reasons)
 	v.Reasons = rs
 
@@ -82,7 +83,7 @@ func (v *Vars) Copy() *Vars {
 		Max:     v.Max,
 		Top:     v.Top,
 		Vals:    make([]int8, len(v.Vals), cap(v.Vals)),
-		Reasons: make([]CLoc, len(v.Reasons), cap(v.Reasons)),
+		Reasons: make([]z.C, len(v.Reasons), cap(v.Reasons)),
 		Levels:  make([]int, len(v.Levels), cap(v.Levels)),
 		Watches: make([][]Watch, len(v.Watches), cap(v.Watches))}
 	copy(other.Vals, v.Vals)

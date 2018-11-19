@@ -4,8 +4,9 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/z"
 	"sort"
+
+	"github.com/irifrance/gini/z"
 )
 
 // Type Cgc encapsulates clause compaction/garbage collection.
@@ -17,7 +18,7 @@ type Cgc struct {
 	factor    uint
 	stopWatch uint // make int and regularize diff between tick and compact?
 
-	rmq []CLoc
+	rmq []z.C
 
 	rmLits int
 	rmd    int
@@ -36,7 +37,7 @@ func NewCgc() *Cgc {
 		luby:       l,
 		factor:     2048,
 		stopWatch:  2048 * l.Next(),
-		rmq:        make([]CLoc, 0, 1024),
+		rmq:        make([]z.C, 0, 1024),
 		rmLits:     0,
 		rmd:        0,
 		stCompacts: 0,
@@ -53,7 +54,7 @@ func (c *Cgc) Copy() *Cgc {
 		luby:      l,
 		factor:    2048,
 		stopWatch: 2048 * l.Next(),
-		rmq:       make([]CLoc, len(c.rmq), cap(c.rmq)),
+		rmq:       make([]z.C, len(c.rmq), cap(c.rmq)),
 		rmLits:    c.rmLits,
 		rmd:       c.rmd}
 	copy(other.rmq, c.rmq)
@@ -71,6 +72,46 @@ func (c *Cgc) Tick() {
 // Ready tests whether a clause gc is ready to occur.
 func (c *Cgc) Ready() bool {
 	return c.stopWatch <= 0
+}
+
+func (gc *Cgc) Remove(cdb *Cdb, cs ...z.C) {
+	rmLitCount := 0
+	for _, c := range cs {
+		rmLitCount += cdb.Size(c)
+	}
+
+	gc.rmq = append(gc.rmq, cs...)
+	gc.rmd += len(cs)
+	gc.stRmd += int64(len(cs))
+	gc.stRmdLits += int64(rmLitCount)
+	gc.rmLits += rmLitCount
+	if !cdb.CDat.CompactReady(gc.rmd, gc.rmLits) {
+		cdb.Unlink(cs)
+		return
+	}
+	//  free literal data
+	gc.CompactCDat(cdb) // also unlinks
+}
+
+func uniq(cs []z.C) []z.C {
+	if len(cs) <= 1 {
+		return cs
+	}
+	i := 0
+	j := 1
+	last := cs[0]
+	var cur z.C
+	N := len(cs)
+	for j < N {
+		cur = cs[j]
+		if cur != last {
+			i++
+			cs[i] = cur
+			last = cur
+		}
+		j++
+	}
+	return cs[:i+1]
 }
 
 // Compact runs a clause gc, which in turn sometimes
@@ -91,7 +132,7 @@ func (c *Cgc) Compact(cdb *Cdb) (int, int, int) {
 	top := sz - 1
 	lim := sz / 2
 	rmLitCount := 0
-	rms := make([]CLoc, 0, lim)
+	rms := make([]z.C, 0, lim)
 	// maybe should go in ascending order...--nope!
 	for n := top; n >= 0; n-- {
 		p := learnts[n]
@@ -131,25 +172,34 @@ func (c *Cgc) Compact(cdb *Cdb) (int, int, int) {
 	return len(rms), nc, n
 }
 
+// NB this is only from cgc.Compact
 func (c *Cgc) CompactCDat(cdb *Cdb) (int, int) {
 	c.stCDatGcs++
 	c.rmLits = 0
 	c.rmd = 0
 	crm := c.rmq
 	cLocSlice(crm).Sort()
+	if cdb.Active != nil {
+		crm = uniq(crm)
+		// otherwise, it's only learnts and uniq by construction.
+	}
 	relocMap, freed := cdb.CDat.Compact(crm)
 	c.relocate(cdb, relocMap)
 	c.rmq = c.rmq[:0]
 	return len(crm), freed
 }
 
-func (c *Cgc) relocate(cdb *Cdb, rlm map[CLoc]CLoc) {
+func (c *Cgc) relocate(cdb *Cdb, rlm map[z.C]z.C) {
 	cdb.Learnts = relocateSlice(cdb.Learnts, rlm)
 	cdb.Added = relocateSlice(cdb.Added, rlm)
 	// reasons
 	cdb.Vars.Reasons = relocateSlice(cdb.Vars.Reasons, rlm)
 	// watches
 	c.relocateWatches(cdb, rlm)
+	// activation occs
+	if cdb.Active != nil {
+		cdb.Active.CRemap(rlm)
+	}
 }
 
 func (c *Cgc) readStats(st *Stats) {
@@ -166,7 +216,7 @@ func (c *Cgc) readStats(st *Stats) {
 	c.stRmdLits = 0
 }
 
-func (c *Cgc) relocateWatches(cdb *Cdb, rlm map[CLoc]CLoc) {
+func (c *Cgc) relocateWatches(cdb *Cdb, rlm map[z.C]z.C) {
 	watches := cdb.Vars.Watches
 	for i, ws := range watches {
 		if i < 2 {
@@ -175,7 +225,7 @@ func (c *Cgc) relocateWatches(cdb *Cdb, rlm map[CLoc]CLoc) {
 		m := z.Lit(i)
 		j := 0
 		for _, w := range ws {
-			p := w.CLoc()
+			p := w.C()
 			q, ok := rlm[p]
 			if !ok { // not relocated or removed.
 				ws[j] = w
@@ -184,7 +234,7 @@ func (c *Cgc) relocateWatches(cdb *Cdb, rlm map[CLoc]CLoc) {
 			}
 			// NB this condition only makes sense when "ok" is true,
 			// then we know p was removed.
-			if q == CLocNull {
+			if q == CNull {
 				continue
 			}
 			// relocated and kept
@@ -196,7 +246,7 @@ func (c *Cgc) relocateWatches(cdb *Cdb, rlm map[CLoc]CLoc) {
 }
 
 type gcLearnts struct {
-	learnts []CLoc
+	learnts []z.C
 	cdat    *CDat
 }
 
@@ -246,7 +296,7 @@ func (p *gcLearnts) Sort() {
 	sort.Sort(p)
 }
 
-type cLocSlice []CLoc
+type cLocSlice []z.C
 
 func (p cLocSlice) Len() int {
 	return len(p)
@@ -264,7 +314,7 @@ func (p cLocSlice) Sort() {
 	sort.Sort(p)
 }
 
-func relocateSlice(ps []CLoc, m map[CLoc]CLoc) []CLoc {
+func relocateSlice(ps []z.C, m map[z.C]z.C) []z.C {
 	j := 0
 	for _, p := range ps {
 		q, ok := m[p]
@@ -273,7 +323,7 @@ func relocateSlice(ps []CLoc, m map[CLoc]CLoc) []CLoc {
 			j++
 			continue
 		}
-		if q == CLocNull {
+		if q == CNull {
 			continue
 		}
 		ps[j] = q

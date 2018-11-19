@@ -401,3 +401,87 @@ func TestIncAdd(t *testing.T) {
 		t.Errorf("unsat")
 	}
 }
+
+func TestAddTestPanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when adding under assumptions")
+		}
+	}()
+	s := NewS()
+	a, b := s.Lit(), s.Lit()
+	s.Assume(a)
+	s.Test(nil)
+	s.Add(a)
+	s.Add(b)
+	s.Add(0)
+}
+
+func TestActivateTestPanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when activating under assumptions")
+		}
+	}()
+	s := NewS()
+	a, b := s.Lit(), s.Lit()
+	s.Assume(a)
+	s.Test(nil)
+	s.Add(a)
+	s.Add(b)
+	s.Activate()
+}
+
+func TestActivateEmptyClausePanic(t *testing.T) {
+	defer func() {
+		if x := recover(); x == nil {
+			t.Errorf("didn't panic when activating empty clause")
+		}
+	}()
+	s := NewS()
+	s.Activate()
+}
+
+func TestActivations(t *testing.T) {
+	s := NewS()
+	for i := 1; i < 31; i++ {
+		s.Add(z.Var(i).Neg())
+		s.Add(z.Var(i + 1).Pos())
+		s.Add(0)
+	}
+	if s.Solve() != 1 {
+		t.Errorf("activation caused unsat but shouldn't have")
+	}
+	for i := 0; i < 8; i++ {
+		// activate a harmless clause
+		s.Add(z.Var(32).Pos())
+		mHarmless := s.Activate()
+		s.Assume(mHarmless)
+
+		// 2 clauses which together are harmful
+		s.Add(z.Var(2).Pos())
+		s.Add(z.Var(3).Pos())
+		mHarm0 := s.Activate()
+
+		s.Add(z.Var(30).Neg())
+		s.Add(z.Var(31).Neg())
+		mHarm1 := s.Activate()
+
+		s.Assume(mHarm0)
+		s.Assume(mHarm1)
+		if s.Solve() != -1 {
+			t.Errorf("activate harmful didn't cause unsat")
+		}
+
+		s.Deactivate(mHarmless)
+
+		s.Assume(mHarm0)
+		s.Assume(mHarm1)
+		if s.Solve() != -1 {
+			t.Errorf("activate harmful after deactivate harmless didn't cause unsat")
+		}
+
+		s.Deactivate(mHarm0)
+		s.Deactivate(mHarm1)
+	}
+}

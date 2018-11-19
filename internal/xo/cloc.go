@@ -3,17 +3,9 @@
 
 package xo
 
-import "fmt"
-
-// Type CLoc gives a temporary id which directly
-// tells where the sequence of literals (zero/LitNull terminated) starts
-type CLoc uint32
+import "github.com/irifrance/gini/z"
 
 const (
-	CLocNull CLoc = 0
-	CLocInf       = 0xffffffff
+	CNull z.C = 0
+	CInf      = 0xffffffff
 )
-
-func (p CLoc) String() string {
-	return fmt.Sprintf("c%d", p)
-}

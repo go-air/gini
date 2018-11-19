@@ -5,8 +5,9 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"testing"
+
+	"github.com/irifrance/gini/z"
 )
 
 var cnf = [][]z.Lit{
@@ -35,7 +36,7 @@ var left = [...]int{1, 4, 6}
 
 func TestCDat(t *testing.T) {
 	ldb := NewCDat(8)
-	locs := make([]CLoc, 0, 10)
+	locs := make([]z.C, 0, 10)
 	for i, cls := range cnf {
 		locs = append(locs, ldb.AddLits(hds[i], cls))
 	}
@@ -61,7 +62,7 @@ func TestCDat(t *testing.T) {
 	}
 
 	// test compact
-	rm := make([]CLoc, 4, 4)
+	rm := make([]z.C, 4, 4)
 	for i, j := range rmi {
 		rm[i] = locs[j]
 	}
@@ -80,7 +81,7 @@ func TestCDat(t *testing.T) {
 		if !ok {
 			t.Errorf("missing location")
 		}
-		if p == CLocNull {
+		if p == CNull {
 			t.Errorf("left clause indicated as removed in map")
 		}
 		ms = ms[:0]

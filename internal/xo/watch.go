@@ -5,6 +5,7 @@ package xo
 
 import (
 	"fmt"
+
 	"github.com/irifrance/gini/z"
 )
 
@@ -23,7 +24,7 @@ const (
 // MakeWatch creates a watch object for clause location loc
 // blocking literal o, and isBin indicating whether the referred to
 // clause is binary (comprised of 2 literals)
-func MakeWatch(loc CLoc, o z.Lit, isBin bool) Watch {
+func MakeWatch(loc z.C, o z.Lit, isBin bool) Watch {
 	v := uint64(0)
 	if isBin {
 		v |= binMask
@@ -44,13 +45,13 @@ func (w Watch) IsBinary() bool {
 }
 
 // the location of the null-terminated literals in the clause
-func (w Watch) CLoc() CLoc {
-	return CLoc(w >> litBits)
+func (w Watch) C() z.C {
+	return z.C(w >> litBits)
 }
 
-// return a watch with all info the same, but the CLoc updated
+// return a watch with all info the same, but the z.C updated
 // to o.
-func (w Watch) Relocate(o CLoc) Watch {
+func (w Watch) Relocate(o z.C) Watch {
 	v := uint64(w)
 	v &= ^locMask
 	v |= uint64(o) << litBits
@@ -59,5 +60,5 @@ func (w Watch) Relocate(o CLoc) Watch {
 
 // a human readable representation
 func (w Watch) String() string {
-	return fmt.Sprintf("Watch{CLoc: %s, Other: %s, Bin: %t}", w.CLoc(), w.Other(), w.IsBinary())
+	return fmt.Sprintf("Watch{z.C: %s, Other: %s, Bin: %t}", w.C(), w.Other(), w.IsBinary())
 }

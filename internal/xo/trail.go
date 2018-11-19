@@ -6,12 +6,13 @@ package xo
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/irifrance/gini/z"
 )
 
 type late struct {
 	m z.Lit
-	r CLoc
+	r z.C
 }
 
 type Trail struct {
@@ -55,14 +56,14 @@ func (t *Trail) CopyWith(cdb *Cdb, guess *Guess) *Trail {
 	return other
 }
 
-func (t *Trail) Assign(m z.Lit, c CLoc) {
+func (t *Trail) Assign(m z.Lit, c z.C) {
 	v := m.Var()
 	t.D[t.Tail] = m
 	t.Tail++
 	vars := t.Vars
 	vars.Reasons[v] = c
 
-	if c == CLocNull {
+	if c == CNull {
 		t.Level++
 	}
 	vars.Levels[v] = t.Level
@@ -101,7 +102,7 @@ func (t *Trail) Back(trgLevel int) {
 		}
 		vals[m] = 0
 		vals[m.Not()] = 0
-		reasons[v] = CLocNull
+		reasons[v] = CNull
 		lvls[v] = -1
 		guess.Push(m) // actually only adds it if it is not already there.
 	}
@@ -111,14 +112,14 @@ func (t *Trail) Back(trgLevel int) {
 	t.Level = 0
 }
 
-func (t *Trail) Prop() CLoc {
+func (t *Trail) Prop() z.C {
 	vals := t.Vars.Vals
 	data := t.D
 	watches := t.Vars.Watches
 	cdb := t.Cdb
 	cdat := cdb.CDat.D
 	var mWatches []Watch
-	var p, q CLoc
+	var p, q z.C
 	var o z.Lit
 	var m z.Lit
 	var n z.Lit
@@ -141,7 +142,7 @@ func (t *Trail) Prop() CLoc {
 				continue
 			}
 
-			q = w.CLoc()
+			q = w.C()
 			if w.IsBinary() {
 				if cdat[q] == m {
 					cdat[q], cdat[q+1] = o, m
@@ -233,7 +234,7 @@ func (t *Trail) Prop() CLoc {
 	if t.Tail > t.MaxTail {
 		t.MaxTail = t.Tail
 	}
-	return CLocNull
+	return CNull
 }
 
 // backWithLates is used by Untest to go back one level of assumptions.
@@ -252,7 +253,7 @@ func (t *Trail) backWithLates(prevLevel int) {
 	for i := t.Tail - 1; i >= 0; i-- {
 		m := t.D[i]
 		r := reasons[m.Var()]
-		if r == CLocNull {
+		if r == CNull {
 			lvl--
 			if lvl == prevLevel {
 				break
@@ -292,7 +293,7 @@ func (t *Trail) String() string {
 	for i := 0; i < t.Tail; i++ {
 		m := t.D[i]
 		r := reasons[m.Var()]
-		if r == CLocNull {
+		if r == CNull {
 			level++
 			buf.WriteString(fmt.Sprintf("\tLevel %d:\n", level))
 		}

@@ -4,10 +4,11 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/gen"
-	"github.com/irifrance/gini/z"
 	"math/rand"
 	"testing"
+
+	"github.com/irifrance/gini/gen"
+	"github.com/irifrance/gini/z"
 )
 
 func TestTrailBack(t *testing.T) {
@@ -19,9 +20,9 @@ func TestTrailBack(t *testing.T) {
 	for i := 0; i < N/2; i++ {
 		for j := 0; j < i; j++ {
 			m := z.Var(j + 1).Pos()
-			trail.Assign(m, CLocNull)
+			trail.Assign(m, CNull)
 			x := trail.Prop()
-			if x != CLocNull {
+			if x != CNull {
 				trail.Back(0)
 				return
 			}
@@ -43,9 +44,9 @@ func TestTrailBinarySat(t *testing.T) {
 	gen.BinCycle(dst, N)
 	cdb := dst.Cdb
 	trail := NewTrail(cdb, newGuess(N))
-	trail.Assign(z.Lit(2), CLocNull)
+	trail.Assign(z.Lit(2), CNull)
 	x := trail.Prop()
-	if x != CLocNull {
+	if x != CNull {
 		t.Errorf("binary cycle: unexpected conflict")
 	}
 	if trail.Tail != N {
@@ -62,9 +63,9 @@ func TestTrailBinaryUnsat(t *testing.T) {
 	p, _ := cdb.Add(z.LitNull)
 	trail := NewTrail(cdb, newGuess(N))
 	trail.Assign(z.Lit(4), p)
-	trail.Assign(z.Lit(7), CLocNull)
+	trail.Assign(z.Lit(7), CNull)
 	x := trail.Prop()
-	if x == CLocNull {
+	if x == CNull {
 		t.Errorf("binary cycle: expected conflict")
 	}
 }
@@ -75,16 +76,16 @@ func TestTrailTernary(t *testing.T) {
 	gen.Rand3Cnf(dst, N, N*4)
 	cdb := dst.Cdb
 	trail := NewTrail(cdb, newGuess(N))
-	x := CLocNull
+	x := CNull
 	vals := cdb.Vars.Vals
-	for x == CLocNull && trail.Tail != N {
+	for x == CNull && trail.Tail != N {
 		m := z.Lit(2)
 		for vals[m] != 0 {
 			m = z.Lit(rand.Intn(N*2) + 2)
 		}
-		trail.Assign(m, CLocNull)
+		trail.Assign(m, CNull)
 		x = trail.Prop()
-		if x != CLocNull {
+		if x != CNull {
 			trail.Back(trail.Level - 1)
 		}
 		errs := cdb.CheckWatches()

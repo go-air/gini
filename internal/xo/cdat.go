@@ -6,9 +6,10 @@ package xo
 import (
 	"bytes"
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"io"
 	"math"
+
+	"github.com/irifrance/gini/z"
 )
 
 // Type CDat: basic operations for storing all the literals (and Chds) in a CNF
@@ -22,7 +23,7 @@ type CDat struct {
 
 // The Layout is as follows
 //
-//  Each clause is indexed by a CLoc, which is a uint32 index into CDat.D.  The location is
+//  Each clause is indexed by a z.C, which is a uint32 index into CDat.D.  The location is
 //  the beginning of the list of literals in the clause, which is terminated by z.LitNull.
 //  Each location is preceded by a Chd giving clause metadata.  Since the underlying type of
 //  Chd and z.Lit are uint32, this is fine.
@@ -50,7 +51,7 @@ func NewCDat(cap int) *CDat {
 
 // func AddLits adds literals to the underlying data.  The clause header
 // hdr must be consistent.
-func (c *CDat) AddLits(hdr Chd, ms []z.Lit) CLoc {
+func (c *CDat) AddLits(hdr Chd, ms []z.Lit) z.C {
 	ms = append(ms, z.LitNull)
 	mLen := len(ms)
 	cLen := c.Len
@@ -61,26 +62,26 @@ func (c *CDat) AddLits(hdr Chd, ms []z.Lit) CLoc {
 	d := c.D
 	d[cLen] = z.Lit(hdr)
 	cLen++
-	res := CLoc(cLen)
+	res := z.C(cLen)
 	copy(c.D[cLen:eLen], ms)
 	c.Len = eLen
 	c.ClsLen++
 	return res
 }
 
-// func Chd retrieves the Chd associated with a CLoc
-func (c *CDat) Chd(loc CLoc) Chd {
+// func Chd retrieves the Chd associated with a z.C
+func (c *CDat) Chd(loc z.C) Chd {
 	return Chd(c.D[loc-1])
 }
 
-// func SetChd sets the Chd associated with a CLoc
+// func SetChd sets the Chd associated with a z.C
 // if the size is wrong, everything will break.
-func (c *CDat) SetChd(loc CLoc, hd Chd) {
+func (c *CDat) SetChd(loc z.C, hd Chd) {
 	c.D[loc-1] = z.Lit(hd)
 }
 
 // compute the next location
-func (c *CDat) Next(loc CLoc) CLoc {
+func (c *CDat) Next(loc z.C) z.C {
 	D := c.D
 	hd := Chd(D[loc-1])
 	szModulus := hd.Size()
@@ -89,7 +90,7 @@ func (c *CDat) Next(loc CLoc) CLoc {
 	dLen := uint32(len(D))
 	for j < dLen {
 		if D[j] == z.LitNull {
-			return CLoc(j + 2)
+			return z.C(j + 2)
 		}
 		i++
 		j = uint32(loc) + ((i << szBits) | szModulus)
@@ -104,7 +105,7 @@ func (c *CDat) CompactReady(nc, nl int) bool {
 }
 
 // Compact the storage by removing clauses with locations in rm
-// pre: rm is sorted in ascending CLoc order
+// pre: rm is sorted in ascending z.C order
 //
 // this just compacts the data and returns a map of the
 // locations which need to be remapped in higher level
@@ -112,30 +113,30 @@ func (c *CDat) CompactReady(nc, nl int) bool {
 //
 // the returned map behaves as follows:
 //
-// 1. remap every removed clause in rm to CLocNull
+// 1. remap every removed clause in rm to CNull
 // 2. remap every moved clause
 //
-func (c *CDat) Compact(rm []CLoc) (map[CLoc]CLoc, int) {
+func (c *CDat) Compact(rm []z.C) (map[z.C]z.C, int) {
 	if len(rm) == 0 {
-		return make(map[CLoc]CLoc, 0), 0
+		return make(map[z.C]z.C, 0), 0
 	}
-	locMap := make(map[CLoc]CLoc, c.estimateLocMapSize(rm[0]))
+	locMap := make(map[z.C]z.C, c.estimateLocMapSize(rm[0]))
 	i := 0
-	locMap[rm[i]] = CLocNull
+	locMap[rm[i]] = CNull
 	dst := rm[i] - 1
 	cur := c.Next(rm[i])
-	end := CLoc(c.Len)
-	var nrm CLoc
+	end := z.C(c.Len)
+	var nrm z.C
 	D := c.D
 	for cur < end {
 		if i+1 < len(rm) {
 			nrm = rm[i+1]
 		} else {
-			nrm = CLocNull
+			nrm = CNull
 		}
 		if cur == nrm {
 			// next to remove, skip copy
-			locMap[cur] = CLocNull
+			locMap[cur] = CNull
 			cur = c.Next(cur)
 			i++
 			continue
@@ -157,7 +158,7 @@ func (c *CDat) Compact(rm []CLoc) (map[CLoc]CLoc, int) {
 }
 
 // Bump increases a score for the clause with location p.
-func (c *CDat) Bump(p CLoc) bool {
+func (c *CDat) Bump(p z.C) bool {
 	h := c.Chd(p)
 	b, decay := h.Bump(c.bumpInc)
 	c.SetChd(p, b)
@@ -170,18 +171,18 @@ func (c *CDat) Decay() {
 
 // Function Load loads a clause with location p to the
 // lit slice ms
-func (c *CDat) Load(p CLoc, ms []z.Lit) []z.Lit {
+func (c *CDat) Load(p z.C, ms []z.Lit) []z.Lit {
 	e := c.Next(p) - 2
 	ms = append(ms, c.D[p:e]...)
 	return ms
 }
 
 // Func Forall applies f to every clause in the store.
-func (c *CDat) Forall(f func(i int, p CLoc, ms []z.Lit)) {
+func (c *CDat) Forall(f func(i int, p z.C, ms []z.Lit)) {
 	ns := make([]z.Lit, 0, c.ClsLen*2/c.Len)
 	i := 0
-	q := CLoc(1)
-	for q < CLoc(c.Len) {
+	q := z.C(1)
+	for q < z.C(c.Len) {
 		ns = ns[:0]
 		// nb c.Load also calls next, maybe we can optimise this.
 		ns = c.Load(q, ns)
@@ -194,7 +195,7 @@ func (c *CDat) Forall(f func(i int, p CLoc, ms []z.Lit)) {
 // func Dimacs writes a dimacs file (no header)
 func (c *CDat) Dimacs(w io.Writer) error {
 	var ret error
-	c.Forall(func(i int, o CLoc, ms []z.Lit) {
+	c.Forall(func(i int, o z.C, ms []z.Lit) {
 		if ret != nil {
 			return
 		}
@@ -238,7 +239,7 @@ func (c *CDat) String() string {
 
 // conservatively estimate location remap size based on average clause length
 // and offset of least clause to remove.
-func (c *CDat) estimateLocMapSize(loc CLoc) int {
+func (c *CDat) estimateLocMapSize(loc z.C) int {
 	sufLen := c.Len - int(loc)
 	avgLen := float64(sufLen) / float64(c.ClsLen)
 	u := int(math.Ceil(avgLen))

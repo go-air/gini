@@ -38,6 +38,10 @@ type Adder interface {
 	// is accessing the object implementing adder.  Other
 	// methods may provide safety in the presence of multiple
 	// goroutines.  Add in general does not.
+	//
+	// If the implemation of Add is a solver under a test scope
+	// then Add undoes the test.
+	//
 	Add(m z.Lit)
 }
 
@@ -85,8 +89,8 @@ type Testable interface {
 	Assumable
 
 	// Test the current assumptions under unit propagation.
-	// place the resulting propagated literals since the last
-	// test in dst and return
+	// append the resulting propagated literals since the last
+	// test in dst, if dst is not nil, and return
 	//
 	//  result: -1 for UNSAT, 1 for SAT, 0 for UNKNOWN
 	//  out: the propagated literals since last Test,
@@ -125,7 +129,8 @@ type S interface {
 	Model
 	Testable
 
-	// Can create a copy.
+	// Can create a copy.  A copy copies everything in the S interface
+	// and nothing more (such as simplifiers).
 	SCopy() S
 }
 
@@ -152,4 +157,40 @@ type Sc interface {
 	// Stop stops the Sc and should be called once.  Once stop
 	// is called all behavior of Sc is undefined.
 	Stop()
+}
+
+// Activatable provides support for recyclable activation literals
+//
+// Caveats: activation clauses must not be empty under unit propagtion
+// at level 0.  The caller should ensure this by construction.
+type Activatable interface {
+	// Activate should be called in place of Add(0) to activate a
+	// clause.  Activate returns the activation literal, which, if assigned
+	// activates the last added clause.
+	//
+	// If the last clause is empty, then Activate panics.  The caller
+	// should only activate non-empty clauses.  Note that in incremental
+	// settings, one may have to verify whether or not a clause is
+	// empty.
+	//
+	// like `Add()`, Activate should only be called at decision level 0.
+	Activate() z.Lit
+
+	// ActivateWith is like Activate but it allows the caller to specify
+	// the activation literal `act`.  The activation literal should
+	// be `pure`, meaning that `act.Not()` does not appear anywhere in
+	// any clause added.  Note that deactivation of literals passed to
+	// ActivateWith causes them to be recycled.
+	ActivateWith(act z.Lit)
+
+	// ActivationLit returns a literal to be used with ActivateWith.
+	// As all other Activation related methods, ActivationLit is
+	// not supported under test scopes.
+	ActivationLit() z.Lit
+
+	// Deactivate deactivates an activation literal as returned by
+	// Activate.
+	//
+	// like `Add()`, Deactivate should only be called at decision level 0.
+	Deactivate(m z.Lit)
 }

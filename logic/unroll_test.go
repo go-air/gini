@@ -21,7 +21,7 @@ func TestUnrollComb(t *testing.T) {
 	a3 := s.And(a1, i1.Not())
 	a4 := s.And(a2, a3)
 
-	u := logic.NewUnroll(s)
+	u := logic.NewRoll(s)
 	u.At(a4, 3)
 	if u.C.Len() != 2+((u.S.Len()-2)*4) {
 		t.Errorf("wrong length expected %d got %d\n", 2+((u.S.Len()-2)*3), u.C.Len())
@@ -32,7 +32,7 @@ func TestUnrollLatch(t *testing.T) {
 	s := logic.NewS()
 	m := s.Latch(s.F)
 	s.SetNext(m, m.Not())
-	u := logic.NewUnroll(s)
+	u := logic.NewRoll(s)
 	u.At(m, 3)
 }
 
@@ -40,7 +40,7 @@ func TestUnrollConst(t *testing.T) {
 	s := logic.NewS()
 	m := s.Latch(s.F)
 	s.SetNext(m, m.Not())
-	u := logic.NewUnroll(s)
+	u := logic.NewRoll(s)
 	if u.At(s.T, 24) != u.C.T {
 		t.Errorf("unroll T")
 	}
@@ -56,7 +56,7 @@ func TestUnrollCnfSince(t *testing.T) {
 	o := s.Or(m, n)
 	s.SetNext(m, o)
 
-	u := logic.NewUnroll(s)
+	u := logic.NewRoll(s)
 	var mark []int8
 	sat := gini.New()
 	ttl := 0
@@ -83,7 +83,7 @@ func TestUnrollCnfCounter(t *testing.T) {
 	}
 	// set up unrolling and sat
 	end := 1<<uint(N) - 1
-	unroller := logic.NewUnroll(s)
+	unroller := logic.NewRoll(s)
 	var mark []int8
 	sat := gini.New()
 	// for all but 'end', 'carry' should be false.
@@ -115,7 +115,7 @@ func ExampleUnroll() {
 	}
 
 	// create an unroller.
-	u := logic.NewUnroll(s)
+	u := logic.NewRoll(s)
 	// unroll until all 1s
 	D := (1 << uint(N)) - 1
 	errs := 0

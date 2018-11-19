@@ -32,12 +32,13 @@ type S struct {
 	Trail  *Trail
 	Guess  *Guess
 	Driver *Deriver
+	Active *Active
 	gmu    sync.Mutex
 	rmu    sync.Mutex
 	luby   *Luby
 
 	// last conflict clause
-	x CLoc
+	x z.C
 	// if trivially inconsistent assumptions, first conflicting assumption
 	xLit z.Lit
 
@@ -106,7 +107,7 @@ func NewSCdb(cdb *Cdb) *S {
 		Guess:  guess,
 		Driver: drv,
 		luby:   NewLuby(),
-		x:      CLocNull,
+		x:      CNull,
 		xLit:   z.LitNull,
 
 		testLevels: make([]int, 0, 128),
@@ -134,6 +135,10 @@ func (s *S) Copy() *S {
 	other.Guess = s.Guess.Copy()
 	other.Trail = s.Trail.CopyWith(other.Cdb, other.Guess)
 	other.Driver = s.Driver.CopyWith(other.Cdb, other.Guess, other.Trail)
+	if s.Active != nil {
+		other.Active = s.Active.Copy()
+		other.Cdb.Active = other.Active
+	}
 	luby := NewLuby()
 	*luby = *(s.luby)
 	other.luby = luby
@@ -196,13 +201,13 @@ func (s *S) Solve() int {
 	driver := s.Driver
 	cdb := s.Cdb
 	aLevel := s.assumptLevel
-	var x CLoc
+	var x z.C
 	nxtTick := trail.Props + PropTick
 	tick := int64(0)
 
 	for {
 		x = trail.Prop()
-		if x != CLocNull {
+		if x != CNull {
 			// conflict
 			if trail.Level <= aLevel {
 				s.x = x
@@ -275,7 +280,7 @@ func (s *S) Solve() int {
 			_ = c
 			//log.Printf("compacted %d/%d/%d\n", u, c, ms)
 		}
-		trail.Assign(m, CLocNull)
+		trail.Assign(m, CNull)
 	}
 }
 
@@ -328,15 +333,7 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 	if ns != nil {
 		ns = ns[:0]
 	}
-	// check unsat leftovers from previous Solve() or Test()
-	if s.x != CLocNull {
-		panic("Test in unsat mode")
-	}
-	if s.xLit != z.LitNull {
-		panic("Test in unsat mode")
-	}
-	// in case Solve() was indeterminate or sat before this.
-	s.Trail.Back(s.endTestLevel)
+	s.cleanupSolve()
 	res = 0
 	s.testLevels = append(s.testLevels, s.Trail.Level)
 
@@ -400,15 +397,20 @@ func (s *S) Untest() int {
 		panic("Untest without Test")
 	}
 	trail := s.Trail
+	if s.x != CNull {
+		drvd := s.Driver.Derive(s.x)
+		trail.Assign(drvd.Unit, drvd.P)
+		s.x = CNull
+	}
 	lastTestLevel := s.lastTestLevel()
 	s.testLevels = s.testLevels[:len(s.testLevels)-1]
 	s.endTestLevel = lastTestLevel
 	trail.backWithLates(lastTestLevel)
-	if x := trail.Prop(); x != CLocNull {
+	if x := trail.Prop(); x != CNull {
 		s.x = x
 		return -1
 	}
-	s.x = CLocNull
+	s.x = CNull
 	s.xLit = z.LitNull
 	return 0
 }
@@ -431,7 +433,7 @@ func (s *S) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
 	defer s.unlock()
 	dst = dst[:0]
 	p := s.Vars.Reasons[m.Var()]
-	if p == CLocNull {
+	if p == CNull {
 		return dst
 	}
 	D := s.Cdb.CDat.D
@@ -480,13 +482,58 @@ func (s *S) Add(m z.Lit) {
 	//s.lock()
 	//defer s.unlock()
 	s.ensureLitCap(m)
-	if m == z.LitNull && s.Trail.Level != 0 {
-		s.Trail.Back(0)
+	if m == z.LitNull {
+		s.ensure0()
 	}
 	loc, u := s.Cdb.Add(m)
 	if u != z.LitNull {
 		s.Trail.Assign(u, loc)
 	}
+}
+
+func (s *S) ensureActive() {
+	if s.Active == nil {
+		s.Active = newActive(int(s.Vars.Top))
+		s.Cdb.Active = s.Active
+	}
+}
+
+func (s *S) Activate() z.Lit {
+	s.ensure0()
+	s.ensureActive()
+	m := s.Active.Lit(s)
+	s.Active.ActivateWith(m, s)
+	return m
+}
+
+func (s *S) ActivationLit() z.Lit {
+	s.ensure0()
+	s.ensureActive()
+	return s.Active.Lit(s)
+}
+
+func (s *S) ActivateWith(act z.Lit) {
+	s.ensure0()
+	s.ensureActive()
+	s.Active.ActivateWith(act, s)
+}
+
+func (s *S) Deactivate(m z.Lit) {
+	s.ensure0()
+	s.ensureActive()
+	s.Active.Deactivate(s.Cdb, m)
+}
+
+func (s *S) ensure0() {
+	if len(s.testLevels) != 0 {
+		panic("ivalid operation under test scope")
+	}
+	if s.Trail.Level != 0 {
+		s.Trail.Back(0)
+	}
+	s.x = CNull
+	s.xLit = z.LitNull
+	s.failed = nil
 }
 
 // Assume causes the solver to Assume the literal m to be true for the
@@ -530,7 +577,7 @@ func (s *S) Why(ms []z.Lit) []z.Lit {
 	if s.xLit != z.LitNull {
 		s.failed = append(s.failed, s.xLit)
 		s.final([]z.Lit{s.xLit})
-	} else if s.x != CLocNull {
+	} else if s.x != CNull {
 		s.final(s.Cdb.Lits(s.x, nil))
 	} else {
 		return ms
@@ -568,8 +615,23 @@ func (s *S) solveInit() int {
 }
 
 func (s *S) cleanupSolve() {
-	s.Trail.Back(s.endTestLevel)
-	s.x = CLocNull
+	trail := s.Trail
+	for s.x != CNull {
+		if s.Cdb.Bot != CNull { // Cdb.Bot is always checked in makeAssumptions, true empty clause.
+			s.x = CNull
+			break
+		}
+		drvd := s.Driver.Derive(s.x)
+		if drvd.TargetLevel < s.endTestLevel {
+			trail.Back(s.endTestLevel)
+			s.x = CNull
+			break
+		}
+		trail.Back(drvd.TargetLevel)
+		trail.Assign(drvd.Unit, drvd.P)
+		s.x = trail.Prop()
+	}
+	trail.Back(s.endTestLevel)
 	s.xLit = z.LitNull
 	s.failed = nil
 }
@@ -592,11 +654,11 @@ func (s *S) makeAssumptions() int {
 	}()
 	vals := s.Vars.Vals
 	// check if consistent without assumptions
-	if s.Cdb.Bot != CLocNull {
+	if s.Cdb.Bot != CNull {
 		s.x = s.Cdb.Bot
 		return -1
 	}
-	if x := trail.Prop(); x != CLocNull {
+	if x := trail.Prop(); x != CNull {
 		s.x = x
 		return -1
 	}
@@ -604,8 +666,8 @@ func (s *S) makeAssumptions() int {
 		switch vals[m] {
 		case 0:
 			s.assumptLevel++
-			trail.Assign(m, CLocNull)
-			if x := trail.Prop(); x != CLocNull {
+			trail.Assign(m, CNull)
+			if x := trail.Prop(); x != CNull {
 				s.x = x
 				return -1
 			}
@@ -614,10 +676,6 @@ func (s *S) makeAssumptions() int {
 			// nothing
 		case -1:
 			s.xLit = m
-			// since we don't have a conflict clause, we do this so
-			// that we can run final() with {m} instead of
-			// contents of a conflict clause.
-			s.failed = append(s.failed, m)
 			s.stFailed++
 			return -1
 		default:
@@ -681,7 +739,7 @@ func (s *S) finalRec(m z.Lit, marks []bool) {
 	marks[m.Var()] = true
 
 	r := s.Vars.Reasons[m.Var()]
-	if r == CLocNull {
+	if r == CNull {
 		s.failed = append(s.failed, m.Not())
 		s.stFailed++
 		return
@@ -697,6 +755,7 @@ func (s *S) finalRec(m z.Lit, marks []bool) {
 	return
 }
 
+// Lit returns the positive literal of a fresh variable.
 func (s *S) Lit() z.Lit {
 	n := s.Vars.Max + 1
 	m := n.Pos()
@@ -711,15 +770,18 @@ func (s *S) ensureLitCap(m z.Lit) {
 	mVar := m.Var()
 	top := vars.Top
 	grow := mVar >= top
-	for top <= mVar {
-		top *= 2
-	}
 	if grow {
+		for top <= mVar {
+			top *= 2
+		}
 		vars.growToVar(top)
 		s.Cdb.growToVar(top)
 		s.Trail.growToVar(top)
 		s.Guess.growToVar(top)
 		s.Driver.growToVar(top)
+		if s.Active != nil {
+			s.Active.growToVar(top)
+		}
 	}
 	if mVar > vars.Max {
 		for i := vars.Max + 1; i <= mVar; i++ {
