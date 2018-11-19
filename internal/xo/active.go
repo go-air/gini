@@ -44,7 +44,7 @@ func (a *Active) ActivateWith(act z.Lit, s *S) {
 	ms := a.Ms
 	ms = s.Cdb.Lits(loc, ms)
 	is := a.IsActive
-	for _, m := range a.Ms {
+	for _, m := range ms {
 		mv := m.Var()
 		if !is[mv] {
 			continue
@@ -54,7 +54,6 @@ func (a *Active) ActivateWith(act z.Lit, s *S) {
 		}
 		a.Occs[mv] = append(a.Occs[mv], loc)
 	}
-	a.Occs[act.Var()] = append(a.Occs[act.Var()], loc)
 	a.Ms = ms[:0]
 }
 
@@ -74,12 +73,12 @@ func (a *Active) CRemap(rlm map[z.C]z.C) {
 		j := 0
 		for _, c := range sl {
 			d, ok := rlm[c]
-			if d == CNull {
-				continue
-			}
 			if !ok {
 				sl[j] = c
 				j++
+				continue
+			}
+			if d == CNull {
 				continue
 			}
 			sl[j] = d
