@@ -193,6 +193,17 @@ With Cardinality constraints, optimisation is easy
 
     // use the model, if one was found, from s to propose a build
 
+# Activation Literals
+Gini supports recycling activation literals with the 
+[Activatable interface](http://godoc.org/github.com/irifrance/gini/inter#Activatable)
+
+Even without recycling, activation literals provide an easy way to solve MAXSAT problems:
+just activate each clause, use a cardinality constraint on the activation literals,
+and then optimize the output.
+
+With recycling, one can do much more, such as activating and deactivating sets of clauses,
+and constructing the clauses on the fly.  Activations work underneath test scopes and
+assumptions, making the interface for Gini perhaps the most flexible available.
 
 
 # Performance
