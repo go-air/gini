@@ -566,7 +566,7 @@ func (s *S) MaxVar() z.Var {
 	return s.Vars.Max
 }
 
-// Why appends a minimized list of assumptions
+// Why appends to ms a minimized list of assumptions
 // which together caused previous call to be unsat.
 //
 // If previous call was not unsat, then Why() returns ms

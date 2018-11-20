@@ -10,7 +10,9 @@ import (
 func Example_sudoku() {
 	g := gini.New()
 	// 9 rows, 9 cols, 9 boxes, 9 numbers
-
+	// one variable for each triple (row, col, n)
+	// indicating whether or not the number n
+	// appears in position (row,col).
 	var lit = func(row, col, num int) z.Lit {
 		n := num
 		n += col * 9
