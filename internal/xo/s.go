@@ -9,6 +9,7 @@ import (
 	"log"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/irifrance/gini/dimacs"
 	"github.com/irifrance/gini/inter"
@@ -49,10 +50,13 @@ type S struct {
 	assumptLevel int
 	assumes      []z.Lit // only last set of requested assumptions before solve/test.
 	failed       []z.Lit
+	phases       phases
 
 	// Control
 	control          *Ctl
 	restartStopwatch int
+	startTime        time.Time
+	deadline         time.Time // synchronous (no pause)
 
 	// Stats (each object has its own, read by ReadStats())
 	stRestarts  int64
@@ -123,6 +127,8 @@ func NewSCdb(cdb *Cdb) *S {
 		return st
 	}
 	s.control.xo = s
+	s.startTime = time.Now()
+	s.deadline = s.startTime
 	return s
 }
 
@@ -139,6 +145,7 @@ func (s *S) Copy() *S {
 		other.Active = s.Active.Copy()
 		other.Cdb.Active = other.Active
 	}
+	other.phases = s.phases
 	luby := NewLuby()
 	*luby = *(s.luby)
 	other.luby = luby
@@ -158,6 +165,8 @@ func (s *S) Copy() *S {
 		other.ReadStats(st)
 		return st
 	}
+	other.startTime = s.startTime
+	other.deadline = s.deadline
 	return other
 }
 
@@ -178,6 +187,12 @@ func (s *S) String() string {
 	s.rmu.Lock()
 	defer s.rmu.Unlock()
 	return fmt.Sprintf("<xo@%d>", s.Trail.Level)
+}
+
+func (s *S) Try(dur time.Duration) int {
+	s.startTime = time.Now()
+	s.deadline = s.startTime.Add(dur)
+	return s.Solve()
 }
 
 // Method Solve solves the problem added to the solver under
@@ -237,6 +252,9 @@ func (s *S) Solve() int {
 			nxtTick += PropTick
 			tick++
 			if tick%CancelTicks == 0 {
+				if s.deadline != s.startTime && time.Until(s.deadline) <= 0 {
+					return 0
+				}
 				if !s.control.Tick() {
 					s.stEnded++
 					trail.Back(s.endTestLevel)
@@ -257,16 +275,18 @@ func (s *S) Solve() int {
 		// guess
 		m := guess.Guess(vars.Vals)
 		if m == z.LitNull {
-			errs := cdb.CheckModel()
-			if len(errs) != 0 {
-				for _, e := range errs {
-					log.Println(e)
+			if false {
+				errs := cdb.CheckModel()
+				if len(errs) != 0 {
+					for _, e := range errs {
+						log.Println(e)
+					}
+					log.Println(s.Vars)
+					log.Println(s.Trail)
+
+					log.Printf("%p %p internal error: sat model\n", s, s.control)
+
 				}
-				log.Println(s.Vars)
-				log.Println(s.Trail)
-
-				log.Printf("%p %p internal error: sat model\n", s, s.control)
-
 			}
 			s.stSat++
 			// don't do this, we store the model returned to the user
@@ -620,7 +640,7 @@ func (s *S) solveInit() int {
 	//log.Printf("%s\n", s.Vars)
 
 	// initialize phase
-	s.phaseInit()
+	s.phases = s.phases.init(s)
 	return 0
 }
 
@@ -693,42 +713,6 @@ func (s *S) makeAssumptions() int {
 		}
 	}
 	return 0
-}
-
-// TBD: make this understand solved clauses
-// and assumptions.
-func (s *S) phaseInit() {
-	M := s.Vars.Max
-	N := 2*M + 2
-	L := uint64(16)
-	counts := make([]uint64, N, N)
-	D := s.Cdb.CDat.D
-	for _, p := range s.Cdb.Added {
-		hd := Chd(D[p-1])
-		sz := uint64(hd.Size())
-		if sz >= L {
-			continue
-		}
-		var m z.Lit
-		q := p
-		for uint32(q-p) < uint32(sz) {
-			m = D[q]
-			if m == z.LitNull {
-				break
-			}
-			counts[m] += 1 << (L - sz)
-			q++
-		}
-	}
-	cache := s.Guess.cache
-	for i := z.Var(1); i <= M; i++ {
-		m, n := i.Pos(), i.Neg()
-		if counts[m] > counts[n] {
-			cache[i] = 1
-		} else {
-			cache[i] = -1
-		}
-	}
 }
 
 func (s *S) final(ms []z.Lit) {
