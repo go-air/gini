@@ -102,6 +102,13 @@ func (r *randS) Solve() int {
 	defer r.unlock()
 	return r.solve()
 }
+
+func (r *randS) Try(dur time.Duration) int {
+	r.lock()
+	defer r.unlock()
+	return r.solve()
+}
+
 func (r *randS) solve() int {
 	r.ms = r.ms[:0]
 	ns := r.dur.Nanoseconds()
