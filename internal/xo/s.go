@@ -275,18 +275,18 @@ func (s *S) Solve() int {
 		// guess
 		m := guess.Guess(vars.Vals)
 		if m == z.LitNull {
-			if false {
-				errs := cdb.CheckModel()
-				if len(errs) != 0 {
-					for _, e := range errs {
-						log.Println(e)
-					}
-					log.Println(s.Vars)
-					log.Println(s.Trail)
-
-					log.Printf("%p %p internal error: sat model\n", s, s.control)
-
+			errs := cdb.CheckModel()
+			if s.Active != nil {
+				s.Cdb.checkModel = false
+			}
+			if len(errs) != 0 {
+				for _, e := range errs {
+					log.Println(e)
 				}
+				log.Println(s.Vars)
+				log.Println(s.Trail)
+
+				log.Printf("%p %p internal error: sat model\n", s, s.control)
 			}
 			s.stSat++
 			// don't do this, we store the model returned to the user
@@ -504,6 +504,7 @@ func (s *S) Add(m z.Lit) {
 	s.ensureLitCap(m)
 	if m == z.LitNull {
 		s.ensure0()
+		s.Cdb.checkModel = true
 	}
 	loc, u := s.Cdb.Add(m)
 	if u != z.LitNull {

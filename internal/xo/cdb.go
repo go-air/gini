@@ -24,7 +24,8 @@ type Cdb struct {
 	Added   []z.C
 	Learnts []z.C
 
-	Tracer Tracer
+	Tracer     Tracer
+	checkModel bool
 
 	// for multi-scheduling gc frequency
 	gc *Cgc
@@ -46,15 +47,16 @@ func NewCdb(v *Vars, capHint int) *Cdb {
 		capHint = 3
 	}
 	clss := &Cdb{
-		Vars:    v,
-		CDat:    *NewCDat(capHint * 5),
-		AddLits: make([]z.Lit, 0, 24),
-		AddVals: make([]int8, v.Top),
-		Bot:     CNull,
-		Added:   make([]z.C, 0, capHint/3),
-		Learnts: make([]z.C, 0, capHint-capHint/3),
-		Tracer:  nil,
-		gc:      NewCgc()}
+		Vars:       v,
+		CDat:       *NewCDat(capHint * 5),
+		AddLits:    make([]z.Lit, 0, 24),
+		AddVals:    make([]int8, v.Top),
+		Bot:        CNull,
+		Added:      make([]z.C, 0, capHint/3),
+		Learnts:    make([]z.C, 0, capHint-capHint/3),
+		Tracer:     nil,
+		gc:         NewCgc(),
+		checkModel: true}
 	return clss
 }
 
@@ -409,6 +411,9 @@ func (c *Cdb) CheckWatches() []error {
 
 // by default, called when sat as a sanity check.
 func (c *Cdb) CheckModel() []error {
+	if !c.checkModel {
+		return nil
+	}
 	if c.Active != nil {
 		// deactivations and simplificaations remove Added clauses, which are unlinked
 		// until sufficiently large to compact.  compaction
@@ -453,6 +458,7 @@ func (c *Cdb) CopyWith(ov *Vars) *Cdb {
 	copy(other.Learnts, c.Learnts)
 	c.CDat.CopyTo(&other.CDat)
 	other.gc = c.gc.Copy()
+	other.checkModel = c.checkModel
 	return other
 }
 
