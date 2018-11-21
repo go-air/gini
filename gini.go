@@ -5,6 +5,7 @@ package gini
 
 import (
 	"io"
+	"time"
 
 	"github.com/irifrance/gini/dimacs"
 	"github.com/irifrance/gini/inter"
@@ -122,6 +123,14 @@ func (g *Gini) Assume(ms ...z.Lit) {
 func (g *Gini) Solve() int {
 	res := g.xo.Solve()
 	return res
+}
+
+// Try solves with a timeout.  Try returns
+//  1  if sat
+//  -1 if unsat
+//  0  if timeout
+func (g *Gini) Try(dur time.Duration) int {
+	return g.xo.Try(dur)
 }
 
 // GoSolve provides a connection to a single background

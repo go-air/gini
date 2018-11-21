@@ -4,6 +4,8 @@
 package gini
 
 import (
+	"time"
+
 	"github.com/irifrance/gini/inter"
 	"github.com/irifrance/gini/z"
 )
@@ -65,6 +67,10 @@ func (w *svWrap) Value(m z.Lit) bool {
 
 func (w *svWrap) Solve() int {
 	return w.S.Solve()
+}
+
+func (w *svWrap) Try(dur time.Duration) int {
+	return w.S.Try(dur)
 }
 
 func (w *svWrap) GoSolve() inter.Solve {
