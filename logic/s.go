@@ -5,7 +5,8 @@ package logic
 
 import "github.com/irifrance/gini/z"
 
-// Type S adds sequential elements to P.
+// Type S adds sequential elements to C, gini's combinational
+// logic representation.
 type S struct {
 	C
 	Latches []z.Lit
