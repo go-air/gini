@@ -3,20 +3,25 @@
 
 package inter
 
-import "github.com/irifrance/gini/z"
+import (
+	"time"
+
+	"github.com/irifrance/gini/z"
+)
 
 // Interface Solveable encapsulates a decision
 // procedure which may run for a long time.
 //
-// Solve returns
+// Solve/Try returns
 //
 //  1  If the problem is SAT
-//  0  If the problem is undetermined
+//  0  If the problem is undetermined (Try only)
 //  -1 If the problem is UNSAT
 //
 // These error codes are used throughout gini.
 type Solvable interface {
 	Solve() int
+	Try(dur time.Duration) int
 }
 
 // Interface GoSolvable encapsulates a handle
