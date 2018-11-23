@@ -8,8 +8,8 @@ import "github.com/irifrance/gini/z"
 // Type S adds sequential elements to C, gini's combinational
 // logic representation.
 type S struct {
-	C
-	Latches []z.Lit
+	C               // the combinational circuit, logic.C
+	Latches []z.Lit // the memory elements/state variables
 }
 
 // NewS creates a new sequential circuit, with latches.
