@@ -573,6 +573,9 @@ func (s *S) Assume(ms ...z.Lit) {
 	defer s.unlock()
 	s.stAssumes += int64(len(ms))
 	s.assumes = append(s.assumes, ms...)
+	for _, m := range ms {
+		s.ensureLitCap(m)
+	}
 }
 
 // Who identifies the solver and configuration.
@@ -673,7 +676,6 @@ func (s *S) makeAssumptions() int {
 	defer func() {
 		s.assumes = s.assumes[:0]
 	}()
-	vals := s.Vars.Vals
 	// check if consistent without assumptions
 	if s.Cdb.Bot != CNull {
 		s.x = s.Cdb.Bot
@@ -683,6 +685,7 @@ func (s *S) makeAssumptions() int {
 		s.x = x
 		return -1
 	}
+	vals := s.Vars.Vals
 	for _, m := range s.assumes {
 		switch vals[m] {
 		case 0:
