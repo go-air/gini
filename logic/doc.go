@@ -1,7 +1,8 @@
 // Copyright 2016 The Gini Authors. All rights reserved.  Use of this source
 // code is governed by a license that can be found in the License file.
 
-// Package logic provides representation of Boolean combinational and sequentiallogic.
+// Package logic provides representation of Boolean combinational and sequential
+// logic.
 //
 // Package logic uses a standard AIG (and-inverter graph) to represent combinational
 // circuits.  They are simplified using simple rules and structural hashing,
