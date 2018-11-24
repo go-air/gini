@@ -649,7 +649,7 @@ func (s *S) cleanupSolve() {
 		if drvd.TargetLevel < s.endTestLevel {
 			trail.Back(s.endTestLevel)
 			s.x = CNull
-			break
+			//break
 		}
 		trail.Back(drvd.TargetLevel)
 		trail.Assign(drvd.Unit, drvd.P)
