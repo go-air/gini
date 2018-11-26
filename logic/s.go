@@ -5,7 +5,7 @@ package logic
 
 import "github.com/irifrance/gini/z"
 
-// Type S adds sequential elements to C, gini's combinational
+// S adds sequential elements to C, gini's combinational
 // logic representation.
 type S struct {
 	C               // the combinational circuit, logic.C
@@ -106,7 +106,7 @@ func (s *S) SetInit(latch, init z.Lit) {
 	s.nodes[v].a = init
 }
 
-// type of node type
+// SNodeType is the type of a node in an S.
 type SNodeType int
 
 // and the types are constants

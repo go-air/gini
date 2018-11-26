@@ -103,7 +103,7 @@ func TestUnrollCnfCounter(t *testing.T) {
 	}
 }
 
-func ExampleUnroll() {
+func ExampleRoll() {
 	// create a new sequential circuit, a 16 bit counter
 	s := logic.NewS()
 	N := 16

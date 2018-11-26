@@ -8,7 +8,7 @@ import (
 	"github.com/irifrance/gini/z"
 )
 
-// Type C represents a formula or combinational circuit.
+// C represents a formula or combinational circuit.
 type C struct {
 	nodes  []node   // list of all nodes
 	strash []uint32 // strash
@@ -50,14 +50,14 @@ func initC(c *C, capHint int) {
 // adder.
 //
 // Adder uses basic Tseitinization.
-func (p *C) ToCnf(dst inter.Adder) {
-	dst.Add(p.T)
+func (c *C) ToCnf(dst inter.Adder) {
+	dst.Add(c.T)
 	dst.Add(0)
-	e := len(p.nodes)
+	e := len(c.nodes)
 	for i := 1; i < e; i++ {
-		n := p.nodes[i]
+		n := c.nodes[i]
 		a := n.a
-		if a == z.LitNull || a == p.F || a == p.T {
+		if a == z.LitNull || a == c.F || a == c.T {
 			continue
 		}
 		b := n.b
@@ -66,16 +66,17 @@ func (p *C) ToCnf(dst inter.Adder) {
 	}
 }
 
-func (p *C) Copy() *C {
-	ns := make([]node, len(p.nodes))
-	st := make([]uint32, len(p.strash))
-	copy(ns, p.nodes)
-	copy(st, p.strash)
+// Copy makes a copy of `c`.
+func (c *C) Copy() *C {
+	ns := make([]node, len(c.nodes))
+	st := make([]uint32, len(c.strash))
+	copy(ns, c.nodes)
+	copy(st, c.strash)
 	return &C{
 		nodes:  ns,
 		strash: st,
-		T:      p.T,
-		F:      p.F}
+		T:      c.T,
+		F:      c.F}
 }
 
 func addAnd(dst inter.Adder, g, a, b z.Lit) {
@@ -94,8 +95,8 @@ func addAnd(dst inter.Adder, g, a, b z.Lit) {
 // ToCnfFrom creates a conjunctive normal form of p in
 // adder, including only the part of the circuit reachable
 // from some root in roots.
-func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
-	p.CnfSince(dst, nil, roots...)
+func (c *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
+	c.CnfSince(dst, nil, roots...)
 }
 
 // CnfSince adds the circuit rooted at roots to dst assuming mark marks all
@@ -103,22 +104,22 @@ func (p *C) ToCnfFrom(dst inter.Adder, roots ...z.Lit) {
 // marked nodes and the total number of nodes added.  If mark is nil or does
 // not have sufficient capacity, then new storage is created with a copy of
 // mark.
-func (p *C) CnfSince(dst inter.Adder, mark []int8, roots ...z.Lit) ([]int8, int) {
-	if cap(mark) < len(p.nodes) {
-		tmp := make([]int8, (len(p.nodes)*5)/3)
+func (c *C) CnfSince(dst inter.Adder, mark []int8, roots ...z.Lit) ([]int8, int) {
+	if cap(mark) < len(c.nodes) {
+		tmp := make([]int8, (len(c.nodes)*5)/3)
 		copy(tmp, mark)
 		mark = tmp
-	} else if len(mark) < len(p.nodes) {
+	} else if len(mark) < len(c.nodes) {
 		start := len(mark)
-		mark = mark[:len(p.nodes)]
-		for i := start; i < len(p.nodes); i++ {
+		mark = mark[:len(c.nodes)]
+		for i := start; i < len(c.nodes); i++ {
 			mark[i] = 0
 		}
 	}
-	mark = mark[:len(p.nodes)]
+	mark = mark[:len(c.nodes)]
 	ttl := 0
 	if mark[1] != 1 {
-		dst.Add(p.T)
+		dst.Add(c.T)
 		dst.Add(0)
 		mark[1] = 1
 		ttl++
@@ -129,8 +130,8 @@ func (p *C) CnfSince(dst inter.Adder, mark []int8, roots ...z.Lit) ([]int8, int)
 		if mark[v] == 1 {
 			return
 		}
-		n := &p.nodes[v]
-		if n.a == z.LitNull || n.a == p.T || n.a == p.F {
+		n := &c.nodes[v]
+		if n.a == z.LitNull || n.a == c.T || n.a == c.F {
 			mark[v] = 1
 			return
 		}
@@ -171,9 +172,9 @@ func (c *C) At(i int) z.Lit {
 }
 
 // Lit returns a new variable/input to p.
-func (p *C) Lit() z.Lit {
-	m := len(p.nodes)
-	p.newNode()
+func (c *C) Lit() z.Lit {
+	m := len(c.nodes)
+	c.newNode()
 	return z.Var(m).Pos()
 }
 
@@ -289,53 +290,53 @@ func (p *C) And(a, b z.Lit) z.Lit {
 
 // Ands constructs a conjunction of a sequence of literals.
 // If ms is empty, then Ands returns p.T.
-func (p *C) Ands(ms ...z.Lit) z.Lit {
-	a := p.T
+func (c *C) Ands(ms ...z.Lit) z.Lit {
+	a := c.T
 	for _, m := range ms {
-		a = p.And(a, m)
+		a = c.And(a, m)
 	}
 	return a
 }
 
 // Or constructs a literal which is the disjunction of a and b.
-func (p *C) Or(a, b z.Lit) z.Lit {
-	nor := p.And(a.Not(), b.Not())
+func (c *C) Or(a, b z.Lit) z.Lit {
+	nor := c.And(a.Not(), b.Not())
 	return nor.Not()
 }
 
 // Ors constructs a literal which is the disjuntion of the literals in ms.
 // If ms is empty, then Ors returns p.F
-func (p *C) Ors(ms ...z.Lit) z.Lit {
-	d := p.F
+func (c *C) Ors(ms ...z.Lit) z.Lit {
+	d := c.F
 	for _, m := range ms {
-		d = p.Or(d, m)
+		d = c.Or(d, m)
 	}
 	return d
 }
 
 // Implies constructs a literal which is equivalent to (a implies b).
-func (p *C) Implies(a, b z.Lit) z.Lit {
-	return p.Or(a.Not(), b)
+func (c *C) Implies(a, b z.Lit) z.Lit {
+	return c.Or(a.Not(), b)
 }
 
 // Xor constructs a literal which is equivalent to (a xor b).
-func (p *C) Xor(a, b z.Lit) z.Lit {
-	return p.Or(p.And(a, b.Not()), p.And(a.Not(), b))
+func (c *C) Xor(a, b z.Lit) z.Lit {
+	return c.Or(c.And(a, b.Not()), c.And(a.Not(), b))
 }
 
 // Choice constructs a literal which is equivalent to
 //  if i then t else e
-func (p *C) Choice(i, t, e z.Lit) z.Lit {
-	return p.Or(p.And(i, t), p.And(i.Not(), e))
+func (c *C) Choice(i, t, e z.Lit) z.Lit {
+	return c.Or(c.And(i, t), c.And(i.Not(), e))
 }
 
 // Ins returns the children/ operands of m.
 //
 //  If m is an input, then, Ins returns z.LitNull, z.LitNull
 //  If m is an and, then Ins returns the two conjuncts
-func (p *C) Ins(m z.Lit) (z.Lit, z.Lit) {
+func (c *C) Ins(m z.Lit) (z.Lit, z.Lit) {
 	v := m.Var()
-	n := p.nodes[v]
+	n := c.nodes[v]
 	return n.a, n.b
 }
 
@@ -345,13 +346,13 @@ func (c *C) CardSort(ms []z.Lit) *CardSort {
 	return NewCardSort(ms, c)
 }
 
-func (p *C) newNode() (*node, uint32) {
-	if len(p.nodes) == cap(p.nodes) {
-		p.grow()
+func (c *C) newNode() (*node, uint32) {
+	if len(c.nodes) == cap(c.nodes) {
+		c.grow()
 	}
-	id := len(p.nodes)
-	p.nodes = p.nodes[:id+1]
-	return &p.nodes[id], uint32(id)
+	id := len(c.nodes)
+	c.nodes = c.nodes[:id+1]
+	return &c.nodes[id], uint32(id)
 }
 
 func (p *C) grow() {

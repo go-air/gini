@@ -68,6 +68,7 @@ func (c *CardSort) Less(b int) z.Lit {
 	return c.Leq(b - 1)
 }
 
+// Leq implemets Card.Leq.
 func (c *CardSort) Leq(b int) z.Lit {
 	if b >= c.n {
 		return c.c.T
@@ -78,6 +79,7 @@ func (c *CardSort) Leq(b int) z.Lit {
 	return c.ms[(c.n-1)-b].Not()
 }
 
+// Geq implements Card.Geq.
 func (c *CardSort) Geq(b int) z.Lit {
 	if b <= 0 {
 		return c.c.T
@@ -88,6 +90,7 @@ func (c *CardSort) Geq(b int) z.Lit {
 	return c.Leq(b - 1).Not()
 }
 
+// Gr implements Card.Gr.
 func (c *CardSort) Gr(b int) z.Lit {
 	return c.Geq(b + 1)
 }
@@ -101,20 +104,20 @@ func (c *CardSort) N() int {
 	return c.n
 }
 
-func (n *CardSort) sort(l, h int) {
+func (c *CardSort) sort(l, h int) {
 	if h-l <= 1 {
 		return
 	}
 	m := l + (h-l)/2
-	n.sort(l, m)
-	n.sort(m, h)
-	n.merge(l, h, 1)
+	c.sort(l, m)
+	c.sort(m, h)
+	c.merge(l, h, 1)
 }
 
 //
 // odd even merge sort
 //
-func (n *CardSort) merge(l, h, s int) {
+func (c *CardSort) merge(l, h, s int) {
 	if h <= l+s {
 		return
 	}
@@ -122,23 +125,23 @@ func (n *CardSort) merge(l, h, s int) {
 	var ml, mh z.Lit
 	ss := 2 * s
 	if ss >= h-l {
-		ml, mh = n.cas(l, l+s)
-		n.ms[l], n.ms[l+s] = ml, mh
+		ml, mh = c.cas(l, l+s)
+		c.ms[l], c.ms[l+s] = ml, mh
 		return
 	}
-	n.merge(l, h, ss)
-	n.merge(l+s, h, ss)
+	c.merge(l, h, ss)
+	c.merge(l+s, h, ss)
 	lim := h - s
 	for i := l + s; i < lim; i += ss {
-		ml, mh = n.cas(i, i+s)
-		n.ms[i], n.ms[i+s] = ml, mh
+		ml, mh = c.cas(i, i+s)
+		c.ms[i], c.ms[i+s] = ml, mh
 	}
 }
 
 // compare-and-swap (low-high)
-func (n *CardSort) cas(i, j int) (z.Lit, z.Lit) {
-	mi, mj := n.ms[i], n.ms[j]
-	l := n.c.And(mi, mj)
-	h := n.c.Or(mi, mj)
+func (c *CardSort) cas(i, j int) (z.Lit, z.Lit) {
+	mi, mj := c.ms[i], c.ms[j]
+	l := c.c.And(mi, mj)
+	h := c.c.Or(mi, mj)
 	return l, h
 }

@@ -5,7 +5,7 @@ package logic
 
 import "github.com/irifrance/gini/z"
 
-// Type Roll creates an unroller of sequential logic into
+// Roll creates an unroller of sequential logic into
 // combinational logic.
 type Roll struct {
 	S    *S // the sequential circuit
