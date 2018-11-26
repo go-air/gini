@@ -306,8 +306,6 @@ func (s *S) Solve() int {
 
 // Value retrieves the value of the literal m
 func (s *S) Value(m z.Lit) bool {
-	s.rmu.Lock()
-	defer s.rmu.Unlock()
 	return s.Vars.Vals[m] == 1
 }
 
@@ -347,8 +345,6 @@ func (s *S) Value(m z.Lit) bool {
 // If this does not hold, Test panics.
 //
 func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
-	s.lock()
-	defer s.unlock()
 	ns = ms
 	if ns != nil {
 		ns = ns[:0]
@@ -411,8 +407,6 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 //  Assume(A1)
 //  Test()     ->  -1, [] // problem is unsat with A1 under BCP, even though it wasn't before
 func (s *S) Untest() int {
-	s.lock()
-	defer s.unlock()
 	if len(s.testLevels) == 0 {
 		panic("Untest without Test")
 	}
@@ -449,8 +443,6 @@ func (s *S) Untest() int {
 // Test() (without Untest() in between), the result
 // is undefined and may panic.
 func (s *S) Reasons(dst []z.Lit, m z.Lit) []z.Lit {
-	s.lock()
-	defer s.unlock()
 	dst = dst[:0]
 	p := s.Vars.Reasons[m.Var()]
 	if p == CNull {
@@ -499,8 +491,6 @@ func (s *S) ReadStats(st *Stats) {
 
 // Add implements inter.S
 func (s *S) Add(m z.Lit) {
-	//s.lock()
-	//defer s.unlock()
 	s.ensureLitCap(m)
 	if m == z.LitNull {
 		s.ensure0()
@@ -569,8 +559,6 @@ func (s *S) ensure0() {
 // but Solve never forgets/consumes tested assumptions.  Forgetting tested assumptions
 // is accomplished with s.Untest().
 func (s *S) Assume(ms ...z.Lit) {
-	s.lock()
-	defer s.unlock()
 	s.stAssumes += int64(len(ms))
 	s.assumes = append(s.assumes, ms...)
 	for _, m := range ms {
@@ -585,8 +573,6 @@ func (s *S) Who() string {
 
 // MaxVar returns the maximum variable added or assumed.
 func (s *S) MaxVar() z.Var {
-	s.lock()
-	defer s.unlock()
 	return s.Vars.Max
 }
 
@@ -595,8 +581,6 @@ func (s *S) MaxVar() z.Var {
 //
 // If previous call was not unsat, then Why() returns ms
 func (s *S) Why(ms []z.Lit) []z.Lit {
-	s.lock()
-	defer s.unlock()
 	s.failed = ms
 	if s.xLit != z.LitNull {
 		s.failed = append(s.failed, s.xLit)

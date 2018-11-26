@@ -38,12 +38,6 @@ type Adder interface {
 	// add a literal to the clauses.  if m is z.LitNull,
 	// signals end of clause.
 	//
-	// For performance reasons of reading big dimacs files,
-	// Add should not be used unless no other goroutine
-	// is accessing the object implementing adder.  Other
-	// methods may provide safety in the presence of multiple
-	// goroutines.  Add in general does not.
-	//
 	// If the implemation of Add is a solver under a test scope
 	// then Add undoes the test.
 	//
