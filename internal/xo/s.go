@@ -190,6 +190,9 @@ func (s *S) String() string {
 }
 
 func (s *S) Try(dur time.Duration) int {
+	if dur <= 0 {
+		return 0
+	}
 	s.startTime = time.Now()
 	s.deadline = s.startTime.Add(dur)
 	return s.Solve()
