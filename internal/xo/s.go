@@ -635,8 +635,9 @@ func (s *S) cleanupSolve() {
 		drvd := s.Driver.Derive(s.x)
 		if drvd.TargetLevel < s.endTestLevel {
 			trail.Back(s.endTestLevel)
-			s.x = CNull
-			//break
+			trail.Assign(drvd.Unit, drvd.P)
+			s.x = trail.Prop()
+			continue
 		}
 		trail.Back(drvd.TargetLevel)
 		trail.Assign(drvd.Unit, drvd.P)
