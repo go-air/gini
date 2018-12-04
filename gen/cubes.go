@@ -4,8 +4,9 @@
 package gen
 
 import (
-	"github.com/irifrance/gini/z"
 	"math/rand"
+
+	"github.com/irifrance/gini/z"
 )
 
 type RandCuber interface {
@@ -16,13 +17,15 @@ func NewRandCuber(maxSize int, maxVar z.Var) RandCuber {
 	return &cubes{
 		minSize: 1,
 		maxSize: maxSize,
-		maxVar:  maxVar}
+		maxVar:  maxVar,
+		uniq:    make(map[z.Var]struct{}, maxSize)}
 }
 
 type cubes struct {
 	minSize int
 	maxSize int
 	maxVar  z.Var
+	uniq    map[z.Var]struct{}
 }
 
 func (c *cubes) SetMinSize(s int) {
@@ -36,9 +39,16 @@ func (c *cubes) SetMaxSize(s int) {
 func (c *cubes) RandCube(dst []z.Lit) []z.Lit {
 	dst = dst[:0]
 	sz := c.minSize + rand.Intn(c.maxSize-c.minSize+1)
+	for k := range c.uniq {
+		delete(c.uniq, k)
+	}
 	for i := 0; i < sz; i++ {
 		m := z.Lit((rand.Intn(int(c.maxVar))+1)*2 + rand.Intn(2))
+		if _, ok := c.uniq[m.Var()]; ok {
+			continue
+		}
 		dst = append(dst, m)
+		c.uniq[m.Var()] = struct{}{}
 	}
 	return dst
 }
