@@ -302,4 +302,5 @@ func (g *Guess) growToVar(u z.Var) {
 	c := make([]int8, w)
 	copy(c, g.cache)
 	g.cache = c
+	g.heapify()
 }

@@ -44,7 +44,9 @@ func (v *Vars) Set(m z.Lit) {
 func (vars *Vars) String() string {
 	parts := make([]string, 0, vars.Max)
 	for v := z.Var(1); v < vars.Max; v++ {
-		parts = append(parts, fmt.Sprintf("%d %d %s l%d", v, vars.Vals[v.Pos()], vars.Reasons[v], vars.Levels[v]))
+		parts = append(parts,
+			fmt.Sprintf("%d %d %s l%d", v, vars.Vals[v.Pos()], vars.Reasons[v],
+				vars.Levels[v]))
 	}
 	return strings.Join(parts, "\n")
 }

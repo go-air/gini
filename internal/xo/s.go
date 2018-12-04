@@ -289,7 +289,7 @@ func (s *S) Solve() int {
 				log.Println(s.Vars)
 				log.Println(s.Trail)
 
-				log.Printf("%p %p internal error: sat model\n", s, s.control)
+				log.Fatalf("%p %p internal error in solve: sat model\n", s, s.control)
 			}
 			s.stSat++
 			// don't do this, we store the model returned to the user
@@ -348,11 +348,14 @@ func (s *S) Value(m z.Lit) bool {
 // If this does not hold, Test panics.
 //
 func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
+	//fmt.Printf("test\n")
 	ns = ms
 	if ns != nil {
 		ns = ns[:0]
 	}
-	s.cleanupSolve()
+	if x := s.cleanupSolve(); x != CNull {
+		panic("test after unresolved unsat.")
+	}
 	res = 0
 	s.testLevels = append(s.testLevels, s.Trail.Level)
 
@@ -376,7 +379,7 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 			for _, e := range errs {
 				log.Println(e)
 			}
-			log.Fatal("internal error: sat model")
+			log.Fatal("internal error test: sat model")
 		}
 		s.stSat++
 		return 1, ns
@@ -405,7 +408,8 @@ func (s *S) Test(ms []z.Lit) (res int, ns []z.Lit) {
 //  Test()     ->   0, [...]
 //  Solve()    ->  -1 // unsat under A1
 //  Untest()   ->   0
-//  Assume(A2) ->   1  // sat under A2
+//  Assume(A2) ->
+//  Test()     ->   1  // sat under A2
 //  Untest()   ->   0
 //  Assume(A1)
 //  Test()     ->  -1, [] // problem is unsat with A1 under BCP, even though it wasn't before
@@ -414,15 +418,14 @@ func (s *S) Untest() int {
 		panic("Untest without Test")
 	}
 	trail := s.Trail
-	if s.x != CNull {
-		drvd := s.Driver.Derive(s.x)
-		trail.Assign(drvd.Unit, drvd.P)
-		s.x = CNull
-	}
 	lastTestLevel := s.lastTestLevel()
 	s.testLevels = s.testLevels[:len(s.testLevels)-1]
 	s.endTestLevel = lastTestLevel
-	trail.backWithLates(lastTestLevel)
+	if x := s.cleanupSolve(); x != CNull {
+		s.x = x
+		return -1
+	}
+	s.Trail.backWithLates(lastTestLevel)
 	if x := trail.Prop(); x != CNull {
 		s.x = x
 		return -1
@@ -609,7 +612,10 @@ func (s *S) solveInit() int {
 			break
 		}
 	}
-	s.cleanupSolve()
+	if x := s.cleanupSolve(); x != CNull {
+		s.x = x
+		return -1
+	}
 
 	//log.Printf("%s\n", s.Trail)
 	//log.Printf("%s\n", s.Vars)
@@ -625,7 +631,15 @@ func (s *S) solveInit() int {
 	return 0
 }
 
-func (s *S) cleanupSolve() {
+// can fail to clean up if a a unit propagates
+// to a level properly lower than the highest
+// test scope and the highest test scope
+// contains the negation of that unit.  pass
+// this info to caller in the form of return
+// value for placing in s.x, or panicking if
+// it indicates an invalid usage, such as a
+// test after an unresolved unsat.
+func (s *S) cleanupSolve() z.C {
 	trail := s.Trail
 	for s.x != CNull {
 		if s.Cdb.Bot != CNull { // Cdb.Bot is always checked in makeAssumptions, true empty clause.
@@ -635,9 +649,12 @@ func (s *S) cleanupSolve() {
 		drvd := s.Driver.Derive(s.x)
 		if drvd.TargetLevel < s.endTestLevel {
 			trail.Back(s.endTestLevel)
-			trail.Assign(drvd.Unit, drvd.P)
-			s.x = trail.Prop()
-			continue
+			if s.Vars.Levels[drvd.Unit.Var()] == -1 {
+				trail.Assign(drvd.Unit, drvd.P)
+				s.x = trail.Prop()
+				continue
+			}
+			return drvd.P
 		}
 		trail.Back(drvd.TargetLevel)
 		trail.Assign(drvd.Unit, drvd.P)
@@ -646,6 +663,7 @@ func (s *S) cleanupSolve() {
 	trail.Back(s.endTestLevel)
 	s.xLit = z.LitNull
 	s.failed = nil
+	return CNull
 }
 
 func (s *S) lastTestLevel() int {
