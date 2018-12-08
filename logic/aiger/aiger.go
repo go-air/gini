@@ -728,7 +728,6 @@ func (aigrdr *aigerReader) commit(ascii bool) error {
 		if m == z.LitNull {
 			return UndefinedLit
 		}
-		fmt.Printf("mapping output %d to %s\n", u, m)
 		aigrdr.T.Outputs = append(aigrdr.T.Outputs, m)
 	}
 	for _, u := range aigrdr.AigBad {
