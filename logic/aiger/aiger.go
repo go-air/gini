@@ -506,8 +506,9 @@ func ReadBinary(r io.Reader) (*T, error) {
 	aigrdr := makeAigerReader(aiger, hdr)
 	var i uint
 	for i = 0; i < hdr.In; i++ {
+		g := (i + 1) * 2
 		m := aigrdr.S.Lit()
-		aigrdr.mapLit((i+1)*2, m)
+		aigrdr.mapLit(g, m)
 		aigrdr.Inputs = append(aigrdr.Inputs, m)
 	}
 	if err := aigrdr.readLatches(hdr, br, false); err != nil {
@@ -685,7 +686,14 @@ func (abr *aigerReader) mapLit(aigerLit uint, m z.Lit) {
 }
 
 func (abr *aigerReader) litFor(aigerLit uint) z.Lit {
+	if aigerLit < 2 {
+		if aigerLit == 1 {
+			return abr.S.T
+		}
+		return abr.S.F
+	}
 	v := aigerLit >> 1
+
 	rv := abr.varMap[v]
 	if rv == 0 {
 		return z.LitNull
@@ -715,10 +723,12 @@ func (aigrdr *aigerReader) commit(ascii bool) error {
 		aigrdr.SetNext(m, n)
 	}
 	for _, u := range aigrdr.AigOutputs {
+
 		m := aigrdr.litFor(u)
 		if m == z.LitNull {
 			return UndefinedLit
 		}
+		fmt.Printf("mapping output %d to %s\n", u, m)
 		aigrdr.T.Outputs = append(aigrdr.T.Outputs, m)
 	}
 	for _, u := range aigrdr.AigBad {
@@ -785,8 +795,9 @@ func (abr *aigerReader) readLatches(hdr *aigerHeader, br *bufio.Reader, ascii bo
 				return UnexpectedChar
 			}
 		} else {
+			g := (hdr.In + i + 1) * 2
 			m = abr.S.Latch(abr.S.F)
-			abr.mapLit((hdr.In+i+1)*2, m)
+			abr.mapLit(g, m)
 		}
 		nxt, errNxt := readUint(br)
 		if errNxt != nil {
