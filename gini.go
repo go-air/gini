@@ -271,3 +271,9 @@ func (g *Gini) ActivationLit() z.Lit {
 func (g *Gini) Deactivate(m z.Lit) {
 	g.xo.Deactivate(m)
 }
+
+// Write writes the underlying CNF in dimacs format to dst,
+// returning any i/o error which occured in the process.
+func (g *Gini) Write(dst io.Writer) error {
+	return g.xo.Cdb.Write(dst)
+}

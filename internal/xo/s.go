@@ -292,10 +292,7 @@ func (s *S) Solve() int {
 				log.Fatalf("%p %p internal error in solve: sat model\n", s, s.control)
 			}
 			s.stSat++
-			// don't do this, we store the model returned to the user
-			// with regular assignments, and backtrack on next call to
-			// solve instead.
-			//trail.Back(0)
+			//fmt.Printf("vars %s\n", s.Vars)
 			return 1
 		}
 		if u, c, ms := cdb.MaybeCompact(); u != 0 {
@@ -659,6 +656,7 @@ func (s *S) cleanupSolve() z.C {
 		trail.Back(drvd.TargetLevel)
 		trail.Assign(drvd.Unit, drvd.P)
 		s.x = trail.Prop()
+		continue
 	}
 	trail.Back(s.endTestLevel)
 	s.xLit = z.LitNull

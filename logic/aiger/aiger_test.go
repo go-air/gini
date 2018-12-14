@@ -16,7 +16,7 @@ import (
 // note this is 1.9 version: we have MILOABCJF
 var expectedOutput1 = `aag 4 1 1 2 1 0 0 0 0
 2
-4 6 1
+4 6 0
 4
 5
 6 2 4

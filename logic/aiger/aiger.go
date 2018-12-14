@@ -303,9 +303,9 @@ func (a *T) WriteAscii(w io.Writer) error {
 		ini := a.Init(m)
 		switch ini {
 		case a.S.F:
-			bw.WriteString("1\n")
-		case a.S.T:
 			bw.WriteString("0\n")
+		case a.S.T:
+			bw.WriteString("1\n")
 		case z.LitNull:
 			writeLit(bw, m, a.S.T)
 			bw.WriteString("\n")
