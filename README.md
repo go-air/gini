@@ -308,21 +308,3 @@ a CRISP-1.0 client and server.
 
 A command, crispd, is supplied for the CRISP server.
 
-## Commercialisation
-
-Gini is commercialized, for inquiries, contact gini@iri-labs.com.
-
-1. We sell guarantees that the solver will always deliver correct results.
-Note the copyright license makes no guarantees and refuses any claim
-of express or implied warranty, including this one.
-1. We can provide alternative licenses. All standard OSI approved open
-source licenses are available at a basic fixed rate, all other inquiries 
-welcome.
-1. We can help you tune solvers or model problems.  Gini is 
-tuned for general purpose use.  Modelling problems is a large
-field.  For some applications, it is straightforward, for others,
-such as cryptography, it is not.  It takes experience to do it well.
-Often enough Gini (as well as other solvers) will plow through 
-random models in a snap, so we recommend you just try and contact
-us for this service only if things aren't working out.
-1. Although the above are for fee, support is welcome and free.
