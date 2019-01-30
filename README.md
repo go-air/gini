@@ -9,7 +9,7 @@ the first ever performant pure-Go SAT solver made available.
 This solver is fully open source, originally developped at IRI France.
 
 
-# Build/Install
+## Build/Install
 
 For the impatient:
 
@@ -22,7 +22,7 @@ safety threat to client code.  This makes a signficant speed difference (maybe 1
 problems.
 
 
-# The SAT Problem
+## The SAT Problem
 
 The SAT problem is perhaps the most famous NP-complete problem.  As such, SAT
 solvers can be used to try to solve hard problems, such as travelling salesman
@@ -40,7 +40,8 @@ useful.  Readers interested in more depth should consult Wikipedia, or The
 Handbook of Satisfiability, or Donald Knuth's latest volume of The Art of
 Computer Programming.
 
-## CNF
+### CNF
+
 A CNF is a conjunction of clauses
 
     c1 and c2 and ... and cM
@@ -73,15 +74,16 @@ which expresses a set of clauses whose satisfying assignments are
         or
     {-1,-2,-3,-4}
 
-## Models
+### Models
+
 A model of a CNF is a value for each of the variables which makes every clause 
 in the CNF true.  The SAT problem is determining whether or not a model exists
 for a given set of clauses.
 
 
-## Proofs
+### Proofs
 
-### Resolution
+#### Resolution
 
 Resolution is a form of logical reasoning with conjunctions of clauses.  Given
 2 clauses of the form
@@ -114,7 +116,8 @@ even hard problems become tractable.  With up to several tens of millions of
 resolutions happening per second on one modern single core CPU, even problems
 with known exponential bounds on resolution steps can be solved.
 
-# Solving Formulas and Circuits
+## Solving Formulas and Circuits
+
 Gini provides a simple and efficient logic modelling library which supports
 easy construction of arbitrary Boolean formulas.  The library uses and-inverter
 graphs, structural hashing, constant propagation and can be used for
@@ -141,12 +144,14 @@ also contains lots of purely Boolean logic (implicitly or not).
 Most SAT use cases use a front end for modelling arbitrary formulas.  When formats
 are needed for interchange, Gini supports the following.
 
-## Aiger
+### Aiger
+
 Gini supports [aiger version 1.9](http://fmv.jku.at/aiger/) in conjunction
 with its logic library.  The logic.C and logic.S circuit types can be 
 stored, exchanged, read and written in aiger ascii and binary formats.
 
-## Dimacs
+### Dimacs
+
 CNF Dimacs files, which are an ancient widely used format for representing CNF
 formulas.  Dimacs files are usually used for benchmarking solvers, to eliminate
 the formula representation layer.  The fact that the format is more or less
@@ -155,7 +160,8 @@ format, even though there is I/O, CNF translation,  and parsing overhead by
 comparison to using a logic library.
 
 
-# Optimisation
+## Optimisation
+
 With Cardinality constraints, optimisation is easy
 
     import "github.com/irifrance/gini"
@@ -193,7 +199,8 @@ With Cardinality constraints, optimisation is easy
 
     // use the model, if one was found, from s to propose a build
 
-# Activation Literals
+## Activation Literals
+
 Gini supports recycling activation literals with the 
 [Activatable interface](http://godoc.org/github.com/irifrance/gini/inter#Activatable)
 
@@ -206,7 +213,8 @@ and constructing the clauses on the fly.  Activations work underneath test scope
 assumptions, making the interface for Gini perhaps the most flexible available.
 
 
-# Performance
+## Performance
+
 In applications, SAT problems normally have an exponential tail runtime
 distribution with a strong bias towards bigger problems populating the longer
 runtime part of the distribution.  So in practice, a good rule of thumb is 1 in
@@ -239,7 +247,8 @@ but we are confident Gini's core solver is a well positioned alternative to stan
 high-performance CDCL solvers in C/C++.  We encourage you to give it a try and welcome
 any comparisons.
 
-## Benchmarking
+### Benchmarking
+
 To that end, gini comes with a nifty SAT solver benchmarking tool which allows
 to easily select benchmarks into a "bench" format, which is just a particular
 structure of directories and files.  The tool can then also run solvers 
@@ -254,21 +263,24 @@ software (SMT, CPLEX, etc) where runtimes vary and are unpredictable and
 potentially high.  If you do so, please follow the license or ask for
 alternatives.
 
-# Concurrency
+## Concurrency
+
 Gini is written in Go and uses several goroutines by default for garbage
 collection and system call scheduling.  There is a "core" single-goroutine
 solver, xo, which is in an internal package for gutsy low level SAT hackers. 
 
-## Connections to solving processes
+### Connections to solving processes
+
 Gini provides safe connections to solving processes which are guaranteed to not
 lose any solution found, can pause and resume, run with a timeout, test without
 solving, etc.
 
-## Solve-time copyable solvers.
+### Solve-time copyable solvers.
+
 Gini provides copyable solvers, which can be safely copied *at solvetime during
 a pause*.
 
-## Ax
+### Ax
 Gini provides an "Assumption eXchange" package for deploying solves
 under different sets of assumptions to the same set of underlying constraints
 in parallel. This can give linear speed up in tasks, such as PDR/IC3, which 
@@ -277,7 +289,7 @@ generate lots of assumptions.
 We hope to extend this with clause sharing soon, which would give 
 superlinear speedup according to the literature.
 
-# Distributed and CRISP
+## Distributed and CRISP
 
 Gini provides a definition and reference implementation for
 [CRISP-1.0](https://github.com/irifrance/gini/blob/master/doc/crisp/crisp.pdf),
@@ -307,4 +319,9 @@ The CRISP protocol provides a basis for distributed solving.  Gini implements
 a CRISP-1.0 client and server.  
 
 A command, crispd, is supplied for the CRISP server.
+
+## Citing Gini
+
+[![DOI](https://zenodo.org/badge/64034957.svg)](https://zenodo.org/badge/latestdoi/64034957)
+
 
