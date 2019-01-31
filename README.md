@@ -322,6 +322,18 @@ A command, crispd, is supplied for the CRISP server.
 
 ## Citing Gini
 
+Zenodo DOI based citations and download:
 [![DOI](https://zenodo.org/badge/64034957.svg)](https://zenodo.org/badge/latestdoi/64034957)
 
+BibText:
+```
+@misc{scott_cotton_2019_2553490,
+  author       = {Scott  Cotton},
+  title        = {irifrance/gini: Sapeur},
+  month        = jan,
+  year         = 2019,
+  doi          = {10.5281/zenodo.2553490},
+  url          = {https://doi.org/10.5281/zenodo.2553490}
+}
+```
 
