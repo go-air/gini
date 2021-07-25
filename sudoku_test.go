@@ -20,7 +20,7 @@ func Example_sudoku() {
 		return z.Var(n + 1).Pos()
 	}
 
-	// every position has a number
+	// add a clause stating that every position on the board has a number
 	for row := 0; row < 9; row++ {
 		for col := 0; col < 9; col++ {
 			for n := 0; n < 9; n++ {
@@ -60,8 +60,13 @@ func Example_sudoku() {
 			}
 		}
 	}
+
+	// function adding constraints stating that every box on the board
+	// rooted at x, y has unique numbers
 	var box = func(x, y int) {
+		// all offsets w.r.t. root x,y
 		offs := []struct{ x, y int }{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}}
+		// all numbers
 		for n := 0; n < 9; n++ {
 			for i, offA := range offs {
 				a := lit(x+offA.x, y+offA.y, n)
