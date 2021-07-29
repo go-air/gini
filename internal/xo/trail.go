@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini/z"
 )
 
 type late struct {

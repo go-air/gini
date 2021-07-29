@@ -1,1 +1,3 @@
-module github.com/irifrance/gini
+module github.com/go-air/gini
+
+go 1.16

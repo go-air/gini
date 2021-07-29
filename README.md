@@ -3,7 +3,7 @@
 The Gini sat solver is a fast, clean SAT solver written in Go. It is to our knowledge
 the first ever performant pure-Go SAT solver made available.
 
-| [![Build Status](https://travis-ci.org/irifrance/gini.svg?branch=master)](https://travis-ci.org/irifrance/gini) | [![GoDoc](https://godoc.org/github.com/irifrance/gini?status.svg)](https://godoc.org/github.com/irifrance/gini) | [Google Group](https://groups.google.com/d/forum/ginisat) |
+| [![Build Status](https://travis-ci.org/go-air/gini.svg?branch=master)](https://travis-ci.org/go-air/gini) | [![GoDoc](https://godoc.org/github.com/go-air/gini?status.svg)](https://godoc.org/github.com/go-air/gini) | [Google Group](https://groups.google.com/d/forum/ginisat) |
 ------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 This solver is fully open source, originally developped at IRI France.
@@ -13,9 +13,9 @@ This solver is fully open source, originally developped at IRI France.
 
 For the impatient:
 
-    go get github.com/irifrance/gini...
+    go get github.com/go-air/gini...
 
-I recommend however building the package github.com/irifrance/gini/internal/xo with bounds checking
+I recommend however building the package github.com/go-air/gini/internal/xo with bounds checking
 turned off.  This package is all about anything-goes performance and is the workhorse behind most of
 the gini sat solver.  It is also extensively tested and well benchmarked, so it should not pose any
 safety threat to client code.  This makes a signficant speed difference (maybe 10%) on long running
@@ -164,8 +164,8 @@ comparison to using a logic library.
 
 With Cardinality constraints, optimisation is easy
 
-    import "github.com/irifrance/gini"
-    import "github.com/irifrance/gini/logic"
+    import "github.com/go-air/gini"
+    import "github.com/go-air/gini/logic"
 
     c := logic.NewC()
 
@@ -173,7 +173,7 @@ With Cardinality constraints, optimisation is easy
     // suppose we encode package constraints for a module in the circuit c
     // and we have a slice S of dependent packages P each of which has an attribute
     // P.needsRepl which indicates whether or not it needs to be replaced (of type
-    // github.com/irifrance/gini/z.Lit)
+    // github.com/go-air/gini/z.Lit)
 
     repls := make([]z.Lit, 0, 1<<23)
     for _, p := range pkgs {
@@ -202,7 +202,7 @@ With Cardinality constraints, optimisation is easy
 ## Activation Literals
 
 Gini supports recycling activation literals with the 
-[Activatable interface](http://godoc.org/github.com/irifrance/gini/inter#Activatable)
+[Activatable interface](http://godoc.org/github.com/go-air/gini/inter#Activatable)
 
 Even without recycling, activation literals provide an easy way to solve MAXSAT problems:
 just activate each clause, use a cardinality constraint on the activation literals,
@@ -292,7 +292,7 @@ superlinear speedup according to the literature.
 ## Distributed and CRISP
 
 Gini provides a definition and reference implementation for
-[CRISP-1.0](https://github.com/irifrance/gini/blob/master/doc/crisp/crisp.pdf),
+[CRISP-1.0](https://github.com/go-air/gini/blob/master/doc/crisp/crisp.pdf),
 the compressed incremental SAT protocol.  The protocol is a client-server wire
 protocol which can dispatch an incremental sat solver with very little overhead
 as compared to direct API calls.  The advantage of using a protocol is that it
@@ -329,7 +329,7 @@ BibText:
 ```
 @misc{scott_cotton_2019_2553490,
   author       = {Scott  Cotton},
-  title        = {irifrance/gini: Sapeur},
+  title        = {go-air/gini: Sapeur},
   month        = jan,
   year         = 2019,
   doi          = {10.5281/zenodo.2553490},

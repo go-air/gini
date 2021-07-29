@@ -5,11 +5,12 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/gen"
 	"log"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/go-air/gini/gen"
 )
 
 func TestSolveTest(t *testing.T) {

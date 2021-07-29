@@ -7,10 +7,10 @@ import (
 	"io"
 	"time"
 
-	"github.com/irifrance/gini/dimacs"
-	"github.com/irifrance/gini/inter"
-	"github.com/irifrance/gini/internal/xo"
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini/dimacs"
+	"github.com/go-air/gini/inter"
+	"github.com/go-air/gini/internal/xo"
+	"github.com/go-air/gini/z"
 )
 
 // Gini is a concrete implementation of solver

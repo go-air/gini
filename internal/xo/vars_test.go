@@ -4,8 +4,9 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/z"
 	"testing"
+
+	"github.com/go-air/gini/z"
 )
 
 var littleLits = [...]z.Lit{

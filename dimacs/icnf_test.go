@@ -6,8 +6,9 @@ package dimacs
 import (
 	"bytes"
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"testing"
+
+	"github.com/go-air/gini/z"
 )
 
 var iCnf = `p inccnf

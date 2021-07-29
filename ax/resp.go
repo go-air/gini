@@ -4,8 +4,9 @@
 package ax
 
 import (
-	"github.com/irifrance/gini/z"
 	"time"
+
+	"github.com/go-air/gini/z"
 )
 
 // Type Response describes the result of an ax Request.

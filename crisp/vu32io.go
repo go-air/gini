@@ -5,8 +5,9 @@ package crisp
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"io"
+
+	"github.com/go-air/gini/z"
 )
 
 // This file implements varint encoding/decoding + buffered io

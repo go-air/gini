@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/irifrance/gini/bench"
+	"github.com/go-air/gini/bench"
 )
 
 var selFlags = flag.NewFlagSet("sel", flag.ExitOnError)

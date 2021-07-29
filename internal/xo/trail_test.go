@@ -7,8 +7,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/irifrance/gini/gen"
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini/gen"
+	"github.com/go-air/gini/z"
 )
 
 func TestTrailBack(t *testing.T) {

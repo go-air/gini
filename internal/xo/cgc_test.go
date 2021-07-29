@@ -5,10 +5,11 @@ package xo
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
+	"math/rand"
 	"testing"
+
+	"github.com/go-air/gini/z"
 )
-import "math/rand"
 
 // nb var cnfDat from clauses_test.go
 

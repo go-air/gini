@@ -3,7 +3,7 @@
 
 package dimacs
 
-import "github.com/irifrance/gini/z"
+import "github.com/go-air/gini/z"
 
 // Type Vis provides a visitor interface to reading dimacs files.
 //

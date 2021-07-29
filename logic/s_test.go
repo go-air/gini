@@ -4,8 +4,9 @@
 package logic_test
 
 import (
-	"github.com/irifrance/gini/logic"
 	"testing"
+
+	"github.com/go-air/gini/logic"
 )
 
 func TestS(t *testing.T) {

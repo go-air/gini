@@ -5,13 +5,14 @@ package ax
 
 import (
 	"fmt"
-	"github.com/irifrance/gini"
-	"github.com/irifrance/gini/gen"
-	"github.com/irifrance/gini/z"
 	"log"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/go-air/gini"
+	"github.com/go-air/gini/gen"
+	"github.com/go-air/gini/z"
 )
 
 func ExampleNewT() {

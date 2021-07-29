@@ -7,8 +7,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/irifrance/gini"
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini"
+	"github.com/go-air/gini/z"
 )
 
 func TestCardSort(t *testing.T) {

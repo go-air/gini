@@ -4,8 +4,9 @@
 package crisp
 
 import (
-	"github.com/irifrance/gini/inter/net"
 	"testing"
+
+	"github.com/go-air/gini/inter/net"
 )
 
 func TestClient(t *testing.T) {

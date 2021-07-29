@@ -3,7 +3,7 @@
 
 package xo
 
-import "github.com/irifrance/gini/z"
+import "github.com/go-air/gini/z"
 
 const (
 	CNull z.C = 0

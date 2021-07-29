@@ -5,9 +5,10 @@ package ax
 
 import (
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"sync"
 	"time"
+
+	"github.com/go-air/gini/z"
 )
 
 // Type ReqFlag describes options for submitting requests

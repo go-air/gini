@@ -1,6 +1,6 @@
 package xo
 
-import "github.com/irifrance/gini/z"
+import "github.com/go-air/gini/z"
 
 type phases z.Var
 

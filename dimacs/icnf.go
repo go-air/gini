@@ -6,8 +6,9 @@ package dimacs
 import (
 	"bufio"
 	"fmt"
-	"github.com/irifrance/gini/z"
 	"io"
+
+	"github.com/go-air/gini/z"
 )
 
 type iCnfReader struct {

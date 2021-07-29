@@ -3,8 +3,8 @@ package gini_test
 import (
 	"fmt"
 
-	"github.com/irifrance/gini"
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini"
+	"github.com/go-air/gini/z"
 )
 
 func Example_sudoku() {

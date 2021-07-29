@@ -1,7 +1,7 @@
 package xo
 
 import (
-	"github.com/irifrance/gini/z"
+	"github.com/go-air/gini/z"
 )
 
 type Active struct {

@@ -6,10 +6,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/irifrance/gini/crisp"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/go-air/gini/crisp"
 )
 
 var CrispD *crisp.Server

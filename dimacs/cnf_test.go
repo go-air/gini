@@ -5,8 +5,9 @@ package dimacs
 
 import (
 	"bytes"
-	"github.com/irifrance/gini/z"
 	"testing"
+
+	"github.com/go-air/gini/z"
 )
 
 type dimacsTestData struct {
