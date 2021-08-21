@@ -176,7 +176,7 @@ superlinear speedup according to the literature.
 ## Distributed and CRISP
 
 Gini provides a definition and reference implementation for
-[CRISP-1.0](https://github.com/go-air/gini/blob/master/doc/crisp/crisp.pdf),
+[CRISP-1.0](https://github.com/go-air/gini/blob/master/docs/crisp/crisp.pdf),
 the compressed incremental SAT protocol.  The protocol is a client-server wire
 protocol which can dispatch an incremental sat solver with very little overhead
 as compared to direct API calls.  The advantage of using a protocol is that it
