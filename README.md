@@ -28,7 +28,7 @@ problems.
 
 ## Usage
 
-Our manual shows how to solve SAT problems, circuits, do Boolean optimisation,
+Our [user guide](docs/manual.md) shows how to solve SAT problems, circuits, do Boolean optimisation,
 use concurrency, using our distributed CRISP protocol, and more.
 
 
