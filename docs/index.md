@@ -20,4 +20,8 @@ For the impatient:
 
 ## Features
 
+Our [User guide](manual.md) gives an overview of Gini's features.
+
+
+
 
