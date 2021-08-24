@@ -266,7 +266,7 @@ func (p *C) And(a, b z.Lit) z.Lit {
 		return b
 	}
 	c := strashCode(a, b)
-	l := uint32(cap(p.nodes))
+	l := uint32(cap(p.nodes) - 1)
 	i := c % l
 	si := p.strash[i]
 	for {
@@ -282,7 +282,7 @@ func (p *C) And(a, b z.Lit) z.Lit {
 	m, j := p.newNode()
 	m.a = a
 	m.b = b
-	k := c % uint32(cap(p.nodes))
+	k := c % uint32(cap(p.nodes) - 1)
 	m.n = p.strash[k]
 	p.strash[k] = j
 	return z.Var(j).Pos()
@@ -367,7 +367,7 @@ func (p *C) grow() {
 			continue
 		}
 		c := strashCode(n.a, n.b)
-		j := c % ucap
+		j := c % (ucap - 1)
 		n.n = strash[j]
 		strash[j] = uint32(i)
 	}
