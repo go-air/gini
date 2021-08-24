@@ -14,7 +14,7 @@ This solver is fully open source, originally developped at IRI France.
 
 For the impatient:
 
-    go get github.com/go-air/gini/...
+    go install github.com/go-air/gini/...@latest
 
 I recommend however building the package github.com/go-air/gini/internal/xo with bounds checking
 turned off.  This package is all about anything-goes performance and is the workhorse behind most of
