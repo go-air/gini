@@ -2,10 +2,17 @@ package gini_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/go-air/gini"
 	"github.com/go-air/gini/z"
 )
+
+func BenchmarkSudoku(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Example_sudoku()
+	}
+}
 
 func Example_sudoku() {
 	g := gini.New()
