@@ -375,6 +375,15 @@ func (p *C) grow() {
 	p.strash = strash
 }
 
+// this is sortof fnv-1a, but we do not do it byte wise
+// instead lit-wise (which is 4x wider) and there is no offset.
+// It gives the fewest collisions of the hashes we tried.
+//
+// A close 2nd was b * ^(a<<13), as a is smaller than b
+// we have fewer/cheaper operations and only marginally
+// more collisions.  It was actually faster than the above,
+// the increase of collisions was compensated for by
+// faster computation (less multiplies).
 func strashCode(a, b z.Lit) uint32 {
-	return uint32(^(a << 13) * b)
+	return 16777619 * ^uint32(b) * 16777619 * ^uint32(a)
 }
