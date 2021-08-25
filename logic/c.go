@@ -375,6 +375,8 @@ func (p *C) grow() {
 	p.strash = strash
 }
 
-func strashCode(a, b z.Lit) uint32 {
+var strashCode = strasher
+
+func strasher(a, b z.Lit) uint32 {
 	return uint32(^(a << 13) * b)
 }
