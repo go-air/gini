@@ -376,5 +376,5 @@ func (p *C) grow() {
 }
 
 func strashCode(a, b z.Lit) uint32 {
-	return uint32((a << 13) * b)
+	return uint32(^(a << 13) * b)
 }

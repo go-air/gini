@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/go-air/gini"
+	"github.com/go-air/gini/gen"
 	"github.com/go-air/gini/logic"
 	"github.com/go-air/gini/z"
 )
@@ -148,4 +149,34 @@ func ExampleC_equiv() {
 		fmt.Printf("unsat\n")
 	}
 	//Output: unsat
+}
+
+type cAdder struct {
+	c   *logic.C
+	f   z.Lit
+	buf []z.Lit
+}
+
+func (a *cAdder) Add(m z.Lit) {
+	if m != z.LitNull {
+		a.buf = append(a.buf, m)
+		return
+	}
+	clause := a.c.F
+	for _, m := range a.buf {
+		clause = a.c.Or(clause, m)
+	}
+	a.buf = a.buf[:0]
+	a.f = a.c.And(a.f, clause)
+}
+
+func BenchmarkStrash(b *testing.B) {
+
+	for i := 0; i < b.N; i++ {
+		circuit := logic.NewC()
+		ca := &cAdder{
+			c: circuit,
+			f: circuit.T}
+		gen.Rand3Cnf(ca, 100, 300)
+	}
 }
