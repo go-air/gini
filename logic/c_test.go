@@ -1,9 +1,9 @@
 // Copyright 2016 The Gini Authors. All rights reserved.  Use of this source
 // code is governed by a license that can be found in the License file.
 
-package logic_test
+package logic
 
-import (
+import(
 	"fmt"
 	"log"
 	"math/rand"
@@ -11,12 +11,11 @@ import (
 
 	"github.com/go-air/gini"
 	"github.com/go-air/gini/gen"
-	"github.com/go-air/gini/logic"
 	"github.com/go-air/gini/z"
 )
 
 func TestCGrowStrash(t *testing.T) {
-	c := logic.NewC()
+	c := NewC()
 	N := 1020
 	ins := make([]z.Lit, 0, N)
 	for i := 0; i < N; i++ {
@@ -46,7 +45,7 @@ type op struct {
 }
 
 func TestCLogic(t *testing.T) {
-	c := logic.NewC()
+	c := NewC()
 	a := c.Lit()
 	b := c.Lit()
 	ops := []op{
@@ -79,7 +78,7 @@ func TestCLogic(t *testing.T) {
 }
 
 func TestEval(t *testing.T) {
-	c := logic.NewC()
+	c := NewC()
 	a, b := c.Lit(), c.Lit()
 	g := c.And(a, b)
 	_ = g
@@ -101,7 +100,7 @@ func TestEval(t *testing.T) {
 var rnd = rand.New(rand.NewSource(1))
 
 func TestEval64(t *testing.T) {
-	c := logic.NewC()
+	c := NewC()
 	a, b := c.Lit(), c.Lit()
 	c.And(a, b)
 	vs := make([]uint64, 5)
@@ -123,7 +122,7 @@ func TestEval64(t *testing.T) {
 }
 
 func ExampleC_equiv() {
-	L := logic.NewC()
+	L := NewC()
 	a, b, c := L.Lit(), L.Lit(), L.Lit()
 	c1 := L.Ors(a, b, c)
 	c2 := L.Ors(a, b, c.Not())
@@ -152,7 +151,7 @@ func ExampleC_equiv() {
 }
 
 type cAdder struct {
-	c   *logic.C
+	c   *C
 	f   z.Lit
 	buf []z.Lit
 }
@@ -171,9 +170,8 @@ func (a *cAdder) Add(m z.Lit) {
 }
 
 func BenchmarkStrash(b *testing.B) {
-
 	for i := 0; i < b.N; i++ {
-		circuit := logic.NewC()
+		circuit := NewC()
 		ca := &cAdder{
 			c: circuit,
 			f: circuit.T}
