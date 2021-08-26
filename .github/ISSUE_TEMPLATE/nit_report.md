@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the nit**
-A clear and concise description of what the bug is.
+A clear and concise description of what is irritating.
 
 **Suggested improvement**
 How can we make this better?
