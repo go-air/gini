@@ -1,0 +1,27 @@
+# This file contains the authors of gini
+#
+# Each line should be in the form
+#
+#  [Organization] Name <email> <email> <email>
+# 
+# Individuals whose contributions are their own intellectual property
+# should specify
+# 
+#  [-]
+# 
+# for Organisation.
+#
+# Organisations may have their own line without associated individuals.
+#
+# For example
+#
+#  [ABC Corp]
+#  [Google, Inc] John Doe <johndoe@google.com>
+#  [-] Scott Cotton <scott@mindowl.com> <wsc@mindowl.com>
+
+# Please keep this file sorted.
+
+[-] Scott Cotton <scott@mindowl.com>
+
+
+
