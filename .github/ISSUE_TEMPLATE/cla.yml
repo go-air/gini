@@ -23,7 +23,7 @@ body:
       placeholder: ex. Deep Code
     validations:
       required: true
-  - type: emails
+  - type: input
     id: emails
     attributes:
       label: Email(s)
