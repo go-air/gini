@@ -1,7 +1,7 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
+about: Report a problem or defect to help us improve
+title: '[bug]'
 labels: bug
 assignees: ''
 
@@ -11,13 +11,14 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Don't forgot version and platform info.
+Steps to reproduce the behavior (including version, environment)
+
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Observed behaviour**
+**Observed behavior**
+
 
 **Additional context**
-
 Add any other context about the problem here.
