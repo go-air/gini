@@ -1,0 +1,33 @@
+name: Copyright Agreement
+description: Agree to grant copyright to AUTHORS for submissions.
+title: "[cla]: "
+labels: [cla]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: What is your name?
+      placeholder: ex. Jane Doe
+    validations:
+      required: true
+  - type: input
+    id: org
+    attributes:
+      label: Organisation
+      description: Your organisation ('-' if independent).
+      placeholder: ex. Deep Code
+    validations:
+      required: true
+  - type: emails
+    id: emails
+    attributes:
+      label: Email(s)
+      description: Your email addresses (separated by a space)
+      placeholder: ex. <scott@mindowl.com>
+    validations:
+      required: true
